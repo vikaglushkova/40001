@@ -2,6 +2,6 @@
 
 int main()
 {
-	std::cout << "vasileva.polina\n";
-	return 0;
+    std::cout << "vasileva.polina\n";
+    return 0;
 }
