@@ -9,7 +9,7 @@ int main() {
     std::cout << "Ready" << std::endl;
     while (true) {
         std::getline(std::cin, line);
-        if (line == "END") { 
+        if (line == "END") {
             break;
         }
         DataStruct data;
