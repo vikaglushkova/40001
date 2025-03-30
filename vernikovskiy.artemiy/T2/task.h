@@ -63,9 +63,8 @@ bool parseDataStruct(const std::string& input, DataStruct& data) {
             } else {
                 return false;
             }
-        } else {
+        } else
             return false;
-        }
     }
 
     return true;
