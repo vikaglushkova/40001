@@ -410,3 +410,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Users' Makediles
+vernikovskiy.artemiy/*/Makefile
+
+# Users' compiled task and other garbage
+vernikovskiy.artemiy/*/app
+vernikovskiy.artemiy/*/main.o
