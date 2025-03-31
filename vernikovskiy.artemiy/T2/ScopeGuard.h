@@ -2,6 +2,10 @@
 #define SCOPE_GUARD_H
 
 class StreamGuard {
+private:
+    std::basic_ios<char> &s_;
+    std::streamsize precision_;
+    std::basic_ios<char>::fmtflags flags_;
 public:
     StreamGuard(std::basic_ios<char> &s) :
         s_(s),
@@ -12,10 +16,7 @@ public:
         s_.precision(precision_);
         s_.flags(flags_);
     }
-private:
-    std::basic_ios<char> &s_;
-    std::streamsize precision_;
-    std::basic_ios<char>::fmtflags flags_;
+
 };
 
 
