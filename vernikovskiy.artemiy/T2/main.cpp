@@ -12,9 +12,9 @@ int main() {
         if (line == "END") {
             break;
         }
-        
+
         std::cout << "Read: " << line << std::endl;
-        
+
         DataStruct data;
         if (parseDataStruct(line, data)) {
             dataVec.push_back(data);
