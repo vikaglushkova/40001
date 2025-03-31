@@ -27,47 +27,73 @@ std::vector<std::string> splitString(const std::string& str, char delimiter) {
     return tokens;
 }
 
+// (:key1 1.0000000000e+01:key2 'c':key3 "D a t a'":)
+// (:key1 -1.23:key3 "doomsday":key2 ' ':)
+
 
 bool parseDataStruct(const std::string& input, DataStruct& data) {
+    bool flag1 = false;
+    bool flag2 = false;
+    bool flag3 = false;
+
     if (input.empty())
         return false;
 
-    std::vector<std::string> tokens = splitString(input, ':');
+    std::string tmp;
+    auto it = input.begin();
 
-    if (tokens.size() != 5)
-        return false;
-
-    for (size_t i = 1; i < tokens.size() - 1; i++) {
-        std::vector<std::string> tmp = splitString(tokens[i], ' ');
-
-        if (tmp.size() < 2) {
-            return false;
+    while (it != input.end()) {
+        if (*it == '(' || *it == ')' || *it == ':') {
+            ++it;
+            continue;
         }
 
+        tmp.clear();
+        while (it != input.end() && *it != '(' && *it != ')' && *it != ':' && *it != '\'' && *it != '"' && *it != ' ') {
+            tmp += *it++;
+        }
 
-        if (tmp[0] == "key1") {
+        
+        if (tmp == "key1") {
+            if (flag1) return false;
+            it += 1;
+            tmp.clear();
+            while (it != input.end() && *it != ':') {
+                tmp += *it++;
+            }
             try {
-                data.key1 = std::stod(tmp[1]);
+                data.key1 = std::stod(tmp);
             } catch (...) {
                 return false;
             }
-        } else if (tmp[0] == "key2") {
-            if (tmp[1].size() == 3 && tmp[1][0] == '\'' && tmp[1][2] == '\'') {
-                data.key2 = static_cast<char>(tmp[1][1]);
-            } else {
-                return false;
+            flag1 = true;
+        } else if (tmp == "key2") {
+            if (flag2) return false;
+            it += 2;
+            tmp.clear();
+            while (it != input.end() && *it != '\'') {
+                tmp += *it++;
             }
-        } else if (tmp[0] == "key3") {
-            if (tmp[1].size() >= 2 && tmp[1][0] == '\"' && tmp[1][tmp[1].size() - 1] == '\"') {
-                data.key3 = tmp[1].substr(1, tmp[1].size() - 2);
-            } else {
-                return false;
+            if (tmp.size() != 1) return false;
+            data.key2 = static_cast<char>(tmp[0]);
+            flag2 = true;
+            ++it;
+        } else if (tmp == "key3") {
+            if (flag3) return false;
+            it += 2;
+            tmp.clear();
+            
+            while (it != input.end() && *it != '"') {
+                tmp += *it++;
             }
-        } else
-            return false;
+            
+            data.key3 = tmp;
+            flag3 = true;
+            ++it;
+        }
     }
 
-    return true;
+    return (flag1 && flag2 && flag3);
 }
 
 
