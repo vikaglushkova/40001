@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <iterator>
+#include <ScopeGuard.h>
 
 
 struct DataStruct {
@@ -53,7 +54,7 @@ bool parseDataStruct(const std::string& input, DataStruct& data) {
             tmp += *it++;
         }
 
-        
+
         if (tmp == "key1") {
             if (flag1) return false;
             it += 1;
@@ -82,11 +83,11 @@ bool parseDataStruct(const std::string& input, DataStruct& data) {
             if (flag3) return false;
             it += 2;
             tmp.clear();
-            
+
             while (it != input.end() && *it != '"') {
                 tmp += *it++;
             }
-            
+
             data.key3 = tmp;
             flag3 = true;
             ++it;
@@ -108,10 +109,14 @@ bool compareDataStruct(const DataStruct& a, const DataStruct& b) {
 }
 
 
-std::ostream& operator<<(std::ostream& os, const DataStruct& data) {
-    os << "(:key1 " << std::scientific << std::setprecision(10) << data.key1 << ":"
-       << "key2 '" << data.key2 << "':"
-       << "key3 \"" << data.key3 << "\":)";
+std::ostream & operator<<(std::ostream& os, const DataStruct& data) {
+    std::ostream::sentry sentry(os);
+    if (sentry) {
+        StreamGuard guard(os);
+        os << "(:key1 " << std::scientific << std::setprecision(10) << data.key1 << ":"
+            << "key2 '" << data.key2 << "':"
+            << "key3 \"" << data.key3 << "\":)";
+    }
     return os;
 }
 
