@@ -10,11 +10,6 @@ int main() {
     std::vector<DataStruct> dataVec;
     std::string line;
 
-    for (int i = 0; i < 10; i++)
-        std::cout << generateValidRandomPrompt() << std::endl;
-
-    std::cout << "Ready" << std::endl;
-
     DataStruct data;
     while (!std::cin.eof()) {
         std::cin.clear();
