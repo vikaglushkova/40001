@@ -1,29 +1,26 @@
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
 #include "task.h"
-// #include "tests.h"
+#include "tests.h"
 
 
 int main() {
     std::vector<DataStruct> dataVec;
     std::string line;
 
+    for (int i = 0; i < 10; i++)
+        std::cout << generateValidRandomPrompt() << std::endl;
+
     std::cout << "Ready" << std::endl;
-    while (true) {
-        std::getline(std::cin, line);
-        if (line == "END") {
-            break;
-        }
 
-        std::cout << "Read: " << line << std::endl;
-
-        DataStruct data;
-        if (parseDataStruct(line, data)) {
+    DataStruct data;
+    while (!std::cin.eof()) {
+        std::cin.clear();
+        if (std::cin >> data)
             dataVec.push_back(data);
-        }
-        else
-        {
-            std::cout << "wrong format" << std::endl;
-        }
+
     }
 
 
