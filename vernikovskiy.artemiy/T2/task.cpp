@@ -28,7 +28,7 @@ bool parseDataStruct(const std::string& input, DataStruct& data) {
             ++it;
             continue;
         }
-        
+
 
         tmp.clear();
         while (it != input.end() && *it != '(' && *it != ')' && *it != ':' && *it != '\'' && *it != '"' && *it != ' ') {
