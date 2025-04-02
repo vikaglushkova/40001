@@ -122,7 +122,7 @@ std::istream & operator>>(std::istream& is, DataStruct& data) {
         return is;
 
     if (!parseDataStruct(input, data)) {
-        std::cerr << "wrong data" << "\n";
+        std::cerr << "Looks like there is no supported record. Cannot determine input. Test skipped" << "\n";
         is.setstate(std::ios::failbit);
     }
 
