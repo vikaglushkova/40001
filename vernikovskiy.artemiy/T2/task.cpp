@@ -108,7 +108,7 @@ std::ostream & operator<<(std::ostream& os, const DataStruct& data) {
 std::istream & operator>>(std::istream& is, DataStruct& data) {
     std::string input;
 
-//    std::copy(std::istream_iterator<char>(is), std::istream_iterator<char>(), 
+//    std::copy(std::istream_iterator<char>(is), std::istream_iterator<char>(),
 //      std::back_inserter(input));
 //    It drove me crazy
 //    for (auto it = start; it != end || *it != '\n'; it++)
