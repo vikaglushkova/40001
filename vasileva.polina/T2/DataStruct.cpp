@@ -52,7 +52,9 @@ namespace nspace
 
     std::istream& operator>>(std::istream& in, ULLLitIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) return in;
+        if (!sentry) {
+            return in;
+        }
 
         std::string numStr;
         char c;
@@ -132,7 +134,9 @@ namespace nspace
             }
         }
 
-        if (in) { dest = temp; }
+        if (in) { 
+            dest = temp; 
+        }
         return in;
     }
 
@@ -148,5 +152,14 @@ namespace nspace
         return out;
     }
 
+    bool compareDataStruct(const DataStruct& a, const DataStruct& b) {
+        if (a.key1 != b.key1) {
+            return a.key1 < b.key1;
+        }
+        if (a.key2 != b.key2) {
+            return a.key2 < b.key2;
+        }
+        return a.key3.length() < b.key3.length();
+    }
 
 }

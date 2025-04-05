@@ -10,6 +10,7 @@ namespace nspace
         unsigned long long key2;
         std::string key3;
     };
+    bool compareDataStruct(const DataStruct& a, const DataStruct& b);
 
     struct DelimiterIO
     {
@@ -42,5 +43,7 @@ namespace nspace
     std::istream& operator>>(std::istream& in, LabelIO&& dest);
     std::istream& operator>>(std::istream& in, DataStruct& dest);
     std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
+
+
 }
 #endif
