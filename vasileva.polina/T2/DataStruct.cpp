@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 
-
 namespace nspace
 {
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
@@ -134,8 +133,8 @@ namespace nspace
             }
         }
 
-        if (in) { 
-            dest = temp; 
+        if (in) {
+            dest = temp;
         }
         return in;
     }
@@ -161,5 +160,4 @@ namespace nspace
         }
         return a.key3.length() < b.key3.length();
     }
-
 }
