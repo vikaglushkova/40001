@@ -71,17 +71,17 @@ std::istream& operator>>(std::istream& in, DataStruct& dest) {
     using ullHex = ULLHexIO;
     using cmp = ComplexIO;
     using str = StringIO;
-    std::string iKey = "";
+    std::string key = "";
     in >> sep{ '(' } >> sep{ ':' };
     for (int i = 0; i < 3; i++) {
-        in >> iKey;
-        if (iKey == "key1") {
+        in >> key;
+        if (key == "key1") {
             in >> std::hex >> ullHex{ input.key1 } >> std::dec;
         }
-        else if (iKey == "key2") {
+        else if (key == "key2") {
             in >> cmp{ input.key2 };
         }
-        else if (iKey == "key3") {
+        else if (key == "key3") {
             in >> str{ input.key3 };
         }
         else {
