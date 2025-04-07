@@ -1,5 +1,5 @@
 #include <iomanip>
-#include "DataStruct.hpp"
+#include "DataStruct.h"
 
 iofmtguard::iofmtguard(std::basic_ios< char >& s) :
     s_(s),
@@ -25,7 +25,7 @@ std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
     if (in && (c != dest.exp)) {
         in.setstate(std::ios::failbit);
     }
-    return in;
+    return in;  
 }
 
 std::istream& operator>>(std::istream& in, ULLHexIO&& dest) {
@@ -71,51 +71,27 @@ std::istream& operator>>(std::istream& in, DataStruct& dest) {
     using ullHex = ULLHexIO;
     using cmp = ComplexIO;
     using str = StringIO;
-
-    std::map<std::string, bool> keysFound = {
-        {"key1", false},
-        {"key2", false},
-        {"key3", false}
-    };
-
-    in >> sep{ '{' };
-
-    for (int i = 0; i < 3; ++i) {
-        std::string key;
-        char colon;
-        in >> sep{ '"' };
-        std::getline(in, key, '"');
-        in >> sep{ ':' };
-
-        if (key == "key1" && !keysFound["key1"]) {
-            in >> ullHex{ input.key1 };
-            keysFound["key1"] = true;
+    std::string iKey = "";
+    in >> sep{ '(' } >> sep{ ':' };
+    for (int i = 0; i < 3; i++) {
+        in >> iKey;
+        if (iKey == "key1") {
+            in >> std::hex >> ullHex{ input.key1 } >> std::dec;
         }
-        else if (key == "key2" && !keysFound["key2"]) {
+        else if (iKey == "key2") {
             in >> cmp{ input.key2 };
-            keysFound["key2"] = true;
         }
-        else if (key == "key3" && !keysFound["key3"]) {
+        else if (iKey == "key3") {
             in >> str{ input.key3 };
-            keysFound["key3"] = true;
         }
         else {
             in.setstate(std::ios::failbit);
-            return in;
         }
-
-        if (i < 2) {
-            in >> sep{ ',' };
-        }
+        in >> sep{ ':' };
     }
-
-    in >> sep{ '}' };
-
-    if (in && keysFound["key1"] && keysFound["key2"] && keysFound["key3"]) {
+    in >> sep{ ')' };
+    if (in) {
         dest = input;
-    }
-    else {
-        in.setstate(std::ios::failbit);
     }
     return in;
 }
@@ -124,11 +100,10 @@ std::ostream& operator<<(std::ostream& out, const DataStruct& src) {
     std::ostream::sentry sentry(out);
     if (!sentry) return out;
     iofmtguard fmtguard(out);
-    out << "{ ";
-    out << "\"key1\": " << std::hex << std::showbase << src.key1 << ", ";
-    out << "\"key2\": #c(" << std::fixed << std::setprecision(1) << src.key2.real() << " " << src.key2.imag() << "), ";
-    out << "\"key3\": \"" << src.key3 << "\"";
-    out << " }";
+    out << "(:key1 0x" << std::uppercase << std::hex << src.key1
+        << ":key2 " << std::fixed << std::setprecision(1)
+        << "#c(" << src.key2.real() << " " << src.key2.imag() << ")"
+        << ":key3 \"" << src.key3 << "\":)";
     return out;
 }
 
