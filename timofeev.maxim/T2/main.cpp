@@ -195,7 +195,6 @@ int main()
 
   std::sort(data.begin(), data.end(), dataStructCompare);
 
-  std::cout << "Data:\n";
   std::copy(
     std::begin(data),
     std::end(data),
