@@ -5,18 +5,6 @@
 
 int main() {
     std::vector<DataStruct> data;
-    //std::istringstream iss(
-    //    "{ \"key1\": 0xFFFA, \"key2\": #c(1.0 -1.0), \"key3\": \"Hello\" }\n"
-    //    "{ \"key1\": 0X0100f, \"key2\": #c(-1.0 1.0), \"key3\": \"World\" }\n"
-    //    "{ \"key1\": 0xFFFA, \"key2\": #c(1.0 -1.0), \"key3\": \"Hi\" }"
-    //    "{ \"key2\": #c(1.0 -1.0), \"key3\": \"Hi\", \"key1\": 0xFFFA }"
-    //);
-
-    //std::copy(
-    //    std::istream_iterator<DataStruct>(iss),
-    //    std::istream_iterator<DataStruct>(),
-    //    std::back_inserter(data)
-    //);
 
     while (std::cin.good()) {
         std::copy(
