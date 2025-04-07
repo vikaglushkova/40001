@@ -62,11 +62,12 @@ bool parsingDouble(std::istream& in, double& key1)
   getline(in, check, ':');
   double toReturn = stod(check);
   check.erase(0, 1);
-  if (check[0] >= '1' && check[0] < '10' && check[1] == '.')
+  if (check[0] >= '1' && check[0] <= '9' && check[1] == '.')
   {
     key1 = toReturn;
     return true;
   }
+  return false;
 }
 
 bool parsingUll(std::istream& in, unsigned long long& key2)
@@ -190,7 +191,6 @@ int main()
     else
     {
       std::cin.clear();
-      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 
   std::sort(data.begin(), data.end(), dataStructCompare);
