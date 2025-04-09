@@ -24,6 +24,17 @@ bool dataStructCompare(const DataStruct& a, const DataStruct& b)
   return (a.key3).length() < (b.key3).length();
 }
 
+bool has_e(std::string check)
+{
+  for (size_t i = 0; i < check.size(); i++)
+  {
+    if (check[i] == 'e' || check[i] == 'E')
+    {
+      return true;
+    }
+  }
+  return false;
+}
 std::string utos(unsigned long long key)
 {
   if (key == 0)
@@ -60,10 +71,10 @@ bool parsingDouble(std::istream& in, double& key1)
 {
   std::string check;
   getline(in, check, ':');
-  double toReturn = stod(check);
   check.erase(0, 1);
-  if (check[0] >= '1' && check[0] <= '9' && check[1] == '.')
+  if (check[0] >= '1' && check[0] <= '9' && check[1] == '.' && has_e(check))
   {
+    double toReturn = stod(check);
     key1 = toReturn;
     return true;
   }
@@ -166,16 +177,6 @@ std::ostream& operator<< (std::ostream& out, const DataStruct& data)
   return out;
 }
 
-//(:key1 5.46e-2:key2 0b101010:key3 "Data122":)
-//(:key1 7.46e-2:key2 "sdsdsdsd":key3 "Data":)
-//(:key1 1.46e-2:key2 0b101011:key3 "Datart":)
-//(:key1 1.46e-2:key2 0b101011:key3 "Data":)
-//(:key1 1.46e-2:key2 0b101010:key3 "Data":)
-//(:key1 5.46e-2:key2 0b101010:key3 "Data":)
-//(:key1 3.46e-2:key2 0b101010:key3 "Data":)
-//(:key1 7.46e-2:key2 0b101010:key3 "Data":)
-//(:key1 5.46e-2:key2 0b10101:key3 "Data":)
-
 int main()
 {
   std::vector <DataStruct> data;
@@ -195,6 +196,7 @@ int main()
 
   std::sort(data.begin(), data.end(), dataStructCompare);
 
+  std::cout << "Data:\n";
   std::copy(
     std::begin(data),
     std::end(data),
