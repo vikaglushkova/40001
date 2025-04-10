@@ -132,7 +132,7 @@ namespace doomsday
             return is;
 
         if (!parseDataStruct(input, data)) {
-            std::cout << "Looks like there is no supported record. Cannot determine input. Test skipped" << "\n";
+            // std::cout << "Looks like there is no supported record. Cannot determine input. Test skipped" << "\n";
             is.setstate(std::ios::failbit);
         }
 
