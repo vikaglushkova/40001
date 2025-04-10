@@ -112,7 +112,7 @@ namespace timofeev {
       getline(in, check, ':');
       check.erase(0, 1);
       double toReturn = stod(check);
-      if (check[0] >= '1' && check[0] < '10' && check[1] == '.' && has_e(check))
+      if (check[0] >= '1' && check[0] <= '9' && check[1] == '.' && has_e(check))
       {
         key1 = toReturn;
         return true;
