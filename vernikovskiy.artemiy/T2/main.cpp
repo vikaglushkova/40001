@@ -7,6 +7,7 @@
 
 
 int main() {
+    using namespace doomsday;
     std::vector<DataStruct> dataVec;
     std::string line;
 
