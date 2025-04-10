@@ -31,5 +31,5 @@ int main()
     std::ostream_iterator< timofeev::DataStruct >(std::cout, "\n")
   );
 
-	return 0;
+  return 0;
 }
