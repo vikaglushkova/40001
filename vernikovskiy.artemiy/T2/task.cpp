@@ -109,6 +109,7 @@ namespace doomsday
 
     std::istream & operator>>(std::istream& is, DataStruct& data) {
         std::string input;
+        char ch;
 
     //    std::copy(std::istream_iterator<char>(is), std::istream_iterator<char>(),
     //      std::back_inserter(input));
@@ -118,7 +119,14 @@ namespace doomsday
     //        std::cout << "FUCK: " << *it << std::endl;
     //    }
 
-        std::getline(is, input); // I cannot understand how not to use getline here
+        // std::getline(is, input); // I cannot understand how not to use getline here
+        // i understtod. This segment is literally the getline guts
+        while (is.get(ch))
+        {
+            if (ch == '\n')
+                break;
+            input += ch;
+        }
 
         if (is.eof())
             return is;
