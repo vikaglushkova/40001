@@ -10,15 +10,12 @@
 #include <algorithm>
 
 namespace timofeev {
-
   struct DataStruct
   {
     double key1;
     unsigned long long key2;
     std::string key3;
   };
-
-
   bool dataStructCompare(const DataStruct& a, const DataStruct& b)
   {
     if (a.key1 != b.key1)
@@ -53,11 +50,11 @@ namespace timofeev {
     }
     if (std::abs(check) >= 1.01)
     {
-      oss << std::fixed << std::setprecision(2) << check << "e" << a;
+      oss << std::fixed << std::setprecision(2) << check << std::showpos << "e" << a;
     }
     else
     {
-      oss << std::fixed << std::setprecision(1) << check << "e" << a;
+      oss << std::fixed << std::setprecision(1) << check << std::showpos << "e" << a;
     }
     std::string toWrite = oss.str();
     return toWrite;
@@ -81,10 +78,10 @@ namespace timofeev {
     }
     else
     {
-      std::string binaryPart = "0b";
+      std::string binaryPart = "0b0";
       while (key != 0)
       {
-        binaryPart.insert(2, (key % 2 == 1) ? "1" : "0");
+        binaryPart.insert(3, (key % 2 == 1) ? "1" : "0");
         key /= 2;
       }
       return binaryPart;
@@ -94,11 +91,13 @@ namespace timofeev {
   bool parsingString(std::istream& in, std::string& key3)
   {
     std::string toReturn = "";
-    getline(in, toReturn, ':');
-    if (toReturn[1] == '"' && toReturn.back() == '"')
+    char c = ' ';
+    getline(in >> c , toReturn, '"');
+    if (c == '"')
     {
-      toReturn.erase(0, 1);
       key3 = toReturn;
+      char preend = ' ';
+    in >> preend;
       return true;
     }
     return false;
@@ -225,7 +224,7 @@ namespace timofeev {
     out << "(";
     out << ":" << "key1" << " " << beautyDouble(data.key1);
     out << ":" << "key2" << " " << utos(data.key2);
-    out << ":" << "key3" << " " << data.key3;
+    out << ":" << "key3" << " " << '"' << data.key3 << '"';
     out << ":";
     out << ")";
     return out;
