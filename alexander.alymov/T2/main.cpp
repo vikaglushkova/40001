@@ -4,6 +4,8 @@
 #include <algorithm>
 
 int main() {
+    using namespace alymov;
+
     std::vector<DataStruct> data;
 
     while (std::cin.good()) {
