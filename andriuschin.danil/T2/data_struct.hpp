@@ -15,6 +15,12 @@ namespace andriuschin
   std::ostream& operator<<(std::ostream& out, const DataStruct& value);
   std::istream& operator>>(std::istream& in, DataStruct& value);
 
+  struct Demand
+  {
+    char expected = '\0';
+  };
+  std::istream& operator>>(std::istream& in, Demand&& value);
+
   struct CharLiteral;
   std::ostream& operator<<(std::ostream& out, const CharLiteral& value);
   std::istream& operator>>(std::istream& in, CharLiteral&& value);
