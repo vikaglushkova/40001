@@ -1,6 +1,6 @@
 #include "stream_guard.hpp"
 
-pgm::StreamGuard::StreamGuard(std::basic_ios< char >& stream):
+andriuschin::StreamGuard::StreamGuard(std::basic_ios< char >& stream):
   stream_(stream),
   fill_(stream.fill()),
   precision_(stream.precision()),
@@ -8,7 +8,7 @@ pgm::StreamGuard::StreamGuard(std::basic_ios< char >& stream):
   flags_(stream.flags())
 {}
 
-pgm::StreamGuard::~StreamGuard()
+andriuschin::StreamGuard::~StreamGuard()
 {
   stream_.fill(fill_);
   stream_.precision(precision_);

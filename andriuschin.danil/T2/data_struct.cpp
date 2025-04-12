@@ -3,16 +3,15 @@
 #include <iostream>
 #include "stream_guard.hpp"
 
-pgm::CharLiteral::CharLiteral(const char& value) noexcept:
+andriuschin::CharLiteral::CharLiteral(const char& value) noexcept:
   data(value),
   link(data)
 {}
-pgm::CharLiteral::CharLiteral(char& value) noexcept:
+andriuschin::CharLiteral::CharLiteral(char& value) noexcept:
   data(value),
   link(value)
 {}
-
-std::ostream& pgm::operator<<(std::ostream& out, const CharLiteral& value)
+std::ostream& andriuschin::operator<<(std::ostream& out, const CharLiteral& value)
 {
   std::ostream::sentry sentry(out);
   if (sentry)
@@ -21,7 +20,7 @@ std::ostream& pgm::operator<<(std::ostream& out, const CharLiteral& value)
   }
   return out;
 }
-std::istream& pgm::operator>>(std::istream& in, CharLiteral& value)
+std::istream& andriuschin::operator>>(std::istream& in, CharLiteral& value)
 {
   std::istream::sentry sentry(in);
   if (sentry)
@@ -40,20 +39,20 @@ std::istream& pgm::operator>>(std::istream& in, CharLiteral& value)
   }
   return in;
 }
-std::istream& pgm::operator>>(std::istream& in, CharLiteral&& value)
+std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value)
 {
   return in >> value;
 }
 
-pgm::RationalLiteral::RationalLiteral(const value_type& value) noexcept:
+andriuschin::RationalLiteral::RationalLiteral(const value_type& value) noexcept:
   data(value),
   link(data)
 {}
-pgm::RationalLiteral::RationalLiteral(value_type& value) noexcept:
+andriuschin::RationalLiteral::RationalLiteral(value_type& value) noexcept:
   data(value),
   link(value)
 {}
-std::ostream& pgm::operator<<(std::ostream& out, const RationalLiteral& value)
+std::ostream& andriuschin::operator<<(std::ostream& out, const RationalLiteral& value)
 {
   std::ostream::sentry sentry(out);
   if (sentry)
@@ -62,8 +61,7 @@ std::ostream& pgm::operator<<(std::ostream& out, const RationalLiteral& value)
   }
   return out;
 }
-
-std::istream& pgm::operator>>(std::istream& in, RationalLiteral& value)
+std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral& value)
 {
   std::istream::sentry sentry(in);
   if (sentry)
@@ -90,7 +88,48 @@ std::istream& pgm::operator>>(std::istream& in, RationalLiteral& value)
   }
   return in;
 }
-std::istream& pgm::operator>>(std::istream& in, RationalLiteral&& value)
+std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value)
+{
+  return in >> value;
+}
+
+andriuschin::StringLiteral::StringLiteral(const std::string& value):
+  data(value),
+  link(data)
+{}
+andriuschin::StringLiteral::StringLiteral(std::string& value):
+  data(value),
+  link(value)
+{}
+std::ostream& andriuschin::operator<<(std::ostream& out, const StringLiteral& value)
+{
+  std::ostream::sentry sentry(out);
+  if (sentry)
+  {
+    return out << '"' << value.link << '"';
+  }
+  return out;
+}
+std::istream& andriuschin::operator>>(std::istream& in, StringLiteral& value)
+{
+  std::istream::sentry sentry(in);
+  if (sentry)
+  {
+    StreamGuard guard(in);
+    std::string temp;
+    char c = '\0';
+
+    if ((in >> c) && (c == '"') &&
+      (std::getline(in, temp, '"')))
+    {
+      value.link = std::move(temp);
+      return in;
+    }
+    in.setstate(std::ios::failbit);
+  }
+  return in;
+}
+std::istream& andriuschin::operator>>(std::istream& in, StringLiteral&& value)
 {
   return in >> value;
 }

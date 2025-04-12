@@ -4,7 +4,7 @@
 #include <utility>
 #include <string>
 
-namespace pgm
+namespace andriuschin
 {
   struct DataStruct
   {
@@ -25,13 +25,18 @@ namespace pgm
   std::istream& operator>>(std::istream& in, RationalLiteral& value);
   std::istream& operator>>(std::istream& in, RationalLiteral&& value);
 
+  struct StringLiteral;
+  std::ostream& operator<<(std::ostream& out, const StringLiteral& value);
+  std::istream& operator>>(std::istream& in, StringLiteral& value);
+  std::istream& operator>>(std::istream& in, StringLiteral&& value);
+
   struct CharLiteral
   {
     CharLiteral(const char& value) noexcept;
     CharLiteral(char& value) noexcept;
 
-    friend std::ostream& pgm::operator<<(std::ostream& out, const CharLiteral& value);
-    friend std::istream& pgm::operator>>(std::istream& in, CharLiteral& value);
+    friend std::ostream& andriuschin::operator<<(std::ostream& out, const CharLiteral& value);
+    friend std::istream& andriuschin::operator>>(std::istream& in, CharLiteral& value);
   private:
     char data;
     char& link;
@@ -43,11 +48,23 @@ namespace pgm
     RationalLiteral(const value_type& value) noexcept;
     RationalLiteral(value_type& value) noexcept;
 
-    friend std::ostream& pgm::operator<<(std::ostream& out, const RationalLiteral& value);
-    friend std::istream& pgm::operator>>(std::istream& in, RationalLiteral& value);
+    friend std::ostream& andriuschin::operator<<(std::ostream& out, const RationalLiteral& value);
+    friend std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral& value);
   private:
     value_type data;
     value_type& link;
+  };
+
+  struct StringLiteral
+  {
+    StringLiteral(const std::string& value);
+    StringLiteral(std::string& value);
+
+    friend std::ostream& andriuschin::operator<<(std::ostream& out, const StringLiteral& value);
+    friend std::istream& andriuschin::operator>>(std::istream& in, StringLiteral& value);
+  private:
+    std::string data;
+    std::string& link;
   };
 }
 

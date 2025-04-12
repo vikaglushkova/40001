@@ -4,10 +4,10 @@
 
 int main()
 {
-  pgm::RationalLiteral::value_type temp = {0, 0};
-  if (std::cin >> pgm::RationalLiteral(temp))
+  std::string temp = "\"hello\"";
+  if (std::cin >> andriuschin::StringLiteral(temp))
   {
-    std::cout << pgm::RationalLiteral(temp) << '\n';
+    std::cout << andriuschin::StringLiteral(temp) << '\n';
   }
   else
   {

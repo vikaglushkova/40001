@@ -3,7 +3,7 @@
 
 #include <ios>
 
-namespace pgm
+namespace andriuschin
 {
   class StreamGuard
   {
@@ -18,4 +18,5 @@ namespace pgm
     std::basic_ios< char >::fmtflags flags_;
   };
 }
+
 #endif
