@@ -4,10 +4,10 @@
 
 int main()
 {
-  std::string temp = "\"hello\"";
-  if (std::cin >> andriuschin::StringLiteral(temp))
+  andriuschin::DataStruct dataStruct;
+  if (std::cin >> dataStruct)
   {
-    std::cout << andriuschin::StringLiteral(temp) << '\n';
+    std::cout << dataStruct << '\n';
   }
   else
   {

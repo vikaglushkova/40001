@@ -17,17 +17,14 @@ namespace andriuschin
 
   struct CharLiteral;
   std::ostream& operator<<(std::ostream& out, const CharLiteral& value);
-  std::istream& operator>>(std::istream& in, CharLiteral& value);
   std::istream& operator>>(std::istream& in, CharLiteral&& value);
 
   struct RationalLiteral;
   std::ostream& operator<<(std::ostream& out, const RationalLiteral& value);
-  std::istream& operator>>(std::istream& in, RationalLiteral& value);
   std::istream& operator>>(std::istream& in, RationalLiteral&& value);
 
   struct StringLiteral;
   std::ostream& operator<<(std::ostream& out, const StringLiteral& value);
-  std::istream& operator>>(std::istream& in, StringLiteral& value);
   std::istream& operator>>(std::istream& in, StringLiteral&& value);
 
   struct CharLiteral
@@ -36,7 +33,7 @@ namespace andriuschin
     CharLiteral(char& value) noexcept;
 
     friend std::ostream& andriuschin::operator<<(std::ostream& out, const CharLiteral& value);
-    friend std::istream& andriuschin::operator>>(std::istream& in, CharLiteral& value);
+    friend std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value);
   private:
     char data;
     char& link;
@@ -49,7 +46,7 @@ namespace andriuschin
     RationalLiteral(value_type& value) noexcept;
 
     friend std::ostream& andriuschin::operator<<(std::ostream& out, const RationalLiteral& value);
-    friend std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral& value);
+    friend std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value);
   private:
     value_type data;
     value_type& link;
@@ -61,7 +58,7 @@ namespace andriuschin
     StringLiteral(std::string& value);
 
     friend std::ostream& andriuschin::operator<<(std::ostream& out, const StringLiteral& value);
-    friend std::istream& andriuschin::operator>>(std::istream& in, StringLiteral& value);
+    friend std::istream& andriuschin::operator>>(std::istream& in, StringLiteral&& value);
   private:
     std::string data;
     std::string& link;

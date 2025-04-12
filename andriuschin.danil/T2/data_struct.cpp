@@ -1,7 +1,68 @@
 #include "data_struct.hpp"
 
 #include <iostream>
+#include <iomanip>
+#include <cstring>
+
 #include "stream_guard.hpp"
+
+std::ostream& andriuschin::operator<<(std::ostream& out, const andriuschin::DataStruct& value)
+{
+  std::ostream::sentry sentry(out);
+  if (sentry)
+  {
+    return out << "(:key1 " << CharLiteral(value.key1)
+        << ":key2 " << RationalLiteral(value.key2)
+        << ":key3 " << StringLiteral(value.key3)
+        << ":)";
+  }
+  return out;
+}
+std::istream& andriuschin::operator>>(std::istream& in, DataStruct& value)
+{
+  std::istream::sentry sentry(in);
+  if (!sentry)
+  {
+    return in;
+  }
+  StreamGuard guard(in);
+  constexpr size_t nKeys = 3;
+  size_t key = 0;
+  char prefix[5] = "";
+  bool wasRecived[nKeys] = {};
+  if (!(in >> prefix[0]) || (prefix[0] != '('))
+  {
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+  for (size_t i = 0; (i < nKeys) && (in >> std::setw(5) >> prefix) && (std::memcmp(prefix, ":key", 4) == 0); i++)
+  {
+    if (!(in >> key) || (key == 0) || (key > 3) || (wasRecived[key - 1]))
+    {
+      in.setstate(std::ios::failbit);
+      return in;
+    }
+    wasRecived[key - 1] = true;
+    switch (key)
+    {
+    case 1:
+      in >> CharLiteral(value.key1);
+      break;
+    case 2:
+      in >> RationalLiteral(value.key2);
+      break;
+    case 3:
+      in >> StringLiteral(value.key3);
+      break;
+    }
+  }
+  if (!(in >> prefix[0] >> prefix[1]) || (std::memcmp(prefix, ":)", 2)
+      || !(wasRecived[0] && wasRecived[1] && wasRecived[2])))
+  {
+    in.setstate(std::ios::failbit);
+  }
+  return in;
+}
 
 andriuschin::CharLiteral::CharLiteral(const char& value) noexcept:
   data(value),
@@ -20,7 +81,7 @@ std::ostream& andriuschin::operator<<(std::ostream& out, const CharLiteral& valu
   }
   return out;
 }
-std::istream& andriuschin::operator>>(std::istream& in, CharLiteral& value)
+std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value)
 {
   std::istream::sentry sentry(in);
   if (sentry)
@@ -38,10 +99,6 @@ std::istream& andriuschin::operator>>(std::istream& in, CharLiteral& value)
     in.setstate(std::ios::failbit);
   }
   return in;
-}
-std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value)
-{
-  return in >> value;
 }
 
 andriuschin::RationalLiteral::RationalLiteral(const value_type& value) noexcept:
@@ -61,14 +118,14 @@ std::ostream& andriuschin::operator<<(std::ostream& out, const RationalLiteral& 
   }
   return out;
 }
-std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral& value)
+std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value)
 {
   std::istream::sentry sentry(in);
   if (sentry)
   {
     StreamGuard guard(in);
     char c = '\0';
-    long long denumenator = 0;
+    long long denominator = 0;
     long long numerator = 0;
 
     if (!(in >> c) || (c != '(') || !(in >> std::noskipws >> c) || (c != ':'))
@@ -77,20 +134,16 @@ std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral& value)
     {}
     else if (!(in >> c) || (c != ':') || !(in >> std::noskipws >> c) || (c != 'D'))
     {}
-    else if (!(in >> std::skipws >> denumenator >> c) || (denumenator <= 0) || (c != ':'))
+    else if (!(in >> std::skipws >> denominator >> c) || (denominator <= 0) || (c != ':'))
     {}
     else if ((in >> std::noskipws >> c) && (c == ')'))
     {
-      value.link = {numerator, denumenator};
+      value.link = {numerator, denominator};
       return in;
     }
     in.setstate(std::ios::failbit);
   }
   return in;
-}
-std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value)
-{
-  return in >> value;
 }
 
 andriuschin::StringLiteral::StringLiteral(const std::string& value):
@@ -110,7 +163,7 @@ std::ostream& andriuschin::operator<<(std::ostream& out, const StringLiteral& va
   }
   return out;
 }
-std::istream& andriuschin::operator>>(std::istream& in, StringLiteral& value)
+std::istream& andriuschin::operator>>(std::istream& in, StringLiteral&& value)
 {
   std::istream::sentry sentry(in);
   if (sentry)
@@ -128,8 +181,4 @@ std::istream& andriuschin::operator>>(std::istream& in, StringLiteral& value)
     in.setstate(std::ios::failbit);
   }
   return in;
-}
-std::istream& andriuschin::operator>>(std::istream& in, StringLiteral&& value)
-{
-  return in >> value;
 }
