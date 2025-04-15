@@ -2,6 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <iterator>
+#include <limits>
 
 int main() {
     using namespace alymov;

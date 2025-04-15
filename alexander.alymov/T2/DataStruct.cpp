@@ -80,7 +80,6 @@ namespace alymov
         }
         DataStruct input;
         using sep = DelimiterIO;
-        using label = LabelIO;
         using ullHex = ULLHexIO;
         using cmp = ComplexIO;
         using str = StringIO;
