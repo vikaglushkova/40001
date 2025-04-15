@@ -1,5 +1,5 @@
-#ifndef COMORATOR_HPP
-#define COMORATOR_HPP
+#ifndef COMPORATOR_HPP
+#define COMPORATOR_HPP
 
 #include "data_struct.hpp"
 

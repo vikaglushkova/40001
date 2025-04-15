@@ -36,11 +36,11 @@ std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value)
   return in;
 }
 
-andriuschin::RationalLiteral::RationalLiteral(const value_type& value) noexcept:
+andriuschin::RationalLiteral::RationalLiteral(const Rational& value) noexcept:
   data(value),
   link(data)
 {}
-andriuschin::RationalLiteral::RationalLiteral(value_type& value) noexcept:
+andriuschin::RationalLiteral::RationalLiteral(Rational& value) noexcept:
   data(value),
   link(value)
 {}
@@ -61,17 +61,23 @@ std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value)
     return in;
   }
   StreamGuard guard(in);
-  long long denominator = 0;
+  unsigned long long denominator = 0;
   long long numerator = 0;
 
   in >> Demand{'('} >> std::noskipws >> Demand{':'};
-  in >> Demand{'N'} >> std::skipws >> numerator;
-  in >> Demand{':'} >> std::noskipws >> Demand{'D'};
-  in >> std::skipws >> denominator >> Demand{':'};
-  in >> std::noskipws >> Demand{')'};
-  if (!in || denominator <= 0)
+  in >> Demand{'N'} >> Demand{' '} >> numerator;
+  in >> Demand{':'} >> Demand{'D'} >> Demand{' '};
+  if (!in || in.peek() == '-')
   {
     in.setstate(std::ios::failbit);
+    return in;
+  }
+  in >> denominator >> Demand{':'};
+  in >> std::noskipws >> Demand{')'};
+  if (!in)
+  {
+    in.setstate(std::ios::failbit);
+    return in;
   }
 
   value.link = {numerator, denominator};

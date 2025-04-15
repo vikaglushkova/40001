@@ -47,15 +47,15 @@ namespace andriuschin
 
   struct RationalLiteral
   {
-    using value_type = std::pair< long long, unsigned long long >;
-    RationalLiteral(const value_type& value) noexcept;
-    RationalLiteral(value_type& value) noexcept;
+    using Rational = std::pair< long long, unsigned long long >;
+    RationalLiteral(const Rational& value) noexcept;
+    RationalLiteral(Rational& value) noexcept;
 
     friend std::ostream& andriuschin::operator<<(std::ostream& out, const RationalLiteral& value);
     friend std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value);
   private:
-    value_type data;
-    value_type& link;
+    Rational data;
+    Rational& link;
   };
 
   struct StringLiteral

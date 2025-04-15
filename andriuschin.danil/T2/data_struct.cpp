@@ -28,14 +28,15 @@ std::istream& andriuschin::operator>>(std::istream& in, DataStruct& value)
   size_t key = 0;
   char prefix[5] = "";
   bool wasRecived[nKeys] = {};
-  if (!(in >> Demand{'('}))
+  if (!(in >> Demand{'('}) || (in.peek() != ':'))
   {
     in.setstate(std::ios::failbit);
     return in;
   }
+  in >> std::noskipws;
   while ((in >> std::setw(5) >> prefix) && (std::memcmp(prefix, ":key", 4) == 0))
   {
-    if (!(in >> key) || (key == 0) || (key > 3) || (wasRecived[key - 1]))
+    if (!(in >> key >> Demand{' '}) || (key == 0) || (key > 3) || (wasRecived[key - 1]))
     {
       in.setstate(std::ios::failbit);
       return in;
@@ -58,7 +59,7 @@ std::istream& andriuschin::operator>>(std::istream& in, DataStruct& value)
       break;
     }
   }
-  return in >> Demand{':'} >> Demand{')'};
+  return in >> Demand{':'} >> std::noskipws >> Demand{')'};
 }
 
 std::istream& andriuschin::operator>>(std::istream& in, andriuschin::Demand&& value)
