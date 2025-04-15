@@ -45,10 +45,10 @@ namespace doomsday
                 while (it != input.end() && *it != ':') {
                     tmp += *it++;
                 }
-                if (!(tmp.find("e+") != std::string::npos or tmp.find("e-") != std::string::npos))
-                {
-                    return false;
-                }
+//                if (!(tmp.find("e+") != std::string::npos or tmp.find("e-") != std::string::npos))
+//                {
+//                    return false;
+//                }
                 try {
                     data.key1 = std::stod(tmp);
                 } catch (...) {
