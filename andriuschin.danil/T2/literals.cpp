@@ -1,7 +1,7 @@
 #include "data_struct.hpp"
 
 #include <iostream>
-#include "stream_guard.hpp"
+#include "format_guard.hpp"
 
 andriuschin::CharLiteral::CharLiteral(const char& value) noexcept:
   data(value),
@@ -27,7 +27,7 @@ std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value)
   {
     return in;
   }
-  StreamGuard guard(in);
+  FormatGuard guard(in);
   char c = '\0';
   if (in >> Demand{'\''} >> std::noskipws >> c >> Demand{'\''})
   {
@@ -60,7 +60,7 @@ std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value)
   {
     return in;
   }
-  StreamGuard guard(in);
+  FormatGuard guard(in);
   unsigned long long denominator = 0;
   long long numerator = 0;
 

@@ -1,15 +1,15 @@
-#ifndef STREAM_GUARD_HPP
-#define STREAM_GUARD_HPP
+#ifndef FORMAT_GUARD_HPP
+#define FORMAT_GUARD_HPP
 
 #include <ios>
 
 namespace andriuschin
 {
-  class StreamGuard
+  class FormatGuard
   {
   public:
-    StreamGuard(std::basic_ios< char >& stream);
-    ~StreamGuard();
+    FormatGuard(std::basic_ios< char >& stream);
+    ~FormatGuard();
   private:
     std::basic_ios< char >& stream_;
     char fill_;

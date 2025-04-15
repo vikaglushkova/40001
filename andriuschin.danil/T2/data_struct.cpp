@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <cstring>
 
-#include "stream_guard.hpp"
+#include "format_guard.hpp"
 
 std::ostream& andriuschin::operator<<(std::ostream& out, const andriuschin::DataStruct& value)
 {
@@ -23,18 +23,20 @@ std::istream& andriuschin::operator>>(std::istream& in, DataStruct& value)
   {
     return in;
   }
-  StreamGuard guard(in);
+  FormatGuard guard(in);
   constexpr size_t nKeys = 3;
-  size_t key = 0;
-  char prefix[5] = "";
+  constexpr size_t keyLen = 4 + 1;
+  unsigned key = 0;
+  char prefix[keyLen] = "\0";
   bool wasRecived[nKeys] = {};
   if (!(in >> Demand{'('}) || (in.peek() != ':'))
   {
     in.setstate(std::ios::failbit);
     return in;
   }
+
   in >> std::noskipws;
-  while ((in >> std::setw(5) >> prefix) && (std::memcmp(prefix, ":key", 4) == 0))
+  while ((in >> std::setw(keyLen) >> prefix) && (std::strcmp(prefix, ":key") == 0))
   {
     if (!(in >> key >> Demand{' '}) || (key == 0) || (key > 3) || (wasRecived[key - 1]))
     {
