@@ -103,7 +103,7 @@ namespace doomsday
         std::ostream::sentry sentry(os);
         if (sentry) {
             StreamGuard guard(os);
-            os << "(:key1 " << std::scientific << std::setprecision(10) << data.key1 << ":"
+            os << "(:key1 " << std::scientific << data.key1 << ":"
                 << "key2 '" << data.key2 << "':"
                 << "key3 \"" << data.key3 << "\":)";
         }
@@ -135,7 +135,7 @@ namespace doomsday
             return is;
 
         if (!parseDataStruct(input, data)) {
-            // std::cout << "Looks like there is no supported record. Cannot determine input. Test skipped" << "\n";
+            std::cout << "Looks like there is no supported record. Cannot determine input. Test skipped" << "\n";
             is.setstate(std::ios::failbit);
         }
 
