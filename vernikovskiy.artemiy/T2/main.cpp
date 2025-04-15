@@ -13,9 +13,11 @@ int main() {
 
     DataStruct data;
     while (!std::cin.eof()) {
-        std::cin.clear();
+        
         if (std::cin >> data)
             dataVec.push_back(data);
+        else
+            std::cin.clear();
 
     }
 
