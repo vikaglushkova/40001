@@ -13,7 +13,6 @@ int main() {
 
     DataStruct data;
     while (!std::cin.eof()) {
-//        std::cin.clear();
         if (std::cin >> data)
             dataVec.push_back(data);
 //        std::copy(
@@ -25,7 +24,6 @@ int main() {
         if (std::cin.fail() && !std::cin.eof())
         {
           std::cin.clear();
-          // std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
         }
     }
 
