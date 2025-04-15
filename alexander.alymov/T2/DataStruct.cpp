@@ -1,9 +1,8 @@
 #include <iomanip>
 #include "DataStruct.h"
 
-namespace alymov 
+namespace alymov
 {
-
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
     {
         std::istream::sentry sentry(in);
@@ -116,7 +115,8 @@ namespace alymov
         return in;
     }
 
-    std::ostream& operator<<(std::ostream& out, const DataStruct& src) {
+    std::ostream& operator<<(std::ostream& out, const DataStruct& src)
+    {
         std::ostream::sentry sentry(out);
         if (!sentry)
         {
