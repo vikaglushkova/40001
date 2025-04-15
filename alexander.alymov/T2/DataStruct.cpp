@@ -3,17 +3,6 @@
 
 namespace alymov 
 {
-    StreamGuard::StreamGuard(std::basic_ios< char >& s) :
-        s_(s),
-        precision_(s.precision()),
-        fmt_(s.flags())
-    {}
-
-    StreamGuard::~StreamGuard()
-    {
-        s_.precision(precision_);
-        s_.flags(fmt_);
-    }
 
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
         std::istream::sentry sentry(in);
@@ -92,7 +81,8 @@ namespace alymov
         using str = StringIO;
         std::string key = "";
         in >> sep{ '(' } >> sep{ ':' };
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) 
+        {
             in >> key;
             if (key == "key1") 
             {

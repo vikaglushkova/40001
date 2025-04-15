@@ -5,6 +5,7 @@
 #include <string>
 #include <iomanip>
 #include <map>
+#include "StreamGuard.h"
 
 namespace alymov {
 
@@ -33,17 +34,6 @@ namespace alymov {
     struct LabelIO
     {
         std::string exp;
-    };
-
-    class StreamGuard
-    {
-    public:
-        StreamGuard(std::basic_ios< char >& s);
-        ~StreamGuard();
-    private:
-        std::basic_ios< char >& s_;
-        std::streamsize precision_;
-        std::basic_ios< char >::fmtflags fmt_;
     };
 
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest);
