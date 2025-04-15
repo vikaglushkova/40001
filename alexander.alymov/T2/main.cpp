@@ -8,7 +8,7 @@ int main() {
 
     std::vector<DataStruct> data;
 
-    while (std::cin.good()) 
+    while (std::cin.good())
     {
         std::copy(
             std::istream_iterator<DataStruct>(std::cin),

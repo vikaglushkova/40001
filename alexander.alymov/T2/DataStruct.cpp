@@ -4,7 +4,8 @@
 namespace alymov 
 {
 
-    std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
+    std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
+    {
         std::istream::sentry sentry(in);
         if (!sentry)
         {
@@ -12,14 +13,15 @@ namespace alymov
         }
         char c = '0';
         in >> c;
-        if (in && (c != dest.exp)) 
+        if (in && (c != dest.exp))
         {
             in.setstate(std::ios::failbit);
         }
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, ULLHexIO&& dest) {
+    std::istream& operator>>(std::istream& in, ULLHexIO&& dest)
+    {
         std::istream::sentry sentry(in);
         if (!sentry)
         {
@@ -29,7 +31,8 @@ namespace alymov
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, ComplexIO&& dest) {
+    std::istream& operator>>(std::istream& in, ComplexIO&& dest)
+    {
         std::istream::sentry sentry(in);
         if (!sentry)
         {
@@ -44,7 +47,8 @@ namespace alymov
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, StringIO&& dest) {
+    std::istream& operator>>(std::istream& in, StringIO&& dest)
+    {
         std::istream::sentry sentry(in);
         if (!sentry)
         {
@@ -53,21 +57,23 @@ namespace alymov
         return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
     }
 
-    std::istream& operator>>(std::istream& in, LabelIO&& dest) {
+    std::istream& operator>>(std::istream& in, LabelIO&& dest)
+    {
         std::istream::sentry sentry(in);
         if (!sentry)
         {
             return in;
         }
         std::string data;
-        if ((in >> StringIO{ data }) && (data != dest.exp)) 
+        if ((in >> StringIO{ data }) && (data != dest.exp))
         {
             in.setstate(std::ios::failbit);
         }
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, DataStruct& dest) {
+    std::istream& operator>>(std::istream& in, DataStruct& dest)
+    {
         std::istream::sentry sentry(in);
         if (!sentry)
         {
@@ -81,29 +87,29 @@ namespace alymov
         using str = StringIO;
         std::string key = "";
         in >> sep{ '(' } >> sep{ ':' };
-        for (int i = 0; i < 3; i++) 
+        for (int i = 0; i < 3; i++)
         {
             in >> key;
-            if (key == "key1") 
+            if (key == "key1")
             {
                 in >> std::hex >> ullHex{ input.key1 } >> std::dec;
             }
-            else if (key == "key2") 
+            else if (key == "key2")
             {
                 in >> cmp{ input.key2 };
             }
-            else if (key == "key3") 
+            else if (key == "key3")
             {
                 in >> str{ input.key3 };
             }
-            else 
+            else
             {
                 in.setstate(std::ios::failbit);
             }
             in >> sep{ ':' };
         }
         in >> sep{ ')' };
-        if (in) 
+        if (in)
         {
             dest = input;
         }
@@ -124,12 +130,13 @@ namespace alymov
         return out;
     }
 
-    bool compareDataStruct(const DataStruct& a, const DataStruct& b) {
-        if (a.key1 != b.key1) 
+    bool compareDataStruct(const DataStruct& a, const DataStruct& b)
+    {
+        if (a.key1 != b.key1)
         {
             return a.key1 < b.key1;
         }
-        if (a.key2 != b.key2) 
+        if (a.key2 != b.key2)
         {
             return a.key2.real() < b.key2.real() || (a.key2.real() == b.key2.real() && a.key2.imag() < b.key2.imag());
         }
