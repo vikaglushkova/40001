@@ -7,10 +7,9 @@
 #include <algorithm>
 #include <iterator>
 #include "ScopeGuard.h"
-// (:key1 1.0000000000e+01:key2 'c':key3 "D a t a'":)
-// (:key1 -1.23:key3 "doomsday":key2 ' ':)
-
-// (:logagooga1 57.069351:key2 'q':key3 "grKSqShULB":)
+//(:key1 1.0000000000e+01:key2 'c':key3 "D a t a'":)
+//(:key1 -1.23:key3 "doomsday":key2 ' ':)
+//(:logagooga1 57.069351:key2 'q':key3 "grKSqShULB":)
 
 namespace doomsday
 {
