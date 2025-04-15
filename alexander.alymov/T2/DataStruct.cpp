@@ -131,13 +131,13 @@ namespace alymov
 
     bool compareDataStruct(const DataStruct& a, const DataStruct& b)
     {
-        if (a.key1 != b.key1)
-        {
+        if (a.key1 != b.key1) {
             return a.key1 < b.key1;
         }
-        if (a.key2 != b.key2)
-        {
-            return a.key2.real() < b.key2.real() || (a.key2.real() == b.key2.real() && a.key2.imag() < b.key2.imag());
+        double a_magnitude = std::norm(a.key2);
+        double b_magnitude = std::norm(b.key2);
+        if (std::abs(a_magnitude - b_magnitude) > 1e-9) {
+            return a_magnitude < b_magnitude;
         }
         return a.key3.length() < b.key3.length();
     }
