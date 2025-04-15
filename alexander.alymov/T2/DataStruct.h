@@ -31,17 +31,11 @@ namespace alymov {
         std::string& ref;
     };
 
-    struct LabelIO
-    {
-        std::string exp;
-    };
-
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest);
     std::istream& operator>>(std::istream& in, ULLHexIO&& dest);
     std::istream& operator>>(std::istream& in, StringIO&& dest);
     std::istream& operator>>(std::istream& in, ComplexIO&& dest);
     std::istream& operator>>(std::istream& in, DataStruct& dest);
-    std::istream& operator>>(std::istream& in, LabelIO&& dest);
     std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
 
     bool compareDataStruct(const DataStruct& a, const DataStruct& b);
