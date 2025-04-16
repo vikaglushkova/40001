@@ -41,8 +41,8 @@ namespace andriuschin
     friend std::ostream& andriuschin::operator<<(std::ostream& out, const CharLiteral& value);
     friend std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value);
   private:
-    char data;
-    char& link;
+    char data_;
+    char& link_;
   };
 
   struct RationalLiteral
@@ -54,8 +54,8 @@ namespace andriuschin
     friend std::ostream& andriuschin::operator<<(std::ostream& out, const RationalLiteral& value);
     friend std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value);
   private:
-    Rational data;
-    Rational& link;
+    Rational data_;
+    Rational& link_;
   };
 
   struct StringLiteral
@@ -66,8 +66,8 @@ namespace andriuschin
     friend std::ostream& andriuschin::operator<<(std::ostream& out, const StringLiteral& value);
     friend std::istream& andriuschin::operator>>(std::istream& in, StringLiteral&& value);
   private:
-    std::string data;
-    std::string& link;
+    std::string data_;
+    std::string& link_;
   };
 }
 

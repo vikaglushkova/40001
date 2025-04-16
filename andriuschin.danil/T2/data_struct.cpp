@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstring>
+#include <cstdlib>
 
 #include "format_guard.hpp"
 
@@ -38,7 +39,9 @@ std::istream& andriuschin::operator>>(std::istream& in, DataStruct& value)
   in >> std::noskipws;
   while ((in >> std::setw(keyLen) >> prefix) && (std::strcmp(prefix, ":key") == 0))
   {
-    if (!(in >> key >> Demand{' '}) || (key == 0) || (key > 3) || (wasRecived[key - 1]))
+    in >> prefix[0];
+    key = std::atoi(&prefix[0]);
+    if (!(in >> Demand{' '}) || (key == 0) || (key > 3) || (wasRecived[key - 1]))
     {
       in.setstate(std::ios::failbit);
       return in;
