@@ -26,6 +26,20 @@ namespace alymov
         {
             return in;
         }
+
+        char c1 = in.get();
+        char c2 = in.get();
+        if (!in || (c1 != '0') || (c2 != 'x' && c2 != 'X'))
+        {
+            in.setstate(std::ios::failbit);
+            if (in)
+            {
+                in.unget();
+                in.unget();
+            }
+            return in;
+        }
+
         in >> std::hex >> dest.ref;
         return in;
     }
@@ -56,6 +70,11 @@ namespace alymov
         return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
     }
 
+    bool isValidKey(const std::string& key)
+    {
+        return key == "key1" || key == "key2" || key == "key3";
+    }
+
     std::istream& operator>>(std::istream& in, DataStruct& dest)
     {
         std::istream::sentry sentry(in);
@@ -68,14 +87,36 @@ namespace alymov
         using ullHex = ULLHexIO;
         using cmp = ComplexIO;
         using str = StringIO;
+
         std::string key = "";
-        in >> sep{ '(' } >> sep{ ':' };
+        in >> sep{ '(' };
+
+        if (in.peek() == ' ')
+        {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+
+        in >> sep{ ':' };
+
         for (int i = 0; i < 3; i++)
         {
+            if (in.peek() == ' ')
+            {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
+
             in >> key;
+            if (!isValidKey(key))
+            {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
+
             if (key == "key1")
             {
-                in >> std::hex >> ullHex{ input.key1 } >> std::dec;
+                in >> std::hex >> ullHex{ input.key1 };
             }
             else if (key == "key2")
             {
@@ -85,13 +126,24 @@ namespace alymov
             {
                 in >> str{ input.key3 };
             }
-            else
+
+            if (in.peek() == ' ')
             {
                 in.setstate(std::ios::failbit);
+                return in;
             }
+
             in >> sep{ ':' };
         }
+
+        if (in.peek() == ' ')
+        {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+
         in >> sep{ ')' };
+
         if (in)
         {
             dest = input;
