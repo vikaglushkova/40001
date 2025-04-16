@@ -32,11 +32,7 @@ namespace alymov
         if (!in || (c1 != '0') || (c2 != 'x' && c2 != 'X'))
         {
             in.setstate(std::ios::failbit);
-            if (in)
-            {
-                in.unget();
-                in.unget();
-            }
+
             return in;
         }
 
