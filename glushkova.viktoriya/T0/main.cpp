@@ -1,6 +1,6 @@
 #include <iostream>
 int main()
 {
-  std::cout << "glushkova vika" << std::endl;
+  std::cout << "glushkova.viktoriya" << std::endl;
   return 0;
 }
