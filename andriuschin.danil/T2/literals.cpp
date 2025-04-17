@@ -1,17 +1,13 @@
 #include "data_struct.hpp"
 
 #include <iostream>
-#include "format_guard.hpp"
 
-andriuschin::CharLiteral::CharLiteral(const char& value) noexcept:
-  data_(value),
-  link_(data_)
-{}
-andriuschin::CharLiteral::CharLiteral(char& value) noexcept:
-  data_(value),
-  link_(value)
-{}
-std::ostream& andriuschin::operator<<(std::ostream& out, const CharLiteral& value)
+#include "format_guard.hpp"
+#include "literals.hpp"
+
+template<>
+std::ostream& andriuschin::operator<<< andriuschin::CharLiteral::value_type,
+      andriuschin::CharLiteral::id >(std::ostream& out, const CharLiteral&& value)
 {
   std::ostream::sentry sentry(out);
   if (!sentry)
@@ -20,7 +16,9 @@ std::ostream& andriuschin::operator<<(std::ostream& out, const CharLiteral& valu
   }
   return out << '\'' << value.link_ << '\'';
 }
-std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value)
+template<>
+std::istream& andriuschin::operator>>< andriuschin::CharLiteral::value_type,
+      andriuschin::CharLiteral::id >(std::istream& in, CharLiteral&& value)
 {
   std::istream::sentry sentry(in);
   if (!sentry)
@@ -36,15 +34,9 @@ std::istream& andriuschin::operator>>(std::istream& in, CharLiteral&& value)
   return in;
 }
 
-andriuschin::RationalLiteral::RationalLiteral(const Rational& value) noexcept:
-  data_(value),
-  link_(data_)
-{}
-andriuschin::RationalLiteral::RationalLiteral(Rational& value) noexcept:
-  data_(value),
-  link_(value)
-{}
-std::ostream& andriuschin::operator<<(std::ostream& out, const RationalLiteral& value)
+template<>
+std::ostream& andriuschin::operator<<< andriuschin::RationalLiteral::value_type,
+      andriuschin::RationalLiteral::id >(std::ostream& out, const RationalLiteral&& value)
 {
   std::ostream::sentry sentry(out);
   if (!sentry)
@@ -53,7 +45,9 @@ std::ostream& andriuschin::operator<<(std::ostream& out, const RationalLiteral& 
   }
   return out << "(:N " << value.link_.first << ":D " << value.link_.second << ":)";
 }
-std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value)
+template<>
+std::istream& andriuschin::operator>>< andriuschin::RationalLiteral::value_type,
+      andriuschin::RationalLiteral::id >(std::istream& in, RationalLiteral&& value)
 {
   std::istream::sentry sentry(in);
   if (!sentry)
@@ -74,7 +68,7 @@ std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value)
   }
   in >> denominator >> Demand{':'};
   in >> std::noskipws >> Demand{')'};
-  if (!in)
+  if (!in || denominator == 0)
   {
     in.setstate(std::ios::failbit);
     return in;
@@ -84,15 +78,9 @@ std::istream& andriuschin::operator>>(std::istream& in, RationalLiteral&& value)
   return in;
 }
 
-andriuschin::StringLiteral::StringLiteral(const std::string& value):
-  data_(value),
-  link_(data_)
-{}
-andriuschin::StringLiteral::StringLiteral(std::string& value):
-  data_(value),
-  link_(value)
-{}
-std::ostream& andriuschin::operator<<(std::ostream& out, const StringLiteral& value)
+template<>
+std::ostream& andriuschin::operator<<< andriuschin::StringLiteral::value_type,
+      andriuschin::StringLiteral::id >(std::ostream& out, const StringLiteral&& value)
 {
   std::ostream::sentry sentry(out);
   if (!sentry)
@@ -101,7 +89,9 @@ std::ostream& andriuschin::operator<<(std::ostream& out, const StringLiteral& va
   }
   return out << '"' << value.link_ << '"';
 }
-std::istream& andriuschin::operator>>(std::istream& in, StringLiteral&& value)
+template<>
+std::istream& andriuschin::operator>>< andriuschin::StringLiteral::value_type,
+      andriuschin::StringLiteral::id >(std::istream& in, StringLiteral&& value)
 {
   std::istream::sentry sentry(in);
   if (!sentry)
