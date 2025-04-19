@@ -32,7 +32,10 @@ namespace doomsday
 
 
             tmp.clear();
-            while (it != input.end() && *it != '(' && *it != ')' && *it != ':' && *it != '\'' && *it != '"' && *it != ' ') {
+            while (it != input.end() &&
+                *it != '(' && *it != ')' &&
+                *it != ':' && *it != '\'' &&
+                *it != '"' && *it != ' ') {
                 tmp += *it++;
             }
             // std::cout << tmp << std::endl;
@@ -45,7 +48,10 @@ namespace doomsday
                 while (it != input.end() && *it != ':') {
                     tmp += *it++;
                 }
-                if (!(tmp.find("e+") != std::string::npos or tmp.find("e-") != std::string::npos or tmp.find("E-") != std::string::npos or tmp.find("E+") != std::string::npos))
+                if (!(tmp.find("e+") != std::string::npos or
+                    tmp.find("e-") != std::string::npos or
+                    tmp.find("E-") != std::string::npos or
+                    tmp.find("E+") != std::string::npos))
                 {
                     return false;
                 }
@@ -115,16 +121,16 @@ namespace doomsday
         std::string input;
         char ch;
 
-    //    std::copy(std::istream_iterator<char>(is), std::istream_iterator<char>(),
-    //      std::back_inserter(input));
-    //    It drove me crazy
-    //    for (auto it = start; it != end || *it != '\n'; it++)
-    //    {
-    //        std::cout << "FUCK: " << *it << std::endl;
-    //    }
+//    std::copy(std::istream_iterator<char>(is), std::istream_iterator<char>(),
+//      std::back_inserter(input));
+//    It drove me crazy
+//    for (auto it = start; it != end || *it != '\n'; it++)
+//    {
+//        std::cout << "FUCK: " << *it << std::endl;
+//    }
 
-        // std::getline(is, input); // I cannot understand how not to use getline here
-        // i understtod. This segment is literally the getline guts
+// std::getline(is, input); // I cannot understand how not to use getline here
+// i understtod. This segment is literally the getline guts
         while (is.get(ch))
         {
             if (ch == '\n')
