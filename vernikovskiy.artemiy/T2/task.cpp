@@ -103,7 +103,8 @@ namespace doomsday
         std::ostream::sentry sentry(os);
         if (sentry) {
             StreamGuard guard(os);
-            os << "(:key1 " << std::scientific << std::setprecision(1) << data.key1 << ":"
+            os << "(:key1 " << std::scientific << std::setprecision(1)
+                << data.key1 << ":"
                 << "key2 '" << data.key2 << "':"
                 << "key3 \"" << data.key3 << "\":)";
         }
