@@ -8,7 +8,7 @@
 #include <iterator>
 #include "ScopeGuard.h"
 //(:key1 1.0000000000e+01:key2 'c':key3 "D a t a'":)
-//(:key1 -1.23:key3 "doomsday":key2 ' ':)
+//(:key1 -1.23e+1:key3 "doomsday":key2 ' ':)
 //(:logagooga1 57.069351:key2 'q':key3 "grKSqShULB":)
 
 namespace doomsday
@@ -45,10 +45,10 @@ namespace doomsday
                 while (it != input.end() && *it != ':') {
                     tmp += *it++;
                 }
-//                if (!(tmp.find("e+") != std::string::npos or tmp.find("e-") != std::string::npos))
-//                {
-//                    return false;
-//                }
+                if (!(tmp.find("e+") != std::string::npos or tmp.find("e-") != std::string::npos or tmp.find("E-") != std::string::npos or tmp.find("E+") != std::string::npos))
+                {
+                    return false;
+                }
                 try {
                     data.key1 = std::stod(tmp);
                 } catch (...) {
@@ -103,7 +103,7 @@ namespace doomsday
         std::ostream::sentry sentry(os);
         if (sentry) {
             StreamGuard guard(os);
-            os << "(:key1 " << std::scientific << data.key1 << ":"
+            os << "(:key1 " << std::scientific << std::setprecision(1) << data.key1 << ":"
                 << "key2 '" << data.key2 << "':"
                 << "key3 \"" << data.key3 << "\":)";
         }
