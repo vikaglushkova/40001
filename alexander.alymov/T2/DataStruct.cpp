@@ -71,6 +71,16 @@ namespace alymov
         return key == "key1" || key == "key2" || key == "key3";
     }
 
+    bool checkAndSkipSpace(std::istream& in)
+    {
+        if (in.peek() == ' ')
+        {
+            in.setstate(std::ios::failbit);
+            return false;
+        }
+        return true;
+    }
+
     std::istream& operator>>(std::istream& in, DataStruct& dest)
     {
         std::istream::sentry sentry(in);
@@ -87,22 +97,12 @@ namespace alymov
         std::string key = "";
         in >> sep{ '(' };
 
-        if (in.peek() == ' ')
-        {
-            in.setstate(std::ios::failbit);
-            return in;
-        }
-
+        if (!checkAndSkipSpace(in)) return in;
         in >> sep{ ':' };
 
         for (int i = 0; i < 3; i++)
         {
-            if (in.peek() == ' ')
-            {
-                in.setstate(std::ios::failbit);
-                return in;
-            }
-
+            if (!checkAndSkipSpace(in)) return in;
             in >> key;
             if (!isValidKey(key))
             {
@@ -123,21 +123,11 @@ namespace alymov
                 in >> str{ input.key3 };
             }
 
-            if (in.peek() == ' ')
-            {
-                in.setstate(std::ios::failbit);
-                return in;
-            }
-
+            if (!checkAndSkipSpace(in)) return in;
             in >> sep{ ':' };
         }
 
-        if (in.peek() == ' ')
-        {
-            in.setstate(std::ios::failbit);
-            return in;
-        }
-
+        if (!checkAndSkipSpace(in)) return in;
         in >> sep{ ')' };
 
         if (in)
