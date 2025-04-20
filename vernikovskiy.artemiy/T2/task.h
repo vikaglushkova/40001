@@ -18,6 +18,7 @@ namespace doomsday
     bool compareDataStruct(const DataStruct& a, const DataStruct& b);
     std::ostream & operator<<(std::ostream& os, const DataStruct& data);
     std::istream & operator>>(std::istream& is, DataStruct& data);
+    std::string formatScientific(double number);
 }
 
 #endif

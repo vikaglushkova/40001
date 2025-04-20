@@ -103,14 +103,25 @@ namespace doomsday
         }
         return a.key3.length() < b.key3.length();
     }
+    
+    // here i did not find how to delete leading zero in power, so this is it
+    std::string formatScientific(double number) {
+        std::ostringstream oss;
+        oss << std::scientific << std::setprecision(1) << number;
 
+        std::string result = oss.str();
+        size_t pos = result.find('e');
+        if (pos != std::string::npos) {
+            result.erase(pos + 2, 1);
+        }
+        return result;
+    }
 
     std::ostream & operator<<(std::ostream& os, const DataStruct& data) {
         std::ostream::sentry sentry(os);
         if (sentry) {
             StreamGuard guard(os);
-            os << "(:key1 " << std::scientific << std::setprecision(1)
-                << data.key1 << ":"
+            os << "(:key1 " << formatScientific(data.key1) << ":"
                 << "key2 '" << data.key2 << "':"
                 << "key3 \"" << data.key3 << "\":)";
         }
