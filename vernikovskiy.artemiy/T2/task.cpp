@@ -103,7 +103,7 @@ namespace doomsday
         }
         return a.key3.length() < b.key3.length();
     }
-    
+
     // here i did not find how to delete leading zero in power, so this is it
     std::string formatScientific(double number) {
         std::ostringstream oss;
