@@ -12,12 +12,44 @@ namespace doomsday
         char key2;
         std::string key3;
     };
+// okay, it makes sense, but without debugger it is very painful
+    struct DelimiterIO
+    {
+        char delim;
+    };
+    struct BBDelimIO
+    {
+        char delim;
+        char eye;
+    };
+    struct keyLable
+    {
+        std::string key;
+    };
+    struct DoubleIO
+    {
+        double& ref;
+    };
+    struct CharIO
+    {
+        char& ref;
+    };
+    struct StringIO
+    {
+        std::string& ref;
+    };
+
+    std::istream& operator>>(std::istream& is, keyLable& dest);
+    std::istream& operator>>(std::istream& is, DelimiterIO&& delim);
+    std::istream& operator>>(std::istream& is, DoubleIO&& dest);
+    std::istream& operator>>(std::istream& is, CharIO&& dest);
+    std::istream& operator>>(std::istream& is, StringIO&& dest);
+    std::istream& operator>>(std::istream& is, BBDelimIO& dest);
 
 
-    bool parseDataStruct(const std::string& input, DataStruct& data);
     bool compareDataStruct(const DataStruct& a, const DataStruct& b);
     std::ostream & operator<<(std::ostream& os, const DataStruct& data);
-    std::istream & operator>>(std::istream& is, DataStruct& data);
+    std::istream& operator>>(std::istream& is, DataStruct& data);
     std::string formatScientific(double number);
 }
 

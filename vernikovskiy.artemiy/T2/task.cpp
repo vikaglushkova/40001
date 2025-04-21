@@ -7,93 +7,9 @@
 #include <algorithm>
 #include <iterator>
 #include "ScopeGuard.h"
-//(:key1 1.0000000000e+01:key2 'c':key3 "D a t a'":)
-//(:key1 -1.23e+1:key3 "doomsday":key2 ' ':)
-//(:logagooga1 57.069351:key2 'q':key3 "grKSqShULB":)
 
 namespace doomsday
 {
-    bool parseDataStruct(const std::string& input, DataStruct& data) {
-        bool flag1 = false;
-        bool flag2 = false;
-        bool flag3 = false;
-
-        if (input.empty())
-            return false;
-
-        std::string tmp;
-        auto it = input.begin();
-
-        while (it != input.end()) {
-            if (*it == '(' || *it == ')' || *it == ':') {
-                ++it;
-                continue;
-            }
-
-
-            tmp.clear();
-            while (it != input.end() &&
-                *it != '(' && *it != ')' &&
-                *it != ':' && *it != '\'' &&
-                *it != '"' && *it != ' ') {
-                tmp += *it++;
-            }
-            // std::cout << tmp << std::endl;
-
-
-            if (tmp == "key1") {
-                if (flag1) return false;
-                it += 1;
-                tmp.clear();
-                while (it != input.end() && *it != ':') {
-                    tmp += *it++;
-                }
-                if (!(tmp.find("e+") != std::string::npos or
-                    tmp.find("e-") != std::string::npos or
-                    tmp.find("E-") != std::string::npos or
-                    tmp.find("E+") != std::string::npos))
-                {
-                    return false;
-                }
-                try {
-                    data.key1 = std::stod(tmp);
-                } catch (...) {
-                    return false;
-                }
-                flag1 = true;
-            } else if (tmp == "key2") {
-                if (flag2) return false;
-                if (*(++it) != '\'') return false;
-                it++;
-
-                tmp.clear();
-                while (it != input.end() && *it != '\'') {
-                    tmp += *it++;
-                }
-                if (tmp.size() != 1) return false;
-                data.key2 = static_cast<char>(tmp[0]);
-                flag2 = true;
-                ++it;
-            } else if (tmp == "key3") {
-                if (flag3) return false;
-                if (*(++it) != '"') return false;
-                it++;
-                tmp.clear();
-
-                while (it != input.end() && *it != '"') {
-                    tmp += *it++;
-                }
-
-                data.key3 = tmp;
-                flag3 = true;
-                ++it;
-            } else break;
-        }
-
-        return (flag1 && flag2 && flag3);
-    }
-
-
     bool compareDataStruct(const DataStruct& a, const DataStruct& b) {
         if (a.key1 != b.key1) {
             return a.key1 < b.key1;
@@ -104,7 +20,167 @@ namespace doomsday
         return a.key3.length() < b.key3.length();
     }
 
-    // here i did not find how to delete leading zero in power, so this is it
+    std::istream& operator>>(std::istream& is, DelimiterIO&& dest)
+    {
+        char c = '0';
+        is >> c;
+        if (is && (c != dest.delim))
+        {
+            is.setstate(std::ios::failbit);
+        }
+        return is;
+    }
+
+    std::istream& operator>>(std::istream& is, BBDelimIO& dest)
+    {
+        char c = '0';
+        is >> std::noskipws >> c;
+        if (is && (c == dest.delim))
+        {
+            is.setstate(std::ios::failbit);
+        }
+        dest.eye = c;
+        return is;
+    }
+
+    std::istream& operator>>(std::istream& is, CharIO&& dest)
+    {
+        char c = '0';
+        is >> c;
+        if (is)
+        {
+            dest.ref = c;
+            return is;
+        }
+        is.setstate(std::ios::failbit);
+        return is;
+    }
+
+    std::istream& operator>>(std::istream& is, StringIO&& dest)
+    {
+        std::string res = "";
+        BBDelimIO mainDel{'"'};
+        while (is >> mainDel)
+        {
+            res += mainDel.eye;
+        }
+        dest.ref = res;
+        is.clear();
+        return is;
+    }
+
+    std::istream& operator>>(std::istream& is, DoubleIO&& dest)
+    {
+        std::streampos startPos = is.tellg();
+        BBDelimIO mainDel{':'};
+        std::string stmp = "";
+        while (is >> mainDel)
+        {
+            stmp += mainDel.eye;
+        }
+        try
+        {
+            dest.ref = std::stod(stmp);
+        }
+        catch (...)
+        {
+            is.setstate(std::ios::failbit);
+            return is;
+        }
+        is.clear();
+        return is;
+    }
+
+    std::istream& operator>>(std::istream& is, keyLable& dest)
+    {
+        BBDelimIO mainDel{' '};
+        while (is >> mainDel)
+        {
+            dest.key += mainDel.eye;
+        }
+        is.clear();
+        // is.setstate(std::ios::failbit);
+        return is;
+    }
+
+    std::istream& operator>>(std::istream& is, DataStruct& data)
+    {
+        DataStruct res;
+        if (is.eof())
+        {
+            return is;
+        }
+
+        if (!(is >> DelimiterIO{'('}))
+        {
+            is.setstate(std::ios::failbit);
+            return is;
+        }
+
+        if (!(is >> DelimiterIO{':'})) // заглушка
+        {
+            is.setstate(std::ios::failbit);
+            return is;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            keyLable key;
+            if (!(is >> key))
+            {
+                is.setstate(std::ios::failbit);
+                return is;
+            }
+
+            if (key.key == "key1")
+            {
+                if (!(is >> DoubleIO{ res.key1 }))
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+            }
+            else if (key.key == "key2")
+            {
+                if (!(is >> DelimiterIO{'\''} >> CharIO{ res.key2 } >> DelimiterIO{'\''}))
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+                if (!(is >> DelimiterIO{':'})) // заглушка
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+            }
+            else if (key.key == "key3")
+            {
+                if (!(is >> DelimiterIO{'"'} >> StringIO{ res.key3 }))
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+                if (!(is >> DelimiterIO{':'})) // заглушка
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+            }
+            else
+            {
+                is.setstate(std::ios::failbit);
+                return is;
+            }
+        }
+        if (!(is >> DelimiterIO{')'})) // заглушка
+        {
+            is.setstate(std::ios::failbit);
+            return is;
+        }
+        data = res;
+        return is;
+    }
+
     std::string formatScientific(double number) {
         std::ostringstream oss;
         oss << std::scientific << std::setprecision(1) << number;
@@ -127,35 +203,15 @@ namespace doomsday
         }
         return os;
     }
-
-    std::istream & operator>>(std::istream& is, DataStruct& data) {
-        std::string input;
-        char ch;
-
-//    std::copy(std::istream_iterator<char>(is), std::istream_iterator<char>(),
-//      std::back_inserter(input));
-//    It drove me crazy
-//    for (auto it = start; it != end || *it != '\n'; it++)
-//    {
-//        std::cout << "FUCK: " << *it << std::endl;
-//    }
-
-// std::getline(is, input); // I cannot understand how not to use getline here
-// i understtod. This segment is literally the getline guts
-        while (is.get(ch))
-        {
-            if (ch == '\n')
-                break;
-            input += ch;
-        }
-
-        if (is.eof())
-            return is;
-
-        if (!parseDataStruct(input, data)) {
-            is.setstate(std::ios::failbit);
-        }
-
-        return is;
-    }
 }
+
+
+
+
+
+
+
+
+
+
+

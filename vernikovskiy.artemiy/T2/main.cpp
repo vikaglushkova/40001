@@ -10,15 +10,13 @@ int main() {
     using namespace doomsday;
     std::vector<DataStruct> dataVec;
 
-    DataStruct data;
     while (!std::cin.eof()) {
-        if (std::cin >> data)
-            dataVec.push_back(data);
-//        std::copy(
-//            std::istream_iterator<DataStruct>(std::cin),
-//            std::istream_iterator<DataStruct>(),
-//            std::back_inserter(dataVec)
-//        );
+
+        std::copy(
+            std::istream_iterator<DataStruct>(std::cin),
+            std::istream_iterator<DataStruct>(),
+            std::back_inserter(dataVec)
+        );
 
         if (std::cin.fail() && !std::cin.eof())
         {

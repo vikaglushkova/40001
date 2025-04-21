@@ -39,7 +39,7 @@ std::string generateValidRandomPrompt() {
     std::string key3 = generateRandomString(10);
 
     std::vector<std::string> keys = {
-        "(:key1 " + std::to_string(key1) + ":key2 '" + key2 + "':key3 \"" + key3 + "\":)"
+        "(:key1 " + std::to_string(key1) + "e+1" + ":key2 '" + key2 + "':key3 \"" + key3 + "\":)"
     };
 
     std::random_device rd;
