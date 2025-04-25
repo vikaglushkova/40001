@@ -6,7 +6,7 @@
 
 namespace trojan
 {
-    struct DataStruct 
+    struct DataStruct
     {
         double key1;
         unsigned long long key2;

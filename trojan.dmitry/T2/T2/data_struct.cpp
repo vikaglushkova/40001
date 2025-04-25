@@ -79,7 +79,8 @@ std::istream& trojan::input::operator>>(std::istream& stream, UllLiteral&& value
     StreamGuard guard(stream);
     unsigned long long temp = 1;
     char ullTag[4] = "\0";
-    if (std::isdigit(stream.peek()) && (stream >> temp) && (stream >> std::setw(4) >> ullTag) && (std::strcmp(ullTag, "ull") || std::strcmp(ullTag, "ULL")))
+    if (std::isdigit(stream.peek()) && (stream >> temp) && (stream >> std::setw(4) >> ullTag)
+            && (std::strcmp(ullTag, "ull") || std::strcmp(ullTag, "ULL")))
     {
         value.link = temp;
         return stream;
