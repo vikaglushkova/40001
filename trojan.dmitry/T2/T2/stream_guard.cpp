@@ -1,6 +1,6 @@
 #include "stream_guard.hpp"
 
-trojan::StreamGuard::StreamGuard(std::basic_ios< char >& stream) :
+trojan::StreamGuard::StreamGuard(std::basic_ios< char >& stream):
     stream_(stream),
     fill_(stream.fill()),
     precision_(stream.precision()),

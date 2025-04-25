@@ -12,32 +12,50 @@ namespace trojan
         unsigned long long key2;
         std::string key3;
     };
-    std::istream& operator>>(std::istream& stream, DataStruct&& value);
+    std::istream& operator>>(std::istream& stream, DataStruct& value);
     std::ostream& operator<<(std::ostream& stream, const DataStruct& value);
-    struct Delimiter
-    {
-        char exp = '\0';
-    };
-    std::istream& operator>>(std::istream& stream, Delimiter&& value);
 
-    struct DoubleLiteral
+    namespace input
     {
-        double& link;
-    };
-    std::istream& operator>>(std::istream& stream, DoubleLiteral&& value);
-    std::ostream& operator<<(std::ostream& stream, const DoubleLiteral& value);
-    struct UllLiteral
+        struct Delimiter
+        {
+            char expected = '\0';
+        };
+        std::istream& operator>>(std::istream& stream, Delimiter&& value);
+        struct DoubleLiteral
+        {
+            double& link;
+        };
+        std::istream& operator>>(std::istream& stream, DoubleLiteral&& value);
+        struct UllLiteral
+        {
+            unsigned long long& link;
+        };
+        std::istream& operator>>(std::istream& stream, UllLiteral&& value);
+        struct StringLiteral
+        {
+            std::string& link;
+        };
+        std::istream& operator>>(std::istream& stream, StringLiteral&& value);
+    }
+    namespace output
     {
-        unsigned long long& link;
-    };
-    std::istream& operator>>(std::istream& stream, UllLiteral&& value);
-    std::ostream& operator<<(std::ostream& stream, const UllLiteral& value);
-    struct String
-    {
-        std::string& link;
-    };
-    std::istream& operator>>(std::istream& stream, String&& value);
-    std::ostream& operator<<(std::ostream& stream, const String& value);
+        struct DoubleLiteral
+        {
+            double value;
+        };
+        std::ostream& operator<<(std::ostream& stream, const DoubleLiteral& value);
+        struct UllLiteral
+        {
+            unsigned long long value;
+        };
+        std::ostream& operator<<(std::ostream& stream, const UllLiteral& value);
+        struct StringLiteral
+        {
+            std::string value;
+        };
+        std::ostream& operator<<(std::ostream& stream, const StringLiteral& value);
+    }
 }
 
 #endif
