@@ -65,7 +65,10 @@ namespace doomsday
             res += mainDel.eye;
         }
         dest.ref = res;
-        is.clear();
+        if (!is.bad() && !is.eof())
+        {
+            is.clear();
+        }
         return is;
     }
 
@@ -87,7 +90,10 @@ namespace doomsday
             is.setstate(std::ios::failbit);
             return is;
         }
-        is.clear();
+        if (!is.bad() && !is.eof())
+        {
+            is.clear();
+        }
         return is;
     }
 
@@ -98,13 +104,18 @@ namespace doomsday
         {
             dest.key += mainDel.eye;
         }
-        is.clear();
-        // is.setstate(std::ios::failbit);
+        if (!is.bad() && !is.eof())
+        {
+            is.clear();
+        }
         return is;
     }
 
     std::istream& operator>>(std::istream& is, DataStruct& data)
     {
+        bool flag1 = false;
+        bool flag2 = false;
+        bool flag3 = false;
         DataStruct res;
         if (is.eof())
         {
@@ -113,13 +124,11 @@ namespace doomsday
 
         if (!(is >> DelimiterIO{'('}))
         {
-            is.setstate(std::ios::failbit);
             return is;
         }
 
-        if (!(is >> DelimiterIO{':'})) // заглушка
+        if (!(is >> DelimiterIO{':'}))
         {
-            is.setstate(std::ios::failbit);
             return is;
         }
 
@@ -134,37 +143,54 @@ namespace doomsday
 
             if (key.key == "key1")
             {
-                if (!(is >> DoubleIO{ res.key1 }))
+                if (flag1)
                 {
                     is.setstate(std::ios::failbit);
                     return is;
                 }
+
+                if (!(is >> DoubleIO{ res.key1 }))
+                {
+                    return is;
+                }
+
+                flag1 = true;
             }
             else if (key.key == "key2")
             {
+                if (flag2)
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+
                 if (!(is >> DelimiterIO{'\''} >> CharIO{ res.key2 } >> DelimiterIO{'\''}))
                 {
-                    is.setstate(std::ios::failbit);
                     return is;
                 }
-                if (!(is >> DelimiterIO{':'})) // заглушка
+                if (!(is >> DelimiterIO{':'}))
                 {
-                    is.setstate(std::ios::failbit);
                     return is;
                 }
+                flag2 = true;
             }
             else if (key.key == "key3")
             {
+                if (flag3)
+                {
+                    is.setstate(std::ios::failbit);
+                    return is;
+                }
+
                 if (!(is >> DelimiterIO{'"'} >> StringIO{ res.key3 }))
                 {
-                    is.setstate(std::ios::failbit);
                     return is;
                 }
-                if (!(is >> DelimiterIO{':'})) // заглушка
+                if (!(is >> DelimiterIO{':'}))
                 {
-                    is.setstate(std::ios::failbit);
                     return is;
                 }
+                flag3 = false;
             }
             else
             {
@@ -172,9 +198,8 @@ namespace doomsday
                 return is;
             }
         }
-        if (!(is >> DelimiterIO{')'})) // заглушка
+        if (!(is >> DelimiterIO{')'}))
         {
-            is.setstate(std::ios::failbit);
             return is;
         }
         data = res;
