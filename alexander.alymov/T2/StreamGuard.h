@@ -2,7 +2,8 @@
 #define STREAMGUARD_H
 #include <iostream>
 
-namespace alymov {
+namespace alymov
+{
     class StreamGuard
     {
     public:

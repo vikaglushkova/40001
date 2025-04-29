@@ -7,7 +7,8 @@
 #include <map>
 #include "StreamGuard.h"
 
-namespace alymov {
+namespace alymov
+{
 
     struct DataStruct {
         unsigned long long key1;
@@ -40,6 +41,5 @@ namespace alymov {
 
     bool compareDataStruct(const DataStruct& a, const DataStruct& b);
 }
-
 
 #endif

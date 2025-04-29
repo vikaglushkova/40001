@@ -6,15 +6,14 @@
 #include <limits>
 
 int main() {
-    using namespace alymov;
 
-    std::vector<DataStruct> data;
+    std::vector<alymov::DataStruct> data;
 
     while (std::cin.good())
     {
         std::copy(
-            std::istream_iterator<DataStruct>(std::cin),
-            std::istream_iterator<DataStruct>(),
+            std::istream_iterator<alymov::DataStruct>(std::cin),
+            std::istream_iterator<alymov::DataStruct>(),
             std::back_inserter(data)
         );
         if (std::cin.fail() && !std::cin.eof())
@@ -24,12 +23,12 @@ int main() {
         }
     }
 
-    std::sort(data.begin(), data.end(), compareDataStruct);
+    std::sort(data.begin(), data.end(), alymov::compareDataStruct);
 
     std::copy(
         std::begin(data),
         std::end(data),
-        std::ostream_iterator<DataStruct>(std::cout, "\n")
+        std::ostream_iterator<alymov::DataStruct>(std::cout, "\n")
     );
 
     return 0;

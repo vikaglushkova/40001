@@ -1,6 +1,7 @@
 #include "StreamGuard.h"
 
-namespace alymov {
+namespace alymov
+{
     StreamGuard::StreamGuard(std::basic_ios< char >& s) :
         s_(s),
         precision_(s.precision()),

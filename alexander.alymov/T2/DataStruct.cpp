@@ -35,7 +35,7 @@ namespace alymov
 
             return in;
         }
-
+        StreamGuard guard(in);
         in >> std::hex >> dest.ref;
         return in;
     }
@@ -112,7 +112,7 @@ namespace alymov
 
             if (key == "key1")
             {
-                in >> std::hex >> ullHex{ input.key1 };
+                in >> ullHex{ input.key1 };
             }
             else if (key == "key2")
             {
@@ -154,13 +154,16 @@ namespace alymov
 
     bool compareDataStruct(const DataStruct& a, const DataStruct& b)
     {
-        if (a.key1 != b.key1) {
+        const double EPSILON = 1e-9;
+        if (a.key1 != b.key1)
+        {
             return a.key1 < b.key1;
         }
-        double a_magnitude = std::norm(a.key2);
-        double b_magnitude = std::norm(b.key2);
-        if (std::abs(a_magnitude - b_magnitude) > 1e-9) {
-            return a_magnitude < b_magnitude;
+        double aMagnitude = std::norm(a.key2);
+        double bMagnitude = std::norm(b.key2);
+        if (std::abs(aMagnitude - bMagnitude) > EPSILON)
+        {
+            return aMagnitude < bMagnitude;
         }
         return a.key3.length() < b.key3.length();
     }
