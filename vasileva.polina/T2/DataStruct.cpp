@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace nspace
+namespace vasileva
 {
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
     {
@@ -112,7 +112,12 @@ namespace nspace
     std::istream& operator>>(std::istream& in, DataStruct& dest) {
         DataStruct temp;
         in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
-
+        std::istream::sentry sentry(in);
+        if (!sentry)
+        {
+            return in;
+        }
+        iofmtguard guard(in);
         std::string label;
         while (in >> label) {
             if (label == "key1") {

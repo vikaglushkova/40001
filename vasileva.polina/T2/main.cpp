@@ -11,8 +11,8 @@
 
 int main()
 {
-    using nspace::DataStruct;
-    using nspace::compareDataStruct;
+    using vasileva::DataStruct;
+    using vasileva::compareDataStruct;
 
     std::vector<DataStruct> data;
 

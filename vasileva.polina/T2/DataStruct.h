@@ -2,7 +2,7 @@
 #define DATASTRUCT_H
 #include <iostream>
 #include "iofmtguard.h"
-namespace nspace
+namespace vasileva
 {
     struct DataStruct
     {
