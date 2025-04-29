@@ -120,7 +120,7 @@ std::istream& trojan::operator>>(std::istream& stream, DataStruct& value)
             else if (key == '2') {
                 stream >> input::UllLiteral{value.key2};
             }
-            else if (key == '3') { 
+            else if (key == '3') {
                 stream >> input::StringLiteral{value.key3};
             }
             received[key - '1'] = true;
