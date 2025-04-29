@@ -43,7 +43,8 @@ namespace timofeev {
     std::string toWrite = oss.str();
     return toWrite;
   }
-  bool has_e(std::string check)
+
+  bool has_e(std::string& check)
   {
     for (size_t i = 0; i < check.size(); i++)
     {
@@ -54,6 +55,7 @@ namespace timofeev {
     }
     return false;
   }
+
   std::string utos(unsigned long long key)
   {
     if (key == 0)
@@ -71,74 +73,83 @@ namespace timofeev {
       return binaryPart;
     }
   }
-
-  bool parsingString(std::istream& in, std::string& key3)
+  std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
   {
-    std::string toReturn = "";
-    char c = ' ';
-    getline(in >> c, toReturn, '"');
-    if (c == '"')
+    std::istream::sentry sentry(in);
+    if (!sentry)
     {
-      key3 = toReturn;
-      char preend = ' ';
-      in >> preend;
-      return true;
+      return in;
     }
-    return false;
+    char c = '0';
+    in >> c;
+    if (in && (c != dest.exp))
+    {
+      in.setstate(std::ios::failbit);
+    }
+    return in;
   }
 
-  bool parsingDouble(std::istream& in, double& key1)
+  std::istream& operator>>(std::istream& in, DoubleIO&& dest)
   {
-    try
+    std::istream::sentry sentry(in);
+    if (!sentry)
     {
-      std::string check;
-      getline(in, check, ':');
-      check.erase(0, 1);
+      return in;
+    }
+    std::string check;
+    getline(in, check, ':');
+    in.unget();
+    if (check[0] >= '1' && check[0] <= '9' && check[1] == '.' && has_e(check))
+    {
       double toReturn = stod(check);
-      if (check[0] >= '1' && check[0] <= '9' && check[1] == '.' && has_e(check))
-      {
-        key1 = toReturn;
-        return true;
-      }
-      else
-      {
-        throw std::invalid_argument("");
-      }
+      dest.ref = toReturn;
     }
-    catch (...)
+    else
     {
-      return false;
+      in.setstate(std::ios::failbit);
     }
+    return in;
   }
 
-  bool parsingUll(std::istream& in, unsigned long long& key2)
+  std::istream& operator>>(std::istream& in, StringIO&& dest)
   {
-    try
+    std::istream::sentry sentry(in);
+    if (!sentry)
     {
-      std::string toCheck = "";
-      getline(in, toCheck, ':');
-      toCheck.erase(0, 1);
-      unsigned long long toWrite = stoull(toCheck.substr(2), nullptr, 2);
-      if (toCheck[0] != '0' || (toCheck[1] != 'b' && toCheck[1] != 'B'))
-      {
-        throw std::invalid_argument("");
-      }
-      for (size_t i = 2; i < toCheck.length(); i++)
-      {
-        if (toCheck[i] != '0' && toCheck[i] != '1')
-        {
-          return false;
-        }
-      }
-      key2 = toWrite;
-      return true;
+      return in;
     }
-    catch (...)
-    {
-      return false;
-    }
+    return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
   }
-  std::istream& operator >> (std::istream& in, DataStruct& data)
+
+  std::istream& operator>>(std::istream& in, UllBinIO&& dest)
+  {
+    std::istream::sentry sentry(in);
+    if (!sentry)
+    {
+      return in;
+    }
+    std::string toCheck = "";
+    getline(in, toCheck, ':');
+    in.unget();
+    if (toCheck[0] != '0' || (toCheck[1] != 'b' && toCheck[1] != 'B') || toCheck == "")
+    {
+      in.setstate(std::ios::failbit);
+      return in;
+    }
+    for (size_t i = 2; i < toCheck.length(); i++)
+    {
+      if (toCheck[i] != '0' && toCheck[i] != '1')
+      {
+        in.setstate(std::ios::failbit);
+        return in;
+      }
+    }
+    unsigned long long toWrite = stoull(toCheck.substr(2), nullptr, 2);
+    dest.ref = toWrite;
+    return in;
+  }
+
+  std::istream& operator>>(std::istream& in, DataStruct& dest)
   {
     std::istream::sentry sentry(in);
     if (!sentry)
@@ -146,54 +157,42 @@ namespace timofeev {
       return in;
     }
     DataStruct input;
-    char c = ' ';
-    char b = ' ';
-    in >> c;
-    in >> b;
-    if (c != '(' && b != ':')
     {
-      in.setstate(std::ios::failbit);
-      return in;
-    }
-    for (size_t i = 0; i < 3; i++)
-    {
-      std::string key = "";
-      in >> key;
-      if (key == "key1")
+      using sep = DelimiterIO;
+      using dbl = DoubleIO;
+      using str = StringIO;
+      using ull = UllBinIO;
+      in >> sep{ '(' } >> sep{ ':' };
+      for (size_t i = 0; i < 3; i++)
       {
-        if (!parsingDouble(in, input.key1))
+        std::string label = "";
+        in >> label;
+        if (label == "key1")
+        {
+          in >> dbl{ input.key1 };
+          in >> sep{ ':' };
+        }
+        else if (label == "key2")
+        {
+          in >> ull{ input.key2 };
+          in >> sep{ ':' };
+        }
+        else if (label == "key3")
+        {
+          in >> str{ input.key3 };
+          in >> sep{ ':' };
+        }
+        else
         {
           in.setstate(std::ios::failbit);
           return in;
         }
       }
-      else if (key == "key2")
-      {
-        if (!parsingUll(in, input.key2))
-        {
-          in.setstate(std::ios::failbit);
-          return in;
-        }
-      }
-      else if (key == "key3")
-      {
-        if (!parsingString(in, input.key3))
-        {
-          in.setstate(std::ios::failbit);
-          return in;
-        }
-      }
-    }
-    char end = ' ';
-    in >> end;
-    if (end != ')')
-    {
-      in.setstate(std::ios::failbit);
-      return in;
+      in >> sep{ ')' };
     }
     if (in)
     {
-      data = input;
+      dest = input;
     }
     return in;
   }
@@ -205,6 +204,7 @@ namespace timofeev {
     {
       return out;
     }
+    iofmtguard fmtguard(out);
     out << "(";
     out << ":" << "key1" << " " << beautyDouble(data.key1);
     out << ":" << "key2" << " " << utos(data.key2);
@@ -212,5 +212,21 @@ namespace timofeev {
     out << ":";
     out << ")";
     return out;
+  }
+
+  iofmtguard::iofmtguard(std::basic_ios< char >& s) :
+    s_(s),
+    width_(s.width()),
+    fill_(s.fill()),
+    precision_(s.precision()),
+    fmt_(s.flags())
+  {}
+
+  iofmtguard::~iofmtguard()
+  {
+    s_.width(width_);
+    s_.fill(fill_);
+    s_.precision(precision_);
+    s_.flags(fmt_);
   }
 }

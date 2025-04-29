@@ -1,34 +1,30 @@
 #include <iostream>
 #include "DataStruct.hpp"
 
-
 int main()
 {
-  std::vector < timofeev::DataStruct > data;
+  using timofeev::DataStruct;
 
-  std::string dataObject;
+  std::vector< DataStruct > data;
 
-  while (std::getline(std::cin, dataObject))
+  while (!std::cin.eof())
   {
-    std::istringstream iss(dataObject);
     std::copy(
-      std::istream_iterator< timofeev::DataStruct >(iss),
-      std::istream_iterator< timofeev::DataStruct >(),
+      std::istream_iterator< DataStruct >(std::cin),
+      std::istream_iterator< DataStruct >(),
       std::back_inserter(data)
     );
-
-    if (iss.fail() && !iss.eof())
+    if (std::cin.fail() && !std::cin.eof() && !std::cin.bad())
     {
-      iss.clear();
+      std::cin.clear();
     }
   }
-
   std::sort(data.begin(), data.end(), timofeev::dataStructCompare);
 
   std::copy(
     std::begin(data),
     std::end(data),
-    std::ostream_iterator< timofeev::DataStruct >(std::cout, "\n")
+    std::ostream_iterator< DataStruct >(std::cout, "\n")
   );
 
   return 0;
