@@ -7,13 +7,13 @@
 #include <algorithm>
 #include <limits>
 
-bool compare(const trojan::DataStruct& ds1,const trojan::DataStruct& ds2)
+bool compare(const trojan::DataStruct& ds1, const trojan::DataStruct& ds2)
 {
     if (ds1.key1 != ds2.key1) {
         return ds1.key1 < ds2.key1;
     }
     else if (ds1.key2 != ds2.key2) {
-        return ds1.key1 < ds2.key2;
+        return ds1.key2 < ds2.key2;
     }
     else {
         return ds1.key3.length() < ds2.key3.length();

@@ -48,7 +48,7 @@ std::istream& trojan::input::operator>>(std::istream& stream, Delimiter&& value)
         return stream;
     }
     char c = '\0';
-    stream >> std::noskipws >> c;
+    c = stream.get();
     if (c != value.expected) {
         stream.setstate(std::ios::failbit);
     }
@@ -109,20 +109,21 @@ std::istream& trojan::operator>>(std::istream& stream, DataStruct& value)
     StreamGuard guard(stream);
     char keyTag[5] = "\0";
     bool received[3] = {false, false, false};
-    int key = 0;
+    char key = 0;
     stream >> input::Delimiter{'('};
-    while ((stream >> std::setw(5) >> std::skipws >> keyTag) && (std::strcmp(keyTag, ":key") == 0)) {
-        if ((stream >> key) && (key >= 1) && (key <= 3) && !received[key - 1]) {
-            if (key == 1) {
+    while ((stream >> std::setw(5) >> keyTag) && (std::strcmp(keyTag, ":key") == 0)) {
+        key = stream.get();
+        if (stream && (key >= '1') && (key <= '3') && !received[key - '1']) {
+            if (key == '1') {
                 stream >> input::DoubleLiteral{value.key1};
             }
-            else if (key == 2) {
+            else if (key == '2') {
                 stream >> input::UllLiteral{value.key2};
             }
-            else if (key == 3) {
+            else if (key == '3') { 
                 stream >> input::StringLiteral{value.key3};
             }
-            received[key - 1] = true;
+            received[key - '1'] = true;
             if (received[0] && received[1] && received[2]) {
                 return stream >> input::Delimiter{':'} >> input::Delimiter{')'};
             }
