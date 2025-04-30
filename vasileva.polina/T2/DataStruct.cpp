@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip> 
 
 namespace vasileva
 {
@@ -28,24 +29,14 @@ namespace vasileva
         {
             return in;
         }
-        std::string str;
-        char c;
-
-        while (in.get(c)) {
-            if (c == ':' || isspace(c)) {
-                in.unget();
-                break;
-            }
-            str.push_back(c);
-        }
-        try
-        {
-            dest.ref = std::stoull(str, nullptr, 8);
-        }
-        catch (...)
+        char c = in.get();
+        if (!in || (c != '0'))
         {
             in.setstate(std::ios::failbit);
+            return in;
         }
+        iofmtguard guard(in);
+        in >> std::oct >> dest.ref;
         return in;
     }
 
@@ -55,32 +46,21 @@ namespace vasileva
             return in;
         }
 
-        std::string numStr;
-        char c;
+        iofmtguard guard(in);
+        unsigned long long temp = 0;
+        char ullTag[4] = { 0 };
 
-        while (in.get(c)) {
-            if (c == ':' || isspace(c)) {
-                in.unget();
-                break;
-            }
-            numStr.push_back(c);
-        }
-
-        size_t pos = numStr.find("ull");
-        if (pos == std::string::npos) {
-            pos = numStr.find("ULL");
-            if (pos == std::string::npos) {
-                in.setstate(std::ios::failbit);
-                return in;
-            }
-        }
-
-        try {
-            dest.ref = std::stoull(numStr.substr(0, pos));
-        }
-        catch (...) {
+        if (!std::isdigit(in.peek()) || !(in >> temp)) {
             in.setstate(std::ios::failbit);
+            return in;
         }
+        in >> std::setw(4) >> ullTag;
+        if ((std::strcmp(ullTag, "ull") != 0 && std::strcmp(ullTag, "ULL") != 0)) {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+
+        dest.ref = temp;
         return in;
     }
 
@@ -111,13 +91,13 @@ namespace vasileva
 
     std::istream& operator>>(std::istream& in, DataStruct& dest) {
         DataStruct temp;
-        in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
         std::istream::sentry sentry(in);
         if (!sentry)
         {
             return in;
         }
         iofmtguard guard(in);
+        in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
         std::string label;
         while (in >> label) {
             if (label == "key1") {

@@ -19,17 +19,12 @@ int main()
     std::string line;
 
 
-    while (std::getline(std::cin, line)) {
-        std::istringstream iss(line);
-        std::copy(
-            std::istream_iterator<DataStruct>(iss),
-            std::istream_iterator<DataStruct>(),
-            std::back_inserter(data)
-        );
-
-
-        if (iss.fail() && !iss.eof()) {
-            iss.clear();
+    while (!std::cin.eof() && !std::cin.bad()) {
+        using iter = std::istream_iterator<vasileva::DataStruct>;
+        std::copy(iter(std::cin), iter(), std::back_inserter(data));
+        if (std::cin.fail() && !std::cin.eof() && !std::cin.bad()) {
+            std::cin.clear();
+            std::cin.ignore();
         }
     }
 
