@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <cstring>
 
 namespace vasileva
 {
@@ -58,7 +59,7 @@ namespace vasileva
             return in;
         }
         in >> std::setw(4) >> ullTag;
-        if ((std::strcmp(ullTag, "ull") != 0 && std::strcmp(ullTag, "ULL") != 0))
+        if ((strcmp(ullTag, "ull") != 0 && strcmp(ullTag, "ULL") != 0))
         {
             in.setstate(std::ios::failbit);
             return in;
