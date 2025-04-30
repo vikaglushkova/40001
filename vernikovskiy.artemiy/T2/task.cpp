@@ -190,7 +190,7 @@ namespace doomsday
                 {
                     return is;
                 }
-                flag3 = false;
+                flag3 = true;
             }
             else
             {
@@ -229,14 +229,3 @@ namespace doomsday
         return os;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
