@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <sstream>
-#include <iomanip> 
+#include <iomanip>
 
 namespace vasileva
 {
@@ -40,9 +40,11 @@ namespace vasileva
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, ULLLitIO&& dest) {
+    std::istream& operator>>(std::istream& in, ULLLitIO&& dest)
+    {
         std::istream::sentry sentry(in);
-        if (!sentry) {
+        if (!sentry)
+        {
             return in;
         }
 
@@ -50,12 +52,14 @@ namespace vasileva
         unsigned long long temp = 0;
         char ullTag[4] = { 0 };
 
-        if (!std::isdigit(in.peek()) || !(in >> temp)) {
+        if (!std::isdigit(in.peek()) || !(in >> temp))
+        {
             in.setstate(std::ios::failbit);
             return in;
         }
         in >> std::setw(4) >> ullTag;
-        if ((std::strcmp(ullTag, "ull") != 0 && std::strcmp(ullTag, "ULL") != 0)) {
+        if ((std::strcmp(ullTag, "ull") != 0 && std::strcmp(ullTag, "ULL") != 0))
+        {
             in.setstate(std::ios::failbit);
             return in;
         }
@@ -89,7 +93,8 @@ namespace vasileva
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, DataStruct& dest) {
+    std::istream& operator>>(std::istream& in, DataStruct& dest)
+    {
         DataStruct temp;
         std::istream::sentry sentry(in);
         if (!sentry)
@@ -99,26 +104,33 @@ namespace vasileva
         iofmtguard guard(in);
         in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
         std::string label;
-        while (in >> label) {
-            if (label == "key1") {
+        while (in >> label)
+        {
+            if (label == "key1")
+            {
                 in >> ULLLitIO{ temp.key1 } >> DelimiterIO{ ':' };
             }
-            else if (label == "key2") {
+            else if (label == "key2")
+            {
                 in >> ULLOctIO{ temp.key2 } >> DelimiterIO{ ':' };
             }
-            else if (label == "key3") {
+            else if (label == "key3")
+            {
                 in >> StringIO{ temp.key3 } >> DelimiterIO{ ':' };
             }
-            else if (label == ")") {
+            else if (label == ")")
+            {
                 break;
             }
-            else {
+            else
+            {
                 in.setstate(std::ios::failbit);
                 break;
             }
         }
 
-        if (in) {
+        if (in)
+        {
             dest = temp;
         }
         return in;
@@ -136,11 +148,14 @@ namespace vasileva
         return out;
     }
 
-    bool compareDataStruct(const DataStruct& a, const DataStruct& b) {
-        if (a.key1 != b.key1) {
+    bool compareDataStruct(const DataStruct& a, const DataStruct& b)
+    {
+        if (a.key1 != b.key1)
+        {
             return a.key1 < b.key1;
         }
-        if (a.key2 != b.key2) {
+        if (a.key2 != b.key2)
+        {
             return a.key2 < b.key2;
         }
         return a.key3.length() < b.key3.length();
