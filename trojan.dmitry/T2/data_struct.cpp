@@ -110,26 +110,34 @@ std::istream& trojan::operator>>(std::istream& stream, DataStruct& value)
     char keyTag[5] = "\0";
     bool received[3] = {false, false, false};
     char key = 0;
+    DataStruct temp;
+    bool isGood = true;
     stream >> input::Delimiter{'('};
-    while ((stream >> std::setw(5) >> keyTag) && (std::strcmp(keyTag, ":key") == 0)) {
+    while ((stream >> std::setw(5) >> keyTag) && (std::strcmp(keyTag, ":key") == 0) && isGood) {
         key = stream.get();
         if (stream && (key >= '1') && (key <= '3') && !received[key - '1']) {
             if (key == '1') {
-                stream >> input::DoubleLiteral{value.key1};
+                stream >> input::DoubleLiteral{temp.key1};
             }
             else if (key == '2') {
-                stream >> input::UllLiteral{value.key2};
+                stream >> input::UllLiteral{temp.key2};
             }
             else if (key == '3') {
-                stream >> input::StringLiteral{value.key3};
+                stream >> input::StringLiteral{temp.key3};
             }
             received[key - '1'] = true;
             if (received[0] && received[1] && received[2]) {
-                return stream >> input::Delimiter{':'} >> input::Delimiter{')'};
+                if (stream >> input::Delimiter{':'} >> input::Delimiter{')'}) {
+                    value = temp;
+                }
+                return stream;
             }
-            continue;
         }
-        break;
+        else {
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+        isGood = received[key - '1'];
     }
     stream.setstate(std::ios::failbit);
     return stream;
