@@ -22,8 +22,14 @@ namespace doomsday
 
     std::istream& operator>>(std::istream& is, DelimiterIO&& dest)
     {
+        std::istream::sentry sentry(is);
+        if (!sentry)
+        {
+            return is;
+            std::cout << "SENTRY" << std::endl ;
+        }
         char c = '0';
-        is >> c;
+        is >> std::noskipws >> c;
         if (is && (c != dest.delim))
         {
             is.setstate(std::ios::failbit);
@@ -31,20 +37,14 @@ namespace doomsday
         return is;
     }
 
-    std::istream& operator>>(std::istream& is, BBDelimIO& dest)
-    {
-        char c = '0';
-        is >> std::noskipws >> c;
-        if (is && (c == dest.delim))
-        {
-            is.setstate(std::ios::failbit);
-        }
-        dest.eye = c;
-        return is;
-    }
-
     std::istream& operator>>(std::istream& is, CharIO&& dest)
     {
+        std::istream::sentry sentry(is);
+        if (!sentry)
+        {
+            return is;
+            std::cout << "SENTRY" << std::endl ;
+        }
         char c = '0';
         is >> c;
         if (is)
@@ -58,13 +58,19 @@ namespace doomsday
 
     std::istream& operator>>(std::istream& is, StringIO&& dest)
     {
-        std::string res = "";
-        BBDelimIO mainDel{'"'};
-        while (is >> mainDel)
+        std::istream::sentry sentry(is);
+        if (!sentry)
         {
-            res += mainDel.eye;
+            return is;
+            std::cout << "SENTRY" << std::endl ;
         }
-        dest.ref = res;
+        std::string res = "";
+        char c = '0';
+        while (is.get(c) && (c != '"')) // do with is.get()
+        {
+            res += c;
+        }
+        dest.ref = res; //
         if (!is.bad() && !is.eof())
         {
             is.clear();
@@ -74,12 +80,18 @@ namespace doomsday
 
     std::istream& operator>>(std::istream& is, DoubleIO&& dest)
     {
-        std::streampos startPos = is.tellg();
-        BBDelimIO mainDel{':'};
-        std::string stmp = "";
-        while (is >> mainDel)
+        std::istream::sentry sentry(is);
+        if (!sentry)
         {
-            stmp += mainDel.eye;
+            return is;
+           std::cout << "SENTRY" << std::endl ;
+        }
+        std::streampos startPos = is.tellg();
+        char c = '0';
+        std::string stmp = "";
+        while (is.get(c) && (c != ':'))
+        {
+            stmp += c;
         }
         try
         {
@@ -99,10 +111,16 @@ namespace doomsday
 
     std::istream& operator>>(std::istream& is, keyLable& dest)
     {
-        BBDelimIO mainDel{' '};
-        while (is >> mainDel)
+        std::istream::sentry sentry(is);
+        if (!sentry)
         {
-            dest.key += mainDel.eye;
+            return is;
+           std::cout << "SENTRY" << std::endl ;
+        }
+        char c = '0';
+        while (is.get(c) && (c != ' '))
+        {
+            dest.key += c;
         }
         if (!is.bad() && !is.eof())
         {

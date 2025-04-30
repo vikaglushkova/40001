@@ -17,11 +17,6 @@ namespace doomsday
     {
         char delim;
     };
-    struct BBDelimIO
-    {
-        char delim;
-        char eye;
-    };
     struct keyLable
     {
         std::string key;
@@ -44,7 +39,6 @@ namespace doomsday
     std::istream& operator>>(std::istream& is, DoubleIO&& dest);
     std::istream& operator>>(std::istream& is, CharIO&& dest);
     std::istream& operator>>(std::istream& is, StringIO&& dest);
-    std::istream& operator>>(std::istream& is, BBDelimIO& dest);
 
 
     bool compareDataStruct(const DataStruct& a, const DataStruct& b);
