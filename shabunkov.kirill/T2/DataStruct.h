@@ -129,7 +129,7 @@ namespace nspace
         return in;
       }
     }
-    
+
     in.setstate(std::ios::failbit);
     return in;
   }

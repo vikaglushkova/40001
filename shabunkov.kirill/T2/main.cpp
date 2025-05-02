@@ -17,27 +17,19 @@ int main()
 
   while (!std::cin.eof() && !std::cin.bad())
   {
-    std::copy(
-      std::istream_iterator< DataStruct >(std::cin),
-      std::istream_iterator< DataStruct >(),
-      std::back_inserter(data)
-    );
-
+    using IstremIter = std::istream_iterator< nspace::DataStruct >;
+    std::copy(IstremIter(std::cin), IstremIter(), std::back_inserter(data));
     if (std::cin.fail() && !std::cin.eof() && !std::cin.bad())
     {
       std::cin.clear();
-      std::cin.ignore();
+      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     }
   }
 
   std::sort(data.begin(), data.end(), compareDataStruct);
 
-  std::copy(
-    std::begin(data),
-    std::end(data),
-    std::ostream_iterator< DataStruct >(std::cout, "\n")
-  );
-
+  using OstreamIter = std::ostream_iterator< nspace::DataStruct >;
+  std::copy(data.begin(), data.end(), OstreamIter(std::cout, "\n"));
   return 0;
 }
 
