@@ -288,4 +288,3 @@ namespace nspace
   }
 }
 #endif
-
