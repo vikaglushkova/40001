@@ -120,20 +120,15 @@ namespace nspace
       return in;
     }
 
-    std::streampos startPos = in.tellg();
-    if (in >> dest.ref >> DelimiterIO{ 'd' })
+    char suff = '\0';
+    if (in >> dest.ref >> suff)
     {
-      return in;
-
+      if (suff == 'd' || suff == 'D')
+      {
+        return in;
+      }
     }
-    in.clear();
-    in.seekg(startPos);
-
-    if (in >> dest.ref >> DelimiterIO{ 'D' })
-    {
-      return in;
-    }
-
+    
     in.setstate(std::ios::failbit);
     return in;
   }
@@ -151,14 +146,12 @@ namespace nspace
     if (!(in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' }))
     {
       in.seekg(startPos);
-      in.setstate(std::ios::failbit);
       return in;
     }
 
-    if (!(in >> LabelIO{ "N" }))
+    if (!(in >> DelimiterIO{ 'N' }))
     {
       in.seekg(startPos);
-      in.setstate(std::ios::failbit);
       return in;
     }
 
@@ -166,14 +159,12 @@ namespace nspace
     if (!(in >> numerator))
     {
       in.seekg(startPos);
-      in.setstate(std::ios::failbit);
       return in;
     }
 
-    if (!(in >> DelimiterIO{ ':' } >> LabelIO{ "D" }))
+    if (!(in >> DelimiterIO{ ':' } >> DelimiterIO{ 'D' }))
     {
       in.seekg(startPos);
-      in.setstate(std::ios::failbit);
       return in;
     }
 
@@ -181,7 +172,6 @@ namespace nspace
     if (!(in >> denominator))
     {
       in.seekg(startPos);
-      in.setstate(std::ios::failbit);
       return in;
     }
 
@@ -195,7 +185,6 @@ namespace nspace
     if (!(in >> DelimiterIO{ ':' } >> DelimiterIO{ ')' }))
     {
       in.seekg(startPos);
-      in.setstate(std::ios::failbit);
       return in;
     }
 
@@ -259,7 +248,7 @@ namespace nspace
     out << std::fixed << std::setprecision(1);
 
     out << "(:";
-    out << "key1 " << dest.key1 << "d:";
+    out << "key1 " << dest.key1 << "d: ";
     out << "key2 (:N " << dest.key2.first << ":D " << dest.key2.second << ":):";
     out << "key3 \"" << dest.key3 << "\":" << ")";
 

@@ -15,21 +15,18 @@ int main()
 
   std::vector< DataStruct >  data;
 
-  std::string str;
-
-  while (std::getline(std::cin, str))
+  while (!std::cin.eof() && !std::cin.bad())
   {
-    if (std::cin.eof()) break;
-    std::istringstream iss(str);
     std::copy(
-      std::istream_iterator< DataStruct >(iss),
+      std::istream_iterator< DataStruct >(std::cin),
       std::istream_iterator< DataStruct >(),
       std::back_inserter(data)
     );
 
-    if (iss.fail() && !iss.eof())
+    if (std::cin.fail() && !std::cin.eof() && !std::cin.bad())
     {
-      iss.clear();
+      std::cin.clear();
+      std::cin.ignore();
     }
   }
 
