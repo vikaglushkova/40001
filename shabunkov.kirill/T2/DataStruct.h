@@ -121,6 +121,7 @@ namespace nspace
     }
 
     char suff = '\0';
+
     if (in >> dest.ref >> suff)
     {
       if (suff == 'd' || suff == 'D')
@@ -288,3 +289,4 @@ namespace nspace
   }
 }
 #endif
+
