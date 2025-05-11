@@ -42,7 +42,7 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
         return in;
     }
 
-    in >> std::ws;
+    //in >> std::ws;
     if (in.peek() != EOF && in.peek() != '\n') {
         in.setstate(std::ios::failbit);
     }
