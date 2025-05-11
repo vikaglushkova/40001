@@ -18,12 +18,7 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
     poly.points.clear();
     int count;
 
-    if (!(in >> count)) {
-        in.setstate(std::ios::failbit);
-        return in;
-    }
-
-    if (count < 3) {
+    if (!(in >> count) || (count < 3)) {
         in.setstate(std::ios::failbit);
         return in;
     }
@@ -35,13 +30,11 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
         }
         Point p;
         if (!(in >> p)) {
-            //in.setstate(std::ios::failbit);
             return in;
         }
         poly.points.push_back(p);
     }
 
-    //in >> std::ws;
     if (in.peek() != EOF && in.peek() != '\n') {
         in.setstate(std::ios::failbit);
     }
