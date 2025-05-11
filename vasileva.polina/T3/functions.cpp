@@ -25,20 +25,15 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
     }
 
     for (int i = 0; i < count; i++) {
-        /*char ch = in.peek();
-        if (ch == '\n') {
-            in.setstate(std::ios::failbit);
-            return in;
-        }*/
-        while (in.peek() == ' ') in.get();
         Point p;
         if (!(in >> p)) {
+            in.setstate(std::ios::failbit);
             return in;
         }
         poly.points.push_back(p);
     }
-    while (in.peek() == ' ') in.get(); //
-    if (in.peek() != '\n' && in.peek() != EOF) {
+    
+    if (poly.points.size() != static_cast<size_t>(count)) {
         in.setstate(std::ios::failbit);
     }
 
