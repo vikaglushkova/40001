@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <limits>
 #include <iterator>
-#include "Functions.h"
+#include "functions.h"
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {

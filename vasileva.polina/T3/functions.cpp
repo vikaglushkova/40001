@@ -135,6 +135,7 @@ double maxAreaVer(const std::string& arg, const polys& polys) {
         );
         return static_cast<double>(maxIt->points.size());
     }
+    return 0.0;
 }
 
 double minAreaVer(const std::string& arg, const polys& polys) {
@@ -154,6 +155,7 @@ double minAreaVer(const std::string& arg, const polys& polys) {
         );
         return static_cast<double>(minIt->points.size());
     }
+    return 0.0;
 }
 
 int countVer(const std::string& arg, const polys& polys) {
