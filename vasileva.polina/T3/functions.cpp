@@ -58,6 +58,9 @@ void invalComm() {
     std::cout << "<INVALID COMMAND>\n";
     std::cin.clear();
     //std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    if (std::cin.rdbuf()->in_avail() > 0) {
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
 }
 
 bool isEmpty(polys& polys) {
