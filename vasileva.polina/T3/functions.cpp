@@ -29,9 +29,13 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
     }
 
     for (int i = 0; i < count; ++i) {
+        if (in.peek() == '\n') {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
         Point p;
         if (!(in >> p)) {
-            in.setstate(std::ios::failbit);
+            //in.setstate(std::ios::failbit);
             return in;
         }
         poly.points.push_back(p);
