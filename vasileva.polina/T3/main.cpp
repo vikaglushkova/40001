@@ -8,7 +8,6 @@
 #include <iterator>
 #include "Functions.h"
 
-
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         std::cerr << "ERROR: file doesn't exist\n";
@@ -60,7 +59,6 @@ int main(int argc, char* argv[]) {
                 catch (...) {
                     invalComm();
                 }
-                
             }
         }
         else if (command == "MAX" || command == "MIN") {
@@ -94,7 +92,6 @@ int main(int argc, char* argv[]) {
                 catch (...) {
                     invalComm();
                 }
-
             }
         }
         else if (command == "ECHO") {
