@@ -53,8 +53,12 @@ int main(int argc, char* argv[]) {
             }
             else {
                 try {
-                    std::stoi(arg);
-                    std::cout << areaNum(std::stoi(arg), polygons) << '\n';
+                    if (std::stoi(arg) >= 3) {
+                        std::cout << areaNum(std::stoi(arg), polygons) << '\n';
+                    }
+                    else {
+                        invalComm();
+                    }
                 }
                 catch (...) {
                     invalComm();
@@ -68,11 +72,17 @@ int main(int argc, char* argv[]) {
             }
             std::string arg;
             std::cin >> arg;
-            if (command == "MAX" && (arg == "AREA" || arg == "VERTEXES")) {
+            if (command == "MAX" && arg == "AREA") {
                 std::cout << maxAreaVer(arg, polygons) << '\n';
             }
-            else if (command == "MIN" && (arg == "AREA" || arg == "VERTEXES")) {
+            else if (command == "MAX" && arg == "VERTEXES") {
+                std::cout << static_cast<int>(maxAreaVer(arg, polygons)) << '\n';
+            }
+            else if (command == "MIN" && arg == "AREA") {
                 std::cout << minAreaVer(arg, polygons) << '\n';
+            }
+            else if (command == "MIN" && arg == "VERTEXES") {
+                std::cout << static_cast<int>(minAreaVer(arg, polygons)) << '\n';
             }
             else {
                 invalComm();
@@ -86,8 +96,12 @@ int main(int argc, char* argv[]) {
             }
             else {
                 try {
-                    std::stoi(arg);
-                    std::cout << countVer(std::stoi(arg), polygons) << '\n';
+                    if (std::stoi(arg) >= 3) {
+                        std::cout << countVer(std::stoi(arg), polygons) << '\n';
+                    }
+                    else {
+                        invalComm();
+                    }
                 }
                 catch (...) {
                     invalComm();

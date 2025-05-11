@@ -171,6 +171,10 @@ int countVer(const std::string& arg, const polys& polys) {
 }
 
 int countVer(size_t arg, const polys& polys) {
+    if (arg < 3) {
+        invalComm();
+        return -1;
+    }
     int output = std::count_if(
         polys.begin(),
         polys.end(),
