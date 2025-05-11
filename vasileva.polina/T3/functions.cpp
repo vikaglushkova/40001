@@ -5,7 +5,6 @@
 #include <functional>
 #include <limits>
 
-
 std::istream& operator>>(std::istream& in, Point& p) {
     char ch;
     if (in >> ch && ch == '(' && in >> p.x >> ch && ch == ';' && in >> p.y >> ch && ch == ')') {
@@ -32,7 +31,7 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
         }
         poly.points.push_back(p);
     }
-    
+
     if (poly.points.size() != static_cast<size_t>(count)) {
         in.setstate(std::ios::failbit);
     }
@@ -45,8 +44,7 @@ void invalComm() {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-bool isEmpty(polys& polys)
-{
+bool isEmpty(polys& polys) {
     return polys.size() == 0;
 }
 
@@ -108,8 +106,7 @@ bool VertexCountComparator(const Polygon& a, const Polygon& b) {
     return a.points.size() < b.points.size();
 }
 
-
-bool AreaComparator (const Polygon& a, const Polygon& b) {
+bool AreaComparator(const Polygon& a, const Polygon& b) {
     return calculateArea(a.points) < calculateArea(b.points);
 }
 
