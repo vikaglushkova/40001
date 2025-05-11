@@ -113,9 +113,11 @@ int main(int argc, char* argv[]) {
             std::string line;
 
             std::getline(std::cin >> std::ws, line);
+            //std::cout << "DEBUG: line = '" << line << "'\n"; // Отладочный вывод
             std::istringstream iss(line);
 
             if (!(iss >> poly)) {
+                //std::cout << "DEBUG: Failed to read polygon\n"; // Отладочный вывод
                 invalComm();
             }
             else {
