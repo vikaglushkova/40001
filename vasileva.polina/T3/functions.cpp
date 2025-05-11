@@ -29,7 +29,6 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
     }
 
     for (int i = 0; i < count; ++i) {
-        while (in.peek() == ' ') in.get();
         Point p;
         if (!(in >> p)) {
             in.setstate(std::ios::failbit);
@@ -38,8 +37,13 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
         poly.points.push_back(p);
     }
 
-    while (in.peek() == ' ') in.get(); //
-    if (in.peek() != '\n' && in.peek() != EOF) {
+    if (poly.points.size() != static_cast<size_t>(count)) {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+
+    in >> std::ws;
+    if (in.peek() != EOF && in.peek() != '\n') {
         in.setstate(std::ios::failbit);
     }
 
