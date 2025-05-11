@@ -117,7 +117,8 @@ int main(int argc, char* argv[]) {
             std::istringstream iss(line);
 
             if (!(iss >> poly)) {
-                invalComm();
+                std::cout << "<INVALID COMMAND>\n";
+                std::cin.clear();
             }
             else {
                 std::cout << echo(polygons, poly) << '\n';

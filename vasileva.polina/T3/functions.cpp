@@ -41,11 +41,6 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
         poly.points.push_back(p);
     }
 
-    if (poly.points.size() != static_cast<size_t>(count)) {
-        in.setstate(std::ios::failbit);
-        return in;
-    }
-
     //in >> std::ws;
     if (in.peek() != EOF && in.peek() != '\n') {
         in.setstate(std::ios::failbit);
@@ -57,10 +52,7 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
 void invalComm() {
     std::cout << "<INVALID COMMAND>\n";
     std::cin.clear();
-    //std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    if (std::cin.rdbuf()->in_avail() > 0) {
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 bool isEmpty(polys& polys) {
