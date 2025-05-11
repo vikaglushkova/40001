@@ -56,7 +56,8 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
 
 void invalComm() {
     std::cout << "<INVALID COMMAND>\n";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.clear();
+    //std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 bool isEmpty(polys& polys) {
