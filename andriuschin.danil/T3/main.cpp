@@ -9,39 +9,27 @@
 #include <limits>
 #include "polygon.hpp"
 #include "parser.hpp"
+#include "processor.hpp"
+#include "parser.hpp"
 
 int main(int argc, char** argv)
 {
-  if (argc != 2)
+  std::vector< andriuschin::Polygon > polygons;
+  andriuschin::MainProcessor processor;
+  andriuschin::Parser< andriuschin::MainProcessor >::map_type comands = {
+    {"AREA", &andriuschin::MainProcessor::area},
+    {"MAX", &andriuschin::MainProcessor::max},
+    {"MIN", &andriuschin::MainProcessor::min},
+    {"COUNT", &andriuschin::MainProcessor::count},
+    {"LESSAREA", &andriuschin::MainProcessor::lessArea},
+    {"INTERSECTIONS", &andriuschin::MainProcessor::intersections}
+  };
+  andriuschin::Parser< andriuschin::MainProcessor > parser({}, {std::cin, std::cout, std::cerr, polygons},
+      std::move(comands));
+  if (!processor.init(parser.context, argc, argv))
   {
-    std::cerr << "No file\n";
     return 1;
   }
-  andriuschin::Parser parser(std::cin, std::cout);
-  parser.init(argc, argv);
-  std::map< std::string, void(andriuschin::Parser::*)() > comands = {
-      {"AREA", &andriuschin::Parser::area},
-      {"MAX", &andriuschin::Parser::max},
-      {"MIN", &andriuschin::Parser::min},
-      {"COUNT", &andriuschin::Parser::count},
-      {"LESSAREA", &andriuschin::Parser::lessArea},
-      {"INTERSECTIONS", &andriuschin::Parser::intersections}
-  };
-  std::string comand;
-  while (!(std::cin >> comand).eof())
-  {
-    try
-    {
-      (parser.*(comands.at(comand)))();
-    }
-    catch(const std::logic_error&)
-    {
-      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-      std::cerr << "<INVALID COMAND>\n";
-    }
-    catch (...)
-    {
-      std::cerr << "<INVALID COMAND>\n";
-    }
-  }
+  while (parser.run())
+  {}
 }

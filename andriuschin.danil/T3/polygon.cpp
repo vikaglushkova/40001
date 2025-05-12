@@ -6,6 +6,7 @@
 #include <numeric>
 #include <cmath>
 #include <iterator>
+#include <limits>
 
 #include <demand.hpp>
 #include <format_guard.hpp>
