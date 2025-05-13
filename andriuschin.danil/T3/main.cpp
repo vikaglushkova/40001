@@ -9,6 +9,9 @@
 
 int main(int argc, char** argv)
 {
+  andriuschin::Polygon tmp{{{0, 0}, {4, 4}, {0, -2}}};
+  std::cout << andriuschin::GetIntersections{}(tmp, {3, 1});
+  return 0;
   std::vector< andriuschin::Polygon > polygons;
   andriuschin::MainProcessor processor;
   andriuschin::Parser< andriuschin::MainProcessor >::map_type comands = {

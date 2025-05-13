@@ -22,7 +22,7 @@ namespace andriuschin
   };
   struct GetIntersections
   {
-    bool operator()(const Polygon& lhs, const Polygon& rhs);
+    bool operator()(const Polygon& poly, const Point& point);
   };
   namespace details
   {

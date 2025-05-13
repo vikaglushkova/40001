@@ -59,11 +59,11 @@ bool andriuschin::MinMaxProcessor< isMax >::area(Context& context)
     return false;
   }
   using namespace std::placeholders;
-  const auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
-      std::bind(std::conditional_t< isMax, std::less<>, std::greater<> >(), std::bind(GetArea(), _1),
-        std::bind(GetArea(), _2)));
+  auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
+      std::bind(std::conditional_t< isMax, std::less<>, std::greater<> >{}, std::bind(GetArea{}, _1),
+        std::bind(GetArea{}, _2)));
 
-  context.output << GetArea()(*minMax) << '\n';
+  context.output << GetArea{}(*minMax) << '\n';
   return true;
 }
 
@@ -77,8 +77,8 @@ bool andriuschin::MinMaxProcessor< isMax >::vertexes(Context& context)
   using namespace std::placeholders;
   static auto getData = std::bind(std::mem_fn(&Polygon::points), _1);
   static auto getDataSize = std::bind(&decltype(Polygon::points)::size, getData);
-  const auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
-      std::bind(std::conditional_t< isMax, std::less<>, std::greater<> >(), std::bind(getDataSize, _1),
+  auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
+      std::bind(std::conditional_t< isMax, std::less<>, std::greater<> >{}, std::bind(getDataSize, _1),
         std::bind(getDataSize, _2)));
 
   context.output << minMax->points.size() << '\n';

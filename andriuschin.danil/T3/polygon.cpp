@@ -70,19 +70,19 @@ double andriuschin::details::GetTriangleArea::operator()(const Point& point)
     buf[size++] = point;
     return 0;
   }
-  static auto getXDist = std::bind(std::minus<>(), std::bind(getX, _1), std::bind(getX, _2));
-  static auto getYDist = std::bind(std::minus<>(), std::bind(getY, _1), std::bind(getY, _2));
-  static auto sqr = std::bind(std::multiplies<>(), _1, _1);
-  static auto getDistSqr = std::bind(std::plus<>(), std::bind(sqr, getXDist), std::bind(sqr, getYDist));
+  static auto getXDist = std::bind(std::minus<>{}, std::bind(getX, _1), std::bind(getX, _2));
+  static auto getYDist = std::bind(std::minus<>{}, std::bind(getY, _1), std::bind(getY, _2));
+  static auto sqr = std::bind(std::multiplies<>{}, _1, _1);
+  static auto getDistSqr = std::bind(std::plus<>{}, std::bind(sqr, getXDist), std::bind(sqr, getYDist));
   static double(*sqrt)(double) = std::sqrt;
   static auto getDist = std::bind(sqrt, getDistSqr);
-  static auto getPerimetr = std::bind(std::plus<>(), std::bind(getDist, _1, _2),
-      std::bind(std::plus<>(), std::bind(getDist, _1, _3), std::bind(getDist, _2, _3)));
-  static auto getSemiPerimetr = std::bind(std::divides<>(), getPerimetr, 2);
-  static auto getPMinusSide = std::bind(std::minus<>(), getSemiPerimetr, std::bind(getDist, _1, _2));
-  static auto getMultiply = std::bind(std::multiplies<>(), std::bind(getPMinusSide, _1, _2, _3),
-      std::bind(std::multiplies<>(), std::bind(getPMinusSide, _2, _3, _1), std::bind(getPMinusSide, _3, _1, _2)));
-  static auto getSqrArea = std::bind(std::multiplies<>(), getSemiPerimetr, getMultiply);
+  static auto getPerimetr = std::bind(std::plus<>{}, std::bind(getDist, _1, _2),
+      std::bind(std::plus<>{}, std::bind(getDist, _1, _3), std::bind(getDist, _2, _3)));
+  static auto getSemiPerimetr = std::bind(std::divides<>{}, getPerimetr, 2);
+  static auto getPMinusSide = std::bind(std::minus<>{}, getSemiPerimetr, std::bind(getDist, _1, _2));
+  static auto getMultiply = std::bind(std::multiplies<>{}, std::bind(getPMinusSide, _1, _2, _3),
+      std::bind(std::multiplies<>{}, std::bind(getPMinusSide, _2, _3, _1), std::bind(getPMinusSide, _3, _1, _2)));
+  static auto getSqrArea = std::bind(std::multiplies<>{}, getSemiPerimetr, getMultiply);
   static auto getArea = std::bind(sqrt, getSqrArea);
 
   Point a = buf[1];
@@ -93,20 +93,36 @@ double andriuschin::GetArea::operator()(const Polygon& p)
 {
   using namespace std::placeholders;
   return std::accumulate(p.points.begin(), p.points.end(), 0.0,
-      std::bind(std::plus<>(), _1, std::bind(details::GetTriangleArea{}, _2)));
+      std::bind(std::plus<>{}, _1, std::bind(details::GetTriangleArea{}, _2)));
 }
-bool andriuschin::GetIntersections::operator()(const Polygon& lhs, const Polygon& rhs)
+bool andriuschin::GetIntersections::operator()(const Polygon& polygon, const Point& point)
 {
-  static auto lessX = std::bind(std::less<>(), std::bind(getX, _1), std::bind(getX, _2));
-  static auto lessY = std::bind(std::less<>(), std::bind(getY, _1), std::bind(getY, _2));
-  static auto comp = std::bind(std::logical_and<>(), std::bind(lessX, _1, _2), std::bind(lessY, _1, _2));
-  const auto minMaxLhs = std::minmax_element(lhs.points.begin(), lhs.points.end(), comp);
-  const auto minMaxRhs = std::minmax_element(rhs.points.begin(), rhs.points.end(), comp);
-
-  const auto& maxLhs = *(minMaxLhs.second);
-  const auto& minLhs = *(minMaxLhs.first);
-  const auto& maxRhs = *(minMaxRhs.second);
-  const auto& minRhs = *(minMaxRhs.first);
-
-  return !(comp(maxRhs, minLhs) || comp(maxLhs, minRhs));
+  bool inner = false, found = 0;
+  size_t next = 0;
+  for (size_t current = 0; current < polygon.points.size(); current++) {
+    next = current + 1;
+    if (next == polygon.points.size())
+    {
+      next = 0;
+    }
+    const Point& currentP = polygon.points[current];
+    const Point& nextP = polygon.points[next];
+    if (((currentP.y >= point.y) && (nextP.y <= point.y)) || ((currentP.y <= point.y) && (nextP.y >= point.y))) // по высоте - между (>=, <=)
+    {
+      double height = nextP.y - currentP.y;
+      double width = nextP.x - currentP.x;
+      double intersectX = currentP.x + (point.y - currentP.y) / height * width; // height == 0 ?
+      if (point.x == intersectX)
+      {
+        return true;
+      }
+      inner = inner != (point.x > intersectX);
+      if (found == 1)
+      {
+        return inner;
+      }
+      found = 1;
+    }
+  }
+  return inner;
 }
