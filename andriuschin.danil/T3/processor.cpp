@@ -76,7 +76,7 @@ bool andriuschin::MainProcessor::area(Context& context)
 }
 bool andriuschin::AreaProccessor::count(Context& context, size_t num)
 {
-  if (!context.eol())
+  if (context.polygons.empty() || !context.eol())
   {
     return false;
   }
@@ -90,7 +90,7 @@ bool andriuschin::AreaProccessor::count(Context& context, size_t num)
 }
 bool andriuschin::AreaProccessor::even(Context& context)
 {
-  if (!context.eol())
+  if (context.polygons.empty() || !context.eol())
   {
     return false;
   }
@@ -116,7 +116,7 @@ bool andriuschin::AreaProccessor::odd(Context& context)
 }
 bool andriuschin::AreaProccessor::mean(Context& context)
 {
-  if (!context.eol())
+  if (context.polygons.empty() || !context.eol())
   {
     return false;
   }
@@ -163,7 +163,7 @@ bool andriuschin::MainProcessor::count(Context& context)
 }
 bool andriuschin::CountProcessor::vertexes(Context& context, size_t num)
 {
-  if (!context.eol())
+  if (context.polygons.empty() || !context.eol())
   {
     return false;
   }
@@ -174,7 +174,7 @@ bool andriuschin::CountProcessor::vertexes(Context& context, size_t num)
 }
 bool andriuschin::CountProcessor::even(Context& context)
 {
-  if (!context.eol())
+  if (context.polygons.empty() || !context.eol())
   {
     return false;
   }
@@ -184,7 +184,7 @@ bool andriuschin::CountProcessor::even(Context& context)
 }
 bool andriuschin::CountProcessor::odd(Context& context)
 {
-  if (!context.eol())
+  if (context.polygons.empty() || !context.eol())
   {
     return false;
   }
@@ -195,7 +195,7 @@ bool andriuschin::CountProcessor::odd(Context& context)
 bool andriuschin::MainProcessor::lessArea(Context& context)
 {
   Polygon poly;
-  if (!(context.input >> poly) || !context.eol())
+  if (context.polygons.empty() || !(context.input >> poly) || !context.eol())
   {
     return false;
   }
@@ -206,6 +206,14 @@ bool andriuschin::MainProcessor::lessArea(Context& context)
 }
 bool andriuschin::MainProcessor::intersections(Context& context)
 {
-  context.output << "not ready :(\n";
+  Polygon poly;
+  if (context.polygons.empty() || !(context.input >> poly) || !context.eol())
+  {
+    return false;
+  }
+  using namespace std::placeholders;
+  auto intersectPredicate = std::bind(GetIntersections(), std::cref(poly), _1);
+
+  context.output << std::count_if(context.polygons.begin(), context.polygons.end(), intersectPredicate) << '\n';
   return true;
 }

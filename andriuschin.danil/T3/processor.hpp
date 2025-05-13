@@ -1,7 +1,7 @@
 #ifndef PROCESSOR_HPP
 #define PROCESSOR_HPP
 
-#include <iosfwd>
+#include <iostream>
 #include <functional>
 #include <algorithm>
 #include "polygon.hpp"

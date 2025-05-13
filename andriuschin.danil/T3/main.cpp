@@ -1,16 +1,10 @@
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <algorithm>
-#include <functional>
-#include <iterator>
-#include <numeric>
 #include <map>
-#include <limits>
+
+#include "parser.hpp"
 #include "polygon.hpp"
-#include "parser.hpp"
 #include "processor.hpp"
-#include "parser.hpp"
 
 int main(int argc, char** argv)
 {

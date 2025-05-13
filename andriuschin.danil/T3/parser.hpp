@@ -5,6 +5,7 @@
 #include <map>
 #include <limits>
 #include <string>
+
 #include "processor.hpp"
 #include "polygon.hpp"
 
@@ -39,7 +40,7 @@ namespace andriuschin
         }
         context.input.clear(context.input.rdstate() & ~std::ios::failbit);
         context.input.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-        context.error << "<INVALID COMMAND>\n";
+        context.output << "<INVALID COMMAND>\n";
       }
       return context.input.good();
     }
