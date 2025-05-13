@@ -57,7 +57,6 @@ namespace nspace {
     std::istream& operator>>(std::istream& in, DataStruct& dest);
     std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
 
-    bool has_e(std::string& check);
     std::string beautyDouble(double check);
     std::string llToString(long long key);
     bool dataStructCompare(const DataStruct& a, const DataStruct& b);

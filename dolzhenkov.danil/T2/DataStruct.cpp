@@ -1,4 +1,4 @@
-﻿#include "T2.h"
+﻿#include "DataStruct.h"
 
 namespace nspace {
     bool dataStructCompare(const DataStruct& a, const DataStruct& b)
