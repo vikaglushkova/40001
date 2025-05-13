@@ -81,6 +81,7 @@ bool andriuschin::AreaProccessor::count(Context& context, size_t num)
     return false;
   }
   using namespace std::placeholders;
+
   auto isExpectedSize = std::bind(std::equal_to<>(), getDataSize, num);
   auto workspaceEnd = std::partition(context.polygons.begin(), context.polygons.end(), isExpectedSize);
   auto area = std::accumulate(context.polygons.begin(), workspaceEnd, 0.0, std::bind(std::plus<>{}, _1,
@@ -90,13 +91,13 @@ bool andriuschin::AreaProccessor::count(Context& context, size_t num)
 }
 bool andriuschin::AreaProccessor::even(Context& context)
 {
-  if (context.polygons.empty() || !context.eol())
+  if (!context.eol())
   {
     return false;
   }
   using namespace std::placeholders;
-  auto workspaceEnd = std::partition(context.polygons.begin(), context.polygons.end(), isEven);
-  auto area = std::accumulate(context.polygons.begin(), workspaceEnd, 0.0, std::bind(std::plus<>{}, _1,
+  const auto workspaceEnd = std::partition(context.polygons.begin(), context.polygons.end(), isEven);
+  const auto area = std::accumulate(context.polygons.begin(), workspaceEnd, 0.0, std::bind(std::plus<>{}, _1,
         std::bind(GetArea{}, _2)));
   context.output << area << '\n';
   return true;
@@ -108,8 +109,8 @@ bool andriuschin::AreaProccessor::odd(Context& context)
     return false;
   }
   using namespace std::placeholders;
-  auto workspaceEnd = std::partition(context.polygons.begin(), context.polygons.end(), isOdd);
-  auto area = std::accumulate(context.polygons.begin(), workspaceEnd, 0.0, std::bind(std::plus<>{}, _1,
+  const auto workspaceEnd = std::partition(context.polygons.begin(), context.polygons.end(), isOdd);
+  const auto area = std::accumulate(context.polygons.begin(), workspaceEnd, 0.0, std::bind(std::plus<>{}, _1,
         std::bind(GetArea{}, _2)));
   context.output << area << '\n';
   return true;
@@ -121,7 +122,7 @@ bool andriuschin::AreaProccessor::mean(Context& context)
     return false;
   }
   using namespace std::placeholders;
-  auto area = std::accumulate(context.polygons.begin(), context.polygons.end(), 0.0, std::bind(std::plus<>{}, _1,
+  const auto area = std::accumulate(context.polygons.begin(), context.polygons.end(), 0.0, std::bind(std::plus<>{}, _1,
         std::bind(GetArea{}, _2)));
   context.output << area / context.polygons.size() << '\n';
   return true;
@@ -149,9 +150,13 @@ bool andriuschin::MainProcessor::max(Context& context)
 bool andriuschin::MainProcessor::count(Context& context)
 {
   size_t num = 0;
-  if (((context.input >> std::ws).peek() != '-') && (context.input >> num) && (num >= 3))
+  if (((context.input >> std::ws).peek() != '-') && (context.input >> num))
   {
-    return CountProcessor().vertexes(context, num);
+    if ((num >= 3))
+    {
+      return CountProcessor().vertexes(context, num);
+    }
+    return false;
   }
   context.input.clear(context.input.rdstate() & ~std::ios::failbit);
   Parser< CountProcessor >::map_type comands = {
@@ -163,43 +168,43 @@ bool andriuschin::MainProcessor::count(Context& context)
 }
 bool andriuschin::CountProcessor::vertexes(Context& context, size_t num)
 {
-  if (context.polygons.empty() || !context.eol())
+  if (!context.eol())
   {
     return false;
   }
-  auto isExpectedSize = std::bind(std::equal_to<>(), getDataSize, num);
-  auto count = std::count_if(context.polygons.begin(), context.polygons.end(), isExpectedSize);
+  const auto isExpectedSize = std::bind(std::equal_to<>(), getDataSize, num);
+  const auto count = std::count_if(context.polygons.begin(), context.polygons.end(), isExpectedSize);
   context.output << count << '\n';
   return true;
 }
 bool andriuschin::CountProcessor::even(Context& context)
 {
-  if (context.polygons.empty() || !context.eol())
+  if (!context.eol())
   {
     return false;
   }
-  auto count = std::count_if(context.polygons.begin(), context.polygons.end(), isEven);
+  const auto count = std::count_if(context.polygons.begin(), context.polygons.end(), isEven);
   context.output << count << '\n';
   return true;
 }
 bool andriuschin::CountProcessor::odd(Context& context)
 {
-  if (context.polygons.empty() || !context.eol())
+  if (!context.eol())
   {
     return false;
   }
-  auto count = std::count_if(context.polygons.begin(), context.polygons.end(), isOdd);
+  const auto count = std::count_if(context.polygons.begin(), context.polygons.end(), isOdd);
   context.output << count << '\n';
   return true;
 }
 bool andriuschin::MainProcessor::lessArea(Context& context)
 {
   Polygon poly;
-  if (context.polygons.empty() || !(context.input >> poly) || !context.eol())
+  if (!(context.input >> poly) || !context.eol())
   {
     return false;
   }
-  auto count = std::count_if(context.polygons.begin(), context.polygons.end(), std::bind(
+  const auto count = std::count_if(context.polygons.begin(), context.polygons.end(), std::bind(
         std::less<>(), getArea, GetArea()(poly)));
   context.output << count << '\n';
   return true;
@@ -207,13 +212,13 @@ bool andriuschin::MainProcessor::lessArea(Context& context)
 bool andriuschin::MainProcessor::intersections(Context& context)
 {
   Polygon poly;
-  if (context.polygons.empty() || !(context.input >> poly) || !context.eol())
+  if (!(context.input >> poly) || !context.eol())
   {
     return false;
   }
   using namespace std::placeholders;
-  auto intersectPredicate = std::bind(GetIntersections(), std::cref(poly), _1);
+  const auto intersect = std::bind(GetIntersections(), std::cref(poly), _1);
 
-  context.output << std::count_if(context.polygons.begin(), context.polygons.end(), intersectPredicate) << '\n';
+  context.output << std::count_if(context.polygons.begin(), context.polygons.end(), intersect) << '\n';
   return true;
 }

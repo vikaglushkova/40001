@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <map>
 
@@ -18,6 +19,7 @@ int main(int argc, char** argv)
     {"LESSAREA", &andriuschin::MainProcessor::lessArea},
     {"INTERSECTIONS", &andriuschin::MainProcessor::intersections}
   };
+  std::cout << std::fixed << std::setprecision(1);
   andriuschin::Parser< andriuschin::MainProcessor > parser({}, {std::cin, std::cout, std::cerr, polygons},
       std::move(comands));
   if (!processor.init(parser.context, argc, argv))

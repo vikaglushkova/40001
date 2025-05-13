@@ -54,12 +54,12 @@ namespace andriuschin
 template< bool isMax >
 bool andriuschin::MinMaxProcessor< isMax >::area(Context& context)
 {
-  if (!context.eol())
+  if (context.polygons.empty() || !context.eol())
   {
     return false;
   }
   using namespace std::placeholders;
-  auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
+  const auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
       std::bind(std::conditional_t< isMax, std::less<>, std::greater<> >(), std::bind(GetArea(), _1),
         std::bind(GetArea(), _2)));
   context.output << GetArea()(*minMax) << '\n';
@@ -69,14 +69,14 @@ bool andriuschin::MinMaxProcessor< isMax >::area(Context& context)
 template< bool isMax >
 bool andriuschin::MinMaxProcessor< isMax >::vertexes(Context& context)
 {
-  if (!context.eol())
+  if (context.polygons.empty() || !context.eol())
   {
     return false;
   }
   using namespace std::placeholders;
-  auto getData = std::bind(std::mem_fn(&Polygon::points), _1);
-  auto getDataSize = std::bind(&decltype(Polygon::points)::size, getData);
-  auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
+  static auto getData = std::bind(std::mem_fn(&Polygon::points), _1);
+  static auto getDataSize = std::bind(&decltype(Polygon::points)::size, getData);
+  const auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
       std::bind(std::conditional_t< isMax, std::less<>, std::greater<> >(), std::bind(getDataSize, _1),
         std::bind(getDataSize, _2)));
   context.output << minMax->points.size() << '\n';

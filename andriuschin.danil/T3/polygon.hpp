@@ -16,12 +16,6 @@ namespace andriuschin
     std::vector< Point > points;
   };
   std::istream& operator>>(std::istream& in, Polygon& poly);
-  struct GetTriangleArea
-  {
-    double operator()(const Point& point);
-    Point buf[2];
-    size_t size = 0;
-  };
   struct GetArea
   {
     double operator()(const andriuschin::Polygon& p);
@@ -30,6 +24,15 @@ namespace andriuschin
   {
     bool operator()(const Polygon& lhs, const Polygon& rhs);
   };
+  namespace details
+  {
+    struct GetTriangleArea
+    {
+      double operator()(const Point& point);
+      Point buf[2];
+      size_t size = 0;
+    };
+  }
 }
 
 #endif

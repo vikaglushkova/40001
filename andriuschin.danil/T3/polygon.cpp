@@ -62,7 +62,7 @@ std::istream& andriuschin::operator>>(std::istream& in, Polygon& poly)
   return in;
 }
 
-double andriuschin::GetTriangleArea::operator()(const Point& point)
+double andriuschin::details::GetTriangleArea::operator()(const Point& point)
 {
   using namespace std::placeholders;
   if (size < 2)
@@ -93,15 +93,15 @@ double andriuschin::GetArea::operator()(const Polygon& p)
 {
   using namespace std::placeholders;
   return std::accumulate(p.points.begin(), p.points.end(), 0.0,
-      std::bind(std::plus<>(), _1, std::bind(andriuschin::GetTriangleArea{}, _2)));
+      std::bind(std::plus<>(), _1, std::bind(details::GetTriangleArea{}, _2)));
 }
 bool andriuschin::GetIntersections::operator()(const Polygon& lhs, const Polygon& rhs)
 {
-  const auto lessX = std::bind(std::less<>(), std::bind(getX, _1), std::bind(getX, _2));
-  const auto lessY = std::bind(std::less<>(), std::bind(getY, _1), std::bind(getY, _2));
-  const auto comp = std::bind(std::logical_and<>(), std::bind(lessX, _1, _2), std::bind(lessY, _1, _2));
-  const auto minMaxLhs = std::minmax_element(lhs.points.cbegin(), lhs.points.cend(), comp);
-  const auto minMaxRhs = std::minmax_element(rhs.points.cbegin(), rhs.points.cend(), comp);
+  static auto lessX = std::bind(std::less<>(), std::bind(getX, _1), std::bind(getX, _2));
+  static auto lessY = std::bind(std::less<>(), std::bind(getY, _1), std::bind(getY, _2));
+  static auto comp = std::bind(std::logical_and<>(), std::bind(lessX, _1, _2), std::bind(lessY, _1, _2));
+  const auto minMaxLhs = std::minmax_element(lhs.points.begin(), lhs.points.end(), comp);
+  const auto minMaxRhs = std::minmax_element(rhs.points.begin(), rhs.points.end(), comp);
   const auto& maxLhs = *(minMaxLhs.second);
   const auto& minLhs = *(minMaxLhs.first);
   const auto& maxRhs = *(minMaxRhs.second);
