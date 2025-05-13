@@ -1,7 +1,7 @@
 #include "commands.h"
-#include <algorithm>  
-#include <numeric>    
-#include <iomanip>    
+#include <algorithm>
+#include <numeric>
+#include <iomanip>
 #include <cmath>
 #include <functional>
 
