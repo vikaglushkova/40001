@@ -10,7 +10,7 @@ namespace andriuschin
   {
     int x, y;
   };
-  std::istream& operator>>(std::istream& in, Point& poly);
+  std::istream& operator>>(std::istream& in, Point& point);
   struct Polygon
   {
     std::vector< Point > points;
@@ -20,17 +20,28 @@ namespace andriuschin
   {
     double operator()(const andriuschin::Polygon& p);
   };
-  struct GetIntersections
+  struct IsInside
   {
     bool operator()(const Polygon& poly, const Point& point);
   };
+  struct IsRightOnTheSameHeight
+  {
+    static constexpr size_t ON_SIDE = 10;
+    Point prev;
+    const Point& point;
+    size_t operator()(const Point& next);
+  };
+  struct GetIntersections
+  {
+    bool operator()(const Polygon& lhs, const Polygon& rhs);
+  };
   namespace details
   {
-    struct GetTriangleArea
+    struct GetTriangulatedArea
     {
-      double operator()(const Point& point);
       Point buf[2];
       size_t size = 0;
+      double operator()(const Point& point);
     };
   }
 }

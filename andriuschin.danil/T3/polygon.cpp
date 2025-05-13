@@ -47,22 +47,19 @@ std::istream& andriuschin::operator>>(std::istream& in, Polygon& poly)
   size_t count;
   if (((in >> std::ws).peek() != '-') && (in >> count) && (count >= 3))
   {
-    if (in >> std::ws)
+    std::vector< Point > temp;
+    std::copy_n(std::istream_iterator< Point >(in), count, std::back_inserter(temp));
+    if ((temp.size() == count))
     {
-      std::vector< Point > temp;
-      std::copy_n(std::istream_iterator< Point >(in), count, std::back_inserter(temp));
-      if ((temp.size() == count))
-      {
-        poly.points = std::move(temp);
-        return in;
-      }
+      poly.points = std::move(temp);
+      return in;
     }
   }
   in.setstate(std::ios::failbit);
   return in;
 }
 
-double andriuschin::details::GetTriangleArea::operator()(const Point& point)
+double andriuschin::details::GetTriangulatedArea::operator()(const Point& point)
 {
   using namespace std::placeholders;
   if (size < 2)
@@ -93,36 +90,38 @@ double andriuschin::GetArea::operator()(const Polygon& p)
 {
   using namespace std::placeholders;
   return std::accumulate(p.points.begin(), p.points.end(), 0.0,
-      std::bind(std::plus<>{}, _1, std::bind(details::GetTriangleArea{}, _2)));
+      std::bind(std::plus<>{}, _1, std::bind(details::GetTriangulatedArea{}, _2)));
 }
-bool andriuschin::GetIntersections::operator()(const Polygon& polygon, const Point& point)
+
+size_t andriuschin::IsRightOnTheSameHeight::operator()(const Point& next)
 {
-  bool inner = false, found = 0;
-  size_t next = 0;
-  for (size_t current = 0; current < polygon.points.size(); current++) {
-    next = current + 1;
-    if (next == polygon.points.size())
+  Point current = prev;
+  prev = next;
+  if (((current.y >= point.y) && (next.y <= point.y)) || ((current.y <= point.y) && (next.y >= point.y)))
+  {
+    double height = next.y - current.y;
+    double width = next.x - current.x;
+    double intersectX = point.x;
+    if (height != 0)
     {
-      next = 0;
+      intersectX = current.x + (point.y - current.y) / height * width;
     }
-    const Point& currentP = polygon.points[current];
-    const Point& nextP = polygon.points[next];
-    if (((currentP.y >= point.y) && (nextP.y <= point.y)) || ((currentP.y <= point.y) && (nextP.y >= point.y))) // по высоте - между (>=, <=)
+    if (point.x == intersectX)
     {
-      double height = nextP.y - currentP.y;
-      double width = nextP.x - currentP.x;
-      double intersectX = currentP.x + (point.y - currentP.y) / height * width; // height == 0 ?
-      if (point.x == intersectX)
-      {
-        return true;
-      }
-      inner = inner != (point.x > intersectX);
-      if (found == 1)
-      {
-        return inner;
-      }
-      found = 1;
+      return ON_SIDE;
     }
+    return point.x > intersectX;
   }
-  return inner;
+  return 0;
+}
+bool andriuschin::IsInside::operator()(const Polygon& poly, const Point& point)
+{
+  size_t count = std::count_if(poly.points.begin(), poly.points.end(),
+        IsRightOnTheSameHeight{poly.points.back(), point});
+  return (count == 1) || (count >= IsRightOnTheSameHeight::ON_SIDE);
+}
+bool andriuschin::GetIntersections::operator()(const Polygon& lhs, const Polygon& rhs)
+{
+  return std::any_of(lhs.points.cbegin(), lhs.points.cend(), std::bind(IsInside{}, rhs, _1))
+      || std::any_of(rhs.points.cbegin(), rhs.points.cend(), std::bind(IsInside{}, lhs, _1));
 }

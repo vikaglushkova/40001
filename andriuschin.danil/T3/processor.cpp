@@ -36,24 +36,21 @@ bool andriuschin::MainProcessor::init(Context& context, int argc, char** argv)
 {
   if (argc != 2)
   {
-    context.error << "No file\n";
+    context.error << "Wrong arguments\n";
     return false;
   }
   std::ifstream file(argv[1]);
   if (!file)
   {
-    context.error << "File wasn't found\n";
+    context.error << "Failed to open file\n";
     return false;
   }
   using iterator = std::istream_iterator< Polygon >;
-  while (!file.eof())
+  while (file)
   {
     std::copy(iterator(file), iterator(), std::back_inserter(context.polygons));
-    if (file.fail() && !file.eof())
-    {
-      file.clear();
-      file.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-    }
+    file.clear(file.rdstate() & ~std::ios::failbit);
+    file.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
   return true;
 }
@@ -215,7 +212,7 @@ bool andriuschin::MainProcessor::lessArea(Context& context)
     return false;
   }
   size_t count = std::count_if(context.polygons.begin(), context.polygons.end(),
-      std::bind(std::less<>{}, getArea, GetArea{}(std::cref(poly))));
+      std::bind(std::less<>{}, getArea, GetArea{}(poly)));
 
   context.output << count << '\n';
   return true;
@@ -227,10 +224,10 @@ bool andriuschin::MainProcessor::intersections(Context& context)
   {
     return false;
   }
-//  using namespace std::placeholders;
-//  auto intersect = std::bind(GetIntersections{}, std::cref(poly), _1);
-//  size_t count = std::count_if(context.polygons.begin(), context.polygons.end(), intersect);
-//
-//  context.output << count << '\n';
+  using namespace std::placeholders;
+  auto intersect = std::bind(GetIntersections{}, std::cref(poly), _1);
+  size_t count = std::count_if(context.polygons.begin(), context.polygons.end(), intersect);
+
+  context.output << count << '\n';
   return true;
 }
