@@ -197,13 +197,13 @@ int echo(polys& data, const Polygon& target) {
     std::vector<Polygon> new_data;
     new_data.reserve(data.size() + count);
 
-    auto inserter = std::back_inserter(new_data);
-    std::transform(data.begin(), data.end(), inserter,
-        [&](const Polygon& p) {
+    std::accumulate(data.begin(), data.end(), std::back_inserter(new_data),
+        [&](auto inserter, const Polygon& p) {
+            *inserter++ = p;
             if (isEqual(p)) {
-                inserter = p;
+                *inserter++ = p;
             }
-            return p;
+            return inserter;
         });
 
     data = std::move(new_data);
