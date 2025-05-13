@@ -40,8 +40,26 @@ namespace alymov
         dest.points.clear();
         size_t size = 0;
         in >> size;
+        if (in.peek() != ' ')
+        {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
         std::string str;
         std::getline(in, str, '\n');
+        if (str.empty() || str[0] != ' ')
+        {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+        for (size_t i = 1; i < str.size(); ++i)
+        {
+            if (str[i] == '(' && str[i - 1] != ' ')
+            {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
+        }
         std::istringstream input(str);
         if (!input || size < 3)
         {

@@ -38,8 +38,8 @@ namespace alymov
             double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
                 [even](double acc, const Polygon& poly)
                 {
-                    bool is_even = (poly.points.size() % 2 == 0);
-                    return acc + ((is_even == even) ? calculateArea(poly) : 0.0);
+                    bool isEven = (poly.points.size() % 2 == 0);
+                    return acc + ((isEven == even) ? calculateArea(poly) : 0.0);
                 });
 
             out << std::fixed << std::setprecision(1) << sum << std::endl;
@@ -64,16 +64,16 @@ namespace alymov
         {
             try
             {
-                size_t num_vertices = std::stoul(mode);
-                if (num_vertices <= 2)
+                size_t numVertices = std::stoul(mode);
+                if (numVertices <= 2)
                 {
                     out << "<INVALID COMMAND>" << std::endl;
                     return;
                 }
                 double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
-                    [num_vertices](double acc, const Polygon& poly)
+                    [numVertices](double acc, const Polygon& poly)
                     {
-                        return acc + ((poly.points.size() == num_vertices) ? calculateArea(poly) : 0.0);
+                        return acc + ((poly.points.size() == numVertices) ? calculateArea(poly) : 0.0);
                     });
 
                 out << std::fixed << std::setprecision(1) << sum << std::endl;
@@ -173,16 +173,16 @@ namespace alymov
         {
             try
             {
-                size_t num_vertices = std::stoul(mode);
-                if (num_vertices <= 2)
+                size_t numVertices = std::stoul(mode);
+                if (numVertices <= 2)
                 {
                     out << "<INVALID COMMAND>" << std::endl;
                     return;
                 }
                 size_t count = std::count_if(polygons.begin(), polygons.end(),
-                    [num_vertices](const Polygon& poly)
+                    [numVertices](const Polygon& poly)
                     {
-                        return poly.points.size() == num_vertices;
+                        return poly.points.size() == numVertices;
                     });
 
                 out << count << std::endl;
@@ -204,11 +204,11 @@ namespace alymov
             return;
         }
 
-        double target_area = calculateArea(target);
+        double targetArea = calculateArea(target);
         size_t count = std::count_if(polygons.begin(), polygons.end(),
-            [target_area](const Polygon& poly)
+            [targetArea](const Polygon& poly)
             {
-                return calculateArea(poly) < target_area;
+                return calculateArea(poly) < targetArea;
             });
 
         out << count << std::endl;
