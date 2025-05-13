@@ -32,84 +32,85 @@ int main(int nArguments, char** file)
     }
     std::cin.clear();
 
-    std::string command;
-    while (std::cin >> command)
+    std::string line;
+    while (std::getline(std::cin, line))
     {
-        if (command == "AREA")
+        std::istringstream iss(line);
+        std::string command;
+        while (iss >> command)
         {
-            std::string mode;
-            if (std::cin >> mode)
+            if (command == "AREA")
             {
-                area(polygon, mode, std::cout);
+                std::string mode;
+                if (iss >> mode)
+                {
+                    area(polygon, mode, std::cout);
+                }
+                else
+                {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                }
+            }
+            else if (command == "MAX")
+            {
+                std::string mode;
+                if (iss >> mode)
+                {
+                    max(polygon, mode, std::cout);
+                }
+                else
+                {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                }
+            }
+            else if (command == "MIN")
+            {
+                std::string mode;
+                if (iss >> mode)
+                {
+                    min(polygon, mode, std::cout);
+                }
+                else
+                {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                }
+            }
+            else if (command == "COUNT")
+            {
+                std::string mode;
+                if (iss >> mode)
+                {
+                    count(polygon, mode, std::cout);
+                }
+                else
+                {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                }
+            }
+            else if (command == "LESSAREA")
+            {
+                lessarea(polygon, iss, std::cout);
+                if (iss.fail())
+                {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    iss.clear();
+                    iss.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+            }
+            else if (command == "MAXSEQ")
+            {
+                maxseq(polygon, iss, std::cout);
+                if (iss.fail())
+                {
+                    iss.clear();
+                    iss.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
             }
             else
             {
                 std::cout << "<INVALID COMMAND>" << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                iss.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             }
-        }
-        else if (command == "MAX")
-        {
-            std::string mode;
-            if (std::cin >> mode)
-            {
-                max(polygon, mode, std::cout);
-            }
-            else
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            }
-        }
-        else if (command == "MIN")
-        {
-            std::string mode;
-            if (std::cin >> mode)
-            {
-                min(polygon, mode, std::cout);
-            }
-            else
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            }
-        }
-        else if (command == "COUNT")
-        {
-            std::string mode;
-            if (std::cin >> mode)
-            {
-                count(polygon, mode, std::cout);
-            }
-            else
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            }
-        }
-        else if (command == "LESSAREA")
-        {
-            lessarea(polygon, std::cin, std::cout);
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            }
-        }
-        else if (command == "MAXSEQ")
-        {
-            maxseq(polygon, std::cin, std::cout);
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            }
-        }
-        else
-        {
-            std::cout << "<INVALID COMMAND>" << std::endl;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
 
