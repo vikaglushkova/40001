@@ -17,17 +17,14 @@ int main(int nArguments, char** file)
     }
 
     std::vector< Polygon > polygon;
-    while (inputF.good())
-    {
+    while (!inputF.eof()) {
         std::copy(
             std::istream_iterator<Polygon>(inputF),
             std::istream_iterator<Polygon>(),
             std::back_inserter(polygon)
         );
-        if (inputF.fail() && !inputF.eof())
-        {
+        if (inputF.fail() && !inputF.eof()) {
             inputF.clear();
-            inputF.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
     std::cin.clear();
@@ -92,7 +89,6 @@ int main(int nArguments, char** file)
                 lessarea(polygon, iss, std::cout);
                 if (iss.fail())
                 {
-                    std::cout << "<INVALID COMMAND>" << std::endl;
                     iss.clear();
                     iss.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 }
