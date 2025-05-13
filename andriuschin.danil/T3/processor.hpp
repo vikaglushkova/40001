@@ -62,6 +62,7 @@ bool andriuschin::MinMaxProcessor< isMax >::area(Context& context)
   const auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
       std::bind(std::conditional_t< isMax, std::less<>, std::greater<> >(), std::bind(GetArea(), _1),
         std::bind(GetArea(), _2)));
+
   context.output << GetArea()(*minMax) << '\n';
   return true;
 }
@@ -79,6 +80,7 @@ bool andriuschin::MinMaxProcessor< isMax >::vertexes(Context& context)
   const auto minMax = std::max_element(context.polygons.begin(), context.polygons.end(),
       std::bind(std::conditional_t< isMax, std::less<>, std::greater<> >(), std::bind(getDataSize, _1),
         std::bind(getDataSize, _2)));
+
   context.output << minMax->points.size() << '\n';
   return true;
 }

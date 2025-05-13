@@ -76,15 +76,15 @@ double andriuschin::details::GetTriangleArea::operator()(const Point& point)
   static auto getDistSqr = std::bind(std::plus<>(), std::bind(sqr, getXDist), std::bind(sqr, getYDist));
   static double(*sqrt)(double) = std::sqrt;
   static auto getDist = std::bind(sqrt, getDistSqr);
-  static auto getPerimetr = std::bind(std::plus<>(), std::bind(getDist, _1, _2), std::bind(std::plus<>(),
-          std::bind(getDist, _1, _3),
-          std::bind(getDist, _2, _3)));
+  static auto getPerimetr = std::bind(std::plus<>(), std::bind(getDist, _1, _2),
+      std::bind(std::plus<>(), std::bind(getDist, _1, _3), std::bind(getDist, _2, _3)));
   static auto getSemiPerimetr = std::bind(std::divides<>(), getPerimetr, 2);
   static auto getPMinusSide = std::bind(std::minus<>(), getSemiPerimetr, std::bind(getDist, _1, _2));
   static auto getMultiply = std::bind(std::multiplies<>(), std::bind(getPMinusSide, _1, _2, _3),
-        std::bind(std::multiplies<>(), std::bind(getPMinusSide, _2, _3, _1), std::bind(getPMinusSide, _3, _1, _2)));
+      std::bind(std::multiplies<>(), std::bind(getPMinusSide, _2, _3, _1), std::bind(getPMinusSide, _3, _1, _2)));
   static auto getSqrArea = std::bind(std::multiplies<>(), getSemiPerimetr, getMultiply);
   static auto getArea = std::bind(sqrt, getSqrArea);
+
   Point a = buf[1];
   buf[1] = point;
   return getArea(a, buf[0], point);
@@ -102,6 +102,7 @@ bool andriuschin::GetIntersections::operator()(const Polygon& lhs, const Polygon
   static auto comp = std::bind(std::logical_and<>(), std::bind(lessX, _1, _2), std::bind(lessY, _1, _2));
   const auto minMaxLhs = std::minmax_element(lhs.points.begin(), lhs.points.end(), comp);
   const auto minMaxRhs = std::minmax_element(rhs.points.begin(), rhs.points.end(), comp);
+
   const auto& maxLhs = *(minMaxLhs.second);
   const auto& minLhs = *(minMaxLhs.first);
   const auto& maxRhs = *(minMaxRhs.second);
