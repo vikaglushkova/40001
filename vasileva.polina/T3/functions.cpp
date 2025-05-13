@@ -53,15 +53,15 @@ bool isEmpty(polys& polys) {
 }
 
 double calculateArea(const std::vector<Point>& points) {
-    double area = 0.0;
-    size_t n = points.size();
+    if (points.size() < 3) return 0.0;
 
-    for (size_t i = 0; i < n; i++) {
-        size_t i2 = (i + 1) % n;
-        area += (points[i].x * points[i2].y) - (points[i2].x * points[i].y);
-    }
-
-    return std::abs(area) * 0.5;
+    return std::abs(std::accumulate(
+        points.begin(), points.end(),
+        0.0,
+        [&points](double sum, const Point& current) {
+            size_t next = (&current - &points[0] + 1) % points.size();
+            return sum + (current.x * points[next].y - points[next].x * current.y);
+        })) * 0.5;
 }
 
 double areaEvenOdd(const std::string& arg, const polys& polys) {
@@ -79,20 +79,19 @@ double areaEvenOdd(const std::string& arg, const polys& polys) {
 }
 
 double areaMean(const polys& polys) {
-    double output = std::accumulate(
+    return std::accumulate(
         polys.begin(),
         polys.end(),
         0.0,
         [](double sum, const Polygon& fig) {
             return sum + calculateArea(fig.points);
         }
-    );
+    ) / static_cast<double>(polys.size());
 
-    return output / static_cast<double>(polys.size());
 }
 
 double areaNum(size_t arg, const polys& polys) {
-    double output = std::accumulate(
+    return std::accumulate(
         polys.begin(),
         polys.end(),
         0.0,
@@ -103,7 +102,6 @@ double areaNum(size_t arg, const polys& polys) {
             return sum;
         }
     );
-    return output;
 }
 
 bool VertexCountComparator(const Polygon& a, const Polygon& b) {
@@ -155,7 +153,7 @@ double minAreaVer(const std::string& arg, const polys& polys) {
 }
 
 int countVer(const std::string& arg, const polys& polys) {
-    int output = std::count_if(
+    return std::count_if(
         polys.begin(),
         polys.end(),
         [&arg](const Polygon& p) {
@@ -163,7 +161,6 @@ int countVer(const std::string& arg, const polys& polys) {
             return (arg == "EVEN") ? isEven : !isEven;
         }
     );
-    return output;
 }
 
 int countVer(size_t arg, const polys& polys) {
@@ -171,14 +168,13 @@ int countVer(size_t arg, const polys& polys) {
         invalComm();
         return -1;
     }
-    int output = std::count_if(
+    return std::count_if(
         polys.begin(),
         polys.end(),
         [arg](const Polygon& figure) {
             return figure.points.size() == arg;
         }
     );
-    return output;
 }
 
 int echo(polys& data, const Polygon& target) {
