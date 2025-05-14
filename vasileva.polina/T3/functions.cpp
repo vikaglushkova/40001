@@ -184,11 +184,22 @@ int echo(polys& data, const Polygon& target) {
         [](const Polygon& a, const Polygon& b) {
             return a.points.size() == b.points.size() &&
                 std::equal(a.points.begin(), a.points.end(), b.points.begin(),
-                    [](const Point& p1, const Point& p2) {
-                        return p1.x == p2.x && p1.y == p2.y;
-                    });
+                    std::bind(
+                        std::logical_and<bool>{},
+                        std::bind(
+                            std::equal_to<int>{},
+                            std::bind(&Point::x, std::placeholders::_1),
+                            std::bind(&Point::x, std::placeholders::_2)
+                        ),
+                        std::bind(
+                            std::equal_to<int>{},
+                            std::bind(&Point::y, std::placeholders::_1),
+                            std::bind(&Point::y, std::placeholders::_2)
+                        )
+                    )
+                );
         },
-        _1,
+        std::placeholders::_1,
         std::cref(target)
     );
 
