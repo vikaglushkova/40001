@@ -127,7 +127,7 @@ double maxAreaVer(const std::string& arg, const polys& polys) {
             polys.end(),
             VertexCountComparator
         );
-        return static_cast<double>(maxIt->points.size());
+        return maxIt->points.size();
     }
     return 0.0;
 }
@@ -147,7 +147,7 @@ double minAreaVer(const std::string& arg, const polys& polys) {
             polys.end(),
             VertexCountComparator
         );
-        return static_cast<double>(minIt->points.size());
+        return minIt->points.size();
     }
     return 0.0;
 }
@@ -213,7 +213,6 @@ int echo(polys& data, const Polygon& target) {
 bool hasRightAngle(const std::vector<Point>& figure) {
     if (figure.size() < 3) return false;
 
-    using namespace std::placeholders;
 
     struct AngleChecker {
         const std::vector<Point>& fig;

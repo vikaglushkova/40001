@@ -10,7 +10,7 @@
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        std::cerr << "ERROR: file doesn't exist\n";
+        std::cerr << "ERROR: incorrect input\n";
         return 1;
     }
 
@@ -111,12 +111,12 @@ int main(int argc, char* argv[]) {
         }
         else if (command == "ECHO") {
             Polygon poly;
-            std::string line;
+            //std::string line;
 
-            std::getline(std::cin >> std::ws, line);
-            std::istringstream iss(line);
+            //std::getline(std::cin >> std::ws, line);
+            //std::istringstream iss(line);
 
-            if (!(iss >> poly)) {
+            if (!(std::cin >> poly)) {
                 std::cout << "<INVALID COMMAND>\n";
                 std::cin.clear();
             }
