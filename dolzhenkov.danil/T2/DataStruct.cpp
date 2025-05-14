@@ -1,4 +1,5 @@
 ﻿#include "DataStruct.h"
+#include <regex>
 
 namespace nspace {
     bool dataStructCompare(const DataStruct& a, const DataStruct& b)
