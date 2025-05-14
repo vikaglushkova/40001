@@ -199,3 +199,4 @@ namespace nspace {
         s_.flags(fmt_);
     }
 }
+
