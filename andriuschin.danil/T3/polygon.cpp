@@ -77,7 +77,7 @@ double andriuschin::details::GetTriangulatedArea::operator()(const Point& point)
 double andriuschin::GetArea::operator()(const Polygon& polygon)
 {
   using namespace std::placeholders;
-  static auto adder = std::bind(std::plus<>{}, _1, std::bind(details::GetTriangulatedArea{}, _2));
+  auto adder = std::bind(std::plus<>{}, _1, std::bind(details::GetTriangulatedArea{}, _2));
   return std::accumulate(polygon.points.begin(), polygon.points.end(), 0.0, adder);
 }
 
@@ -105,7 +105,7 @@ size_t andriuschin::details::IsRightOnTheSameHeight::operator()(const Point& nex
 bool andriuschin::IsInside::operator()(const Polygon& poly, const Point& point)
 {
   using namespace std::placeholders;
-  static auto adder = std::bind(std::plus<>{}, _1,
+  auto adder = std::bind(std::plus<>{}, _1,
         std::bind(details::IsRightOnTheSameHeight{poly.points.back(), point}, _2));
   size_t count = std::accumulate(poly.points.begin(), poly.points.end(), 0, adder);
   return (count == 1) || (count >= details::IsRightOnTheSameHeight::ON_SIDE);
