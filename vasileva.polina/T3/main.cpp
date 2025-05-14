@@ -111,12 +111,12 @@ int main(int argc, char* argv[]) {
         }
         else if (command == "ECHO") {
             Polygon poly;
-            //std::string line;
+            std::string line;
 
-            //std::getline(std::cin >> std::ws, line);
-            //std::istringstream iss(line);
+            std::getline(std::cin >> std::ws, line);
+            std::istringstream iss(line);
 
-            if (!(std::cin >> poly)) {
+            if (!(iss >> poly)) {
                 std::cout << "<INVALID COMMAND>\n";
                 std::cin.clear();
             }
