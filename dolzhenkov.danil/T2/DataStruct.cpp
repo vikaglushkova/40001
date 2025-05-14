@@ -56,6 +56,12 @@ namespace nspace {
         return in;
     }
 
+    bool isDoubleSCI(const std::string& str)
+    {
+        std::regex pattern("^[-+]?[0-9]*\\.?[0-9]+([eE][-+][0-9]+)$");
+        return std::regex_match(str, pattern);
+    }
+
     std::istream& operator>>(std::istream& in, DoubleIO&& dest)
     {
         std::istream::sentry sentry(in);
@@ -63,13 +69,13 @@ namespace nspace {
         {
             return in;
         }
-        std::string check;
-        getline(in, check, ':');
-        in.unget();
-        if (check[0] >= '1' && check[0] <= '9' && check[1] == '.')
+        std::string str;
+        std::getline(in, str, ':');
+        in.putback(':');
+        if (isDoubleSCI(str))
         {
-            double toReturn = stod(check);
-            dest.ref = toReturn;
+            std::stringstream ss(str);
+            ss >> dest.ref;
         }
         else
         {
@@ -95,26 +101,33 @@ namespace nspace {
         {
             return in;
         }
-        std::string toCheck = "";
+
+        std::string toCheck;
         getline(in, toCheck, ':');
-        in.unget();
+        in.putback(':');
 
-        size_t llPos = toCheck.find("ll");
-        size_t LLPos = toCheck.find("LL");
+        bool endsWithLL =
+            (toCheck.size() >= 3) &&
+            ((toCheck.substr(toCheck.size() - 2) == "ll" ||
+                toCheck.substr(toCheck.size() - 2) == "LL") &&
+                (!isalpha(toCheck[toCheck.size() - 3])));
 
-        if (llPos == std::string::npos && LLPos == std::string::npos)
+        if (!endsWithLL)
         {
             in.setstate(std::ios::failbit);
             return in;
         }
 
-        try {
+        try
+        {
             long long value = std::stoll(toCheck.substr(0, toCheck.size() - 2));
             dest.ref = value;
         }
-        catch (...) {
+        catch (...)
+        {
             in.setstate(std::ios::failbit);
         }
+
         return in;
     }
 
@@ -199,4 +212,3 @@ namespace nspace {
         s_.flags(fmt_);
     }
 }
-

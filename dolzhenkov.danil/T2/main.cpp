@@ -1,9 +1,9 @@
 #include <iostream>
-#include "DataStruct.h"
+#include "Datastruct.h"
 
 int main()
 {
-    using nspace::DataStruct;
+    using namespace nspace;
 
     std::vector< DataStruct > data;
 
@@ -19,7 +19,7 @@ int main()
             std::cin.clear();
         }
     }
-    std::sort(data.begin(), data.end(), nspace::dataStructCompare);
+    std::sort(data.begin(), data.end(), dataStructCompare);
     std::copy(
         std::begin(data),
         std::end(data),
@@ -28,4 +28,3 @@ int main()
 
     return 0;
 }
-
