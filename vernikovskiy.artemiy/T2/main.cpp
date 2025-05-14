@@ -9,7 +9,6 @@
 int main() {
     using namespace doomsday;
     std::vector<DataStruct> dataVec;
-    std::cin >> std::noskipws;
     while (!std::cin.eof()) {
 
         std::copy(
