@@ -1,5 +1,5 @@
 #include <iostream>
-#include "T2.h"
+#include "Datastruct.h"
 
 int main()
 {
@@ -20,7 +20,6 @@ int main()
         }
     }
     std::sort(data.begin(), data.end(), nspace::dataStructCompare);
-
     std::copy(
         std::begin(data),
         std::end(data),

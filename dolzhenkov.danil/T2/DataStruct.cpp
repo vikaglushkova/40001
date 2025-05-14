@@ -18,31 +18,21 @@ namespace nspace {
 
     std::string beautyDouble(double check)
     {
-        std::ostringstream oss;
-        int a = 0;
-        while (!(abs(check) < 10 && abs(check) >= 1))
+        std::stringstream ss;
+        ss << std::scientific << check;
+        std::string str = ss.str();
+        size_t i = str.find('e');
+        while (str[i - 1] == '0' && str[i - 2] != '.')
         {
-            if (check >= 10)
-            {
-                a++;
-                check /= 10;
-            }
-            else if (check < 1)
-            {
-                a--;
-                check *= 10;
-            }
+            str.erase(i - 1, 1);
+            i = str.find('e');
         }
-        if (std::abs(check) >= 1.01)
+        while (str[i + 2] == '0')
         {
-            oss << std::fixed << std::setprecision(2) << check << std::showpos << "e" << a;
+            str.erase(i + 2, 1);
+            i = str.find('e');
         }
-        else
-        {
-            oss << std::fixed << std::setprecision(1) << check << std::showpos << "e" << a;
-        }
-        std::string toWrite = oss.str();
-        return toWrite;
+        return str;
     }
 
     std::string llToString(long long key)
