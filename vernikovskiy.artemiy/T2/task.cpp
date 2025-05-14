@@ -26,10 +26,10 @@ namespace doomsday
         if (!sentry)
         {
             return is;
-            std::cout << "SENTRY" << std::endl ;
+
         }
         char c = '0';
-        is >> std::noskipws >> c;
+        is.get(c);
         if (is && (c != dest.delim))
         {
             is.setstate(std::ios::failbit);
@@ -43,7 +43,7 @@ namespace doomsday
         if (!sentry)
         {
             return is;
-            std::cout << "SENTRY" << std::endl ;
+
         }
         char c = '0';
         is >> c;
@@ -62,7 +62,7 @@ namespace doomsday
         if (!sentry)
         {
             return is;
-            std::cout << "SENTRY" << std::endl ;
+
         }
         std::string res = "";
         char c = '0';
@@ -84,7 +84,7 @@ namespace doomsday
         if (!sentry)
         {
             return is;
-           std::cout << "SENTRY" << std::endl ;
+
         }
         std::streampos startPos = is.tellg();
         char c = '0';
@@ -115,7 +115,7 @@ namespace doomsday
         if (!sentry)
         {
             return is;
-           std::cout << "SENTRY" << std::endl ;
+
         }
         char c = '0';
         while (is.get(c) && (c != ' '))
