@@ -11,13 +11,6 @@
 #include <demand.hpp>
 #include <format_guard.hpp>
 
-namespace andriuschin
-{
-  using namespace std::placeholders;
-  static auto getX = std::bind(std::mem_fn(&Point::x), _1);
-  static auto getY = std::bind(std::mem_fn(&Point::y), _1);
-}
-
 std::istream& andriuschin::operator>>(std::istream& in, Point& point)
 {
   std::istream::sentry sentry(in);
@@ -27,16 +20,14 @@ std::istream& andriuschin::operator>>(std::istream& in, Point& point)
   }
   FormatGuard guard(in);
   int x, y;
-  if (in >> Demand{'('} >> x >> std::noskipws >> Demand{';'} >> y >> Demand{')'})
+  if (in >> Demand{'('} >> x >> Demand{';'} >> y >> Demand{')'})
   {
     point.x = x;
     point.y = y;
-    return in;
   }
-  in.setstate(std::ios::failbit);
   return in;
 }
-std::istream& andriuschin::operator>>(std::istream& in, Polygon& poly)
+std::istream& andriuschin::operator>>(std::istream& in, Polygon& polygon)
 {
   std::istream::sentry sentry(in);
   if (!sentry)
@@ -45,13 +36,13 @@ std::istream& andriuschin::operator>>(std::istream& in, Polygon& poly)
   }
   FormatGuard guard(in);
   size_t count;
-  if (((in >> std::ws).peek() != '-') && (in >> count) && (count >= 3))
+  if ((in.peek() != '-') && (in >> count) && (count >= 3))
   {
     std::vector< Point > temp;
     std::copy_n(std::istream_iterator< Point >(in), count, std::back_inserter(temp));
-    if ((temp.size() == count))
+    if (temp.size() == count)
     {
-      poly.points = std::move(temp);
+      polygon.points = std::move(temp);
       return in;
     }
   }
@@ -61,39 +52,36 @@ std::istream& andriuschin::operator>>(std::istream& in, Polygon& poly)
 
 double andriuschin::details::GetTriangulatedArea::operator()(const Point& point)
 {
-  using namespace std::placeholders;
   if (size < 2)
   {
     buf[size++] = point;
     return 0;
   }
+
+  using namespace std::placeholders;
+  static auto getX = std::bind(std::mem_fn(&Point::x), _1);
+  static auto getY = std::bind(std::mem_fn(&Point::y), _1);
   static auto getXDist = std::bind(std::minus<>{}, std::bind(getX, _1), std::bind(getX, _2));
   static auto getYDist = std::bind(std::minus<>{}, std::bind(getY, _1), std::bind(getY, _2));
   static auto sqr = std::bind(std::multiplies<>{}, _1, _1);
   static auto getDistSqr = std::bind(std::plus<>{}, std::bind(sqr, getXDist), std::bind(sqr, getYDist));
   static double(*sqrt)(double) = std::sqrt;
   static auto getDist = std::bind(sqrt, getDistSqr);
-  static auto getPerimetr = std::bind(std::plus<>{}, std::bind(getDist, _1, _2),
-      std::bind(std::plus<>{}, std::bind(getDist, _1, _3), std::bind(getDist, _2, _3)));
-  static auto getSemiPerimetr = std::bind(std::divides<>{}, getPerimetr, 2);
-  static auto getPMinusSide = std::bind(std::minus<>{}, getSemiPerimetr, std::bind(getDist, _1, _2));
-  static auto getMultiply = std::bind(std::multiplies<>{}, std::bind(getPMinusSide, _1, _2, _3),
-      std::bind(std::multiplies<>{}, std::bind(getPMinusSide, _2, _3, _1), std::bind(getPMinusSide, _3, _1, _2)));
-  static auto getSqrArea = std::bind(std::multiplies<>{}, getSemiPerimetr, getMultiply);
-  static auto getArea = std::bind(sqrt, getSqrArea);
 
   Point a = buf[1];
   buf[1] = point;
-  return getArea(a, buf[0], point);
+  double sides[3] = {getDist(a, buf[0]), getDist(buf[0], point), getDist(point, a)};
+  double semiPerimetr = (sides[0] + sides[1] + sides[2]) / 2;
+  return sqrt(semiPerimetr * (semiPerimetr - sides[0]) * (semiPerimetr - sides[1]) * (semiPerimetr - sides[2]));
 }
-double andriuschin::GetArea::operator()(const Polygon& p)
+double andriuschin::GetArea::operator()(const Polygon& polygon)
 {
   using namespace std::placeholders;
-  return std::accumulate(p.points.begin(), p.points.end(), 0.0,
-      std::bind(std::plus<>{}, _1, std::bind(details::GetTriangulatedArea{}, _2)));
+  static auto adder = std::bind(std::plus<>{}, _1, std::bind(details::GetTriangulatedArea{}, _2));
+  return std::accumulate(polygon.points.begin(), polygon.points.end(), 0.0, adder);
 }
 
-size_t andriuschin::IsRightOnTheSameHeight::operator()(const Point& next)
+size_t andriuschin::details::IsRightOnTheSameHeight::operator()(const Point& next)
 {
   Point current = prev;
   prev = next;
@@ -116,12 +104,15 @@ size_t andriuschin::IsRightOnTheSameHeight::operator()(const Point& next)
 }
 bool andriuschin::IsInside::operator()(const Polygon& poly, const Point& point)
 {
-  size_t count = std::count_if(poly.points.begin(), poly.points.end(),
-        IsRightOnTheSameHeight{poly.points.back(), point});
-  return (count == 1) || (count >= IsRightOnTheSameHeight::ON_SIDE);
+  using namespace std::placeholders;
+  static auto adder = std::bind(std::plus<>{}, _1,
+        std::bind(details::IsRightOnTheSameHeight{poly.points.back(), point}, _2));
+  size_t count = std::accumulate(poly.points.begin(), poly.points.end(), 0, adder);
+  return (count == 1) || (count >= details::IsRightOnTheSameHeight::ON_SIDE);
 }
 bool andriuschin::GetIntersections::operator()(const Polygon& lhs, const Polygon& rhs)
 {
+  using namespace std::placeholders;
   return std::any_of(lhs.points.cbegin(), lhs.points.cend(), std::bind(IsInside{}, rhs, _1))
       || std::any_of(rhs.points.cbegin(), rhs.points.cend(), std::bind(IsInside{}, lhs, _1));
 }
