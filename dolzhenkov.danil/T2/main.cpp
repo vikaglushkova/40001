@@ -1,6 +1,6 @@
 #include <iostream>
 #include <limits>
-#include "Datastruct.h"
+#include "DataStruct.h"
 
 int main()
 {
