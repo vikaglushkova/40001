@@ -7,9 +7,10 @@
 #include <iomanip>
 #include <iterator>
 #include <cmath>
+#include <regex>
 #include <algorithm>
 
-namespace nspace {
+namespace dolzhenkov {
     struct DataStruct
     {
         double key1;
@@ -58,9 +59,8 @@ namespace nspace {
     std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
 
     std::string beautyDouble(double check);
-    std::string llToString(long long key);
     bool dataStructCompare(const DataStruct& a, const DataStruct& b);
+    bool isDoubleSCI(const std::string& str);
 }
 
 #endif
-

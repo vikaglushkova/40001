@@ -1,7 +1,7 @@
 ﻿#include "DataStruct.h"
 #include <regex>
 
-namespace nspace {
+namespace dolzhenkov {
     bool dataStructCompare(const DataStruct& a, const DataStruct& b)
     {
         if (a.key1 != b.key1)
@@ -34,11 +34,6 @@ namespace nspace {
             i = str.find('e');
         }
         return str;
-    }
-
-    std::string llToString(long long key)
-    {
-        return std::to_string(key) + "ll";
     }
 
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
@@ -107,11 +102,8 @@ namespace nspace {
         getline(in, toCheck, ':');
         in.putback(':');
 
-        bool endsWithLL =
-            (toCheck.size() >= 3) &&
-            ((toCheck.substr(toCheck.size() - 2) == "ll" ||
-                toCheck.substr(toCheck.size() - 2) == "LL") &&
-                (!isalpha(toCheck[toCheck.size() - 3])));
+        bool endsWithLL = (toCheck.size() >= 3)
+            && ((toCheck.substr(toCheck.size() - 2) == "ll" || toCheck.substr(toCheck.size() - 2) == "LL"));
 
         if (!endsWithLL)
         {
@@ -145,6 +137,8 @@ namespace nspace {
             using dbl = DoubleIO;
             using str = StringIO;
             using sll = SllLitIO;
+            bool done[3] = { false, false, false };
+
             in >> sep{ '(' } >> sep{ ':' };
             for (size_t i = 0; i < 3; i++)
             {
@@ -152,26 +146,33 @@ namespace nspace {
                 in >> label;
                 if (label == "key1")
                 {
-                    in >> dbl{ input.key1 };
-                    in >> sep{ ':' };
+                    in >> dbl{ input.key1 } >> sep{ ':' };
+                    done[0] = true;
                 }
                 else if (label == "key2")
                 {
-                    in >> sll{ input.key2 };
-                    in >> sep{ ':' };
+                    in >> sll{ input.key2 } >> sep{ ':' };
+                    done[1] = true;
                 }
                 else if (label == "key3")
                 {
-                    in >> str{ input.key3 };
-                    in >> sep{ ':' };
+                    in >> str{ input.key3 } >> sep{ ':' };
+                    done[2] = true;
                 }
                 else
                 {
                     in.setstate(std::ios::failbit);
                     return in;
                 }
+
             }
             in >> sep{ ')' };
+            if (!done[0] || !done[1] || !done[2])
+            {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
+
         }
         if (in)
         {
@@ -190,7 +191,7 @@ namespace nspace {
         iofmtguard fmtguard(out);
         out << "(";
         out << ":" << "key1" << " " << beautyDouble(data.key1);
-        out << ":" << "key2" << " " << llToString(data.key2);
+        out << ":" << "key2" << " " << data.key2 << "ll";
         out << ":" << "key3" << " " << '"' << data.key3 << '"';
         out << ":";
         out << ")";
@@ -213,4 +214,3 @@ namespace nspace {
         s_.flags(fmt_);
     }
 }
-

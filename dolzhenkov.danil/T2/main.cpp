@@ -1,9 +1,10 @@
 #include <iostream>
-#include "DataStruct.h"
+#include <limits>
+#include "Datastruct.h"
 
 int main()
 {
-    using namespace nspace;
+    using namespace dolzhenkov;
 
     std::vector< DataStruct > data;
 
@@ -17,6 +18,7 @@ int main()
         if (std::cin.fail() && !std::cin.eof() && !std::cin.bad())
         {
             std::cin.clear();
+            std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
         }
     }
     std::sort(data.begin(), data.end(), dataStructCompare);
@@ -28,4 +30,3 @@ int main()
 
     return 0;
 }
-
