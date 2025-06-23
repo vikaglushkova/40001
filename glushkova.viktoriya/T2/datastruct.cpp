@@ -1,4 +1,4 @@
-#include "DataStruct.hpp"
+#include "datastruct.hpp"
 
 namespace custom {
     bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
