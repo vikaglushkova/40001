@@ -1,124 +1,99 @@
 #include "datastruct.hpp"
 #include <sstream>
 #include <cctype>
-#include <stdexcept>
+#include <vector>
+#include <algorithm>
 
-bool parseDouble(const std::string& str, double& value) {
-    try {
-        size_t pos;
-        value = std::stod(str, &pos);
-        if (pos != str.size() && str.back() != 'd' && str.back() != 'D') {
+namespace {
+    void trim(std::string& s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) { return !std::isspace(ch); }));
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) { return !std::isspace(ch); }).base(), s.end());
+    }
+
+    bool parseDouble(const std::string& str, double& value) {
+        try {
+            size_t pos = 0;
+            value = std::stod(str, &pos);
+            if (pos < str.size() && (str[pos] == 'd' || str[pos] == 'D')) pos++;
+            return pos == str.size();
+        }
+        catch (...) {
             return false;
         }
-        return true;
-    } catch (...) {
-        return false;
     }
-}
 
-bool parseLongLong(const std::string& str, long long& value) {
-    try {
-        size_t pos;
-        value = std::stoll(str, &pos);
-        if (pos != str.size() && (str.find("LL") == std::string::npos && str.find("ll") == std::string::npos)) {
+    bool parseLongLong(const std::string& str, long long& value) {
+        try {
+            size_t pos = 0;
+            value = std::stoll(str, &pos);
+            if (pos < str.size() && (str[pos] == 'l' || str[pos] == 'L')) pos += 2;
+            return pos == str.size();
+        }
+        catch (...) {
             return false;
         }
+    }
+
+    bool parseString(std::string str, std::string& value) {
+        trim(str);
+        if (str.size() < 2 || str.front() != '"' || str.back() != '"') return false;
+        value = str.substr(1, str.size() - 2);
         return true;
-    } catch (...) {
-        return false;
     }
 }
 
-bool parseString(const std::string& str, std::string& value) {
-    if (str.size() < 2 || str.front() != '"' || str.back() != '"') {
-        return false;
-    }
-    value = str.substr(1, str.size() - 2);
-    return true;
-}
-
-std::istream& operator>>(std::istream& in, DataStruct& data) {
+std::istream& operator>>(std::istream& is, DataStruct& ds) {
     std::string line;
-    if (!std::getline(in, line)) {
-        return in;
-    }
+    while (std::getline(is, line)) {
+        trim(line);
+        if (line.empty()) continue;
 
-    if (line.empty() || line.front() != '(' || line.back() != ')') {
-        in.setstate(std::ios::failbit);
-        return in;
-    }
+        if (line.front() != '(' || line.back() != ')') continue;
 
-    line = line.substr(1, line.size() - 2);
-    DataStruct temp;
-    bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
+        line = line.substr(1, line.size() - 2);
+        std::vector<std::string> parts;
+        std::istringstream iss(line);
+        std::string part;
 
-    size_t pos = 0;
-    while (pos < line.size()) {
-        while (pos < line.size() && (line[pos] == ' ' || line[pos] == ':')) {
-            pos++;
-        }
-        if (pos >= line.size()) break;
-
-        size_t key_end = line.find(' ', pos);
-        if (key_end == std::string::npos) {
-            in.setstate(std::ios::failbit);
-            return in;
+        while (std::getline(iss, part, ':')) {
+            trim(part);
+            if (!part.empty()) parts.push_back(part);
         }
 
-        std::string key = line.substr(pos, key_end - pos);
-        pos = key_end + 1;
+        DataStruct temp;
+        bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
 
-        size_t value_end = line.find(':', pos);
-        if (value_end == std::string::npos) {
-            value_end = line.size();
-        }
-
-        std::string value_str = line.substr(pos, value_end - pos);
-        value_str.erase(0, value_str.find_first_not_of(" \t"));
-        value_str.erase(value_str.find_last_not_of(" \t") + 1);
-
-        if (key == "key1") {
-            if (!parseDouble(value_str, temp.key1)) {
-                in.setstate(std::ios::failbit);
-                return in;
+        for (const auto& p : parts) {
+            if (p.find("key1") == 0) {
+                std::string val = p.substr(4);
+                trim(val);
+                if (!parseDouble(val, temp.key1)) break;
+                hasKey1 = true;
             }
-            hasKey1 = true;
-        } else if (key == "key2") {
-            if (!parseLongLong(value_str, temp.key2)) {
-                in.setstate(std::ios::failbit);
-                return in;
+            else if (p.find("key2") == 0) {
+                std::string val = p.substr(4);
+                trim(val);
+                if (!parseLongLong(val, temp.key2)) break;
+                hasKey2 = true;
             }
-            hasKey2 = true;
-        } else if (key == "key3") {
-            if (!parseString(value_str, temp.key3)) {
-                in.setstate(std::ios::failbit);
-                return in;
+            else if (p.find("key3") == 0) {
+                std::string val = p.substr(4);
+                if (!parseString(val, temp.key3)) break;
+                hasKey3 = true;
             }
-            hasKey3 = true;
-        } else {
-            in.setstate(std::ios::failbit);
-            return in;
         }
 
-        pos = value_end;
+        if (hasKey1 && hasKey2 && hasKey3) {
+            ds = temp;
+            return is;
+        }
     }
 
-    if (!hasKey1 || !hasKey2 || !hasKey3) {
-        in.setstate(std::ios::failbit);
-        return in;
-    }
-
-    data = temp;
-    return in;
+    is.setstate(std::ios::failbit);
+    return is;
 }
 
-std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
-    out << "(:key1 " << data.key1 << "d:key2 " << data.key2 << "ll:key3 \"" << data.key3 << "\":)";
-    return out;
-}
-
-bool compareDataStruct(const DataStruct& a, const DataStruct& b) {
-    if (a.key1 != b.key1) return a.key1 < b.key1;
-    if (a.key2 != b.key2) return a.key2 < b.key2;
-    return a.key3.length() < b.key3.length();
+std::ostream& operator<<(std::ostream& os, const DataStruct& ds) {
+    os << "(:key1 " << ds.key1 << "d :key2 " << ds.key2 << "ll :key3 \"" << ds.key3 << "\" :)";
+    return os;
 }
