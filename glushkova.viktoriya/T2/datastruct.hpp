@@ -54,6 +54,7 @@ namespace custom {
     std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
 
     bool compareDataStructs(const DataStruct& a, const DataStruct& b);
+    bool isValidDataStruct(const DataStruct& ds);
 }
 
 #endif

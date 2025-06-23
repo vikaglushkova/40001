@@ -2,24 +2,28 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include "datastruct.hpp"
+#include "DataStruct.hpp"
 
 int main() {
     using custom::DataStruct;
 
     std::vector<DataStruct> data;
+    bool hasValidData = false;
 
     while (!std::cin.eof()) {
-        std::copy(
-            std::istream_iterator<DataStruct>(std::cin),
-            std::istream_iterator<DataStruct>(),
-            std::back_inserter(data)
-        );
-
-        if (std::cin.fail() && !std::cin.eof()) {
+        DataStruct temp;
+        if (std::cin >> temp) {
+            data.push_back(temp);
+            hasValidData = true;
+        } else if (!std::cin.eof()) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
+    }
+
+    if (!hasValidData) {
+        std::cerr << "Looks like there is no supported record. Cannot determine input. Test skipped\n";
+        return 0;
     }
 
     std::sort(data.begin(), data.end(), custom::compareDataStructs);

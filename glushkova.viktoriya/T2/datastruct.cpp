@@ -1,4 +1,4 @@
-#include "datastruct.hpp"
+#include "DataStruct.hpp"
 
 namespace custom {
     bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
@@ -7,13 +7,16 @@ namespace custom {
         return a.key3.length() < b.key3.length();
     }
 
+    bool isValidDataStruct(const DataStruct& ds) {
+        return !(std::isnan(ds.key1) || std::isinf(ds.key1) || ds.key3.empty());
+    }
+
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
         char c;
-        in >> c;
-        if (in && c != dest.expected) {
+        if (in >> c && c != dest.expected) {
             in.setstate(std::ios::failbit);
         }
         return in;
@@ -26,8 +29,7 @@ namespace custom {
         double value;
         if (in >> value) {
             dest.value = value;
-        }
-        else {
+        } else {
             in.setstate(std::ios::failbit);
         }
         return in;
@@ -40,8 +42,7 @@ namespace custom {
         long long value;
         if (in >> value) {
             dest.value = value;
-        }
-        else {
+        } else {
             in.setstate(std::ios::failbit);
         }
         return in;
@@ -50,7 +51,10 @@ namespace custom {
     std::istream& operator>>(std::istream& in, StringIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
-        return std::getline(in >> DelimiterIO{ '"' }, dest.value, '"');
+
+        in >> DelimiterIO{'"'};
+        std::getline(in, dest.value, '"');
+        return in;
     }
 
     std::istream& operator>>(std::istream& in, DataStruct& dest) {
@@ -58,29 +62,27 @@ namespace custom {
         if (!sentry) return in;
 
         DataStruct temp;
-        in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
+        in >> DelimiterIO{'('} >> DelimiterIO{':'};
 
-        for (int i = 0; i < 3; ++i) {
-            std::string field;
-            in >> field;
-
+        std::string field;
+        while (in >> field && field != ")") {
             if (field == "key1") {
-                in >> DoubleLitIO{ temp.key1 } >> DelimiterIO{ ':' };
-            }
-            else if (field == "key2") {
-                in >> LongLongLitIO{ temp.key2 } >> DelimiterIO{ ':' };
-            }
-            else if (field == "key3") {
-                in >> StringIO{ temp.key3 } >> DelimiterIO{ ':' };
-            }
-            else {
+                in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'};
+            } else if (field == "key2") {
+                in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'};
+            } else if (field == "key3") {
+                in >> StringIO{temp.key3} >> DelimiterIO{':'};
+            } else {
                 in.setstate(std::ios::failbit);
-                return in;
+                break;
             }
         }
 
-        in >> DelimiterIO{ ')' };
-        if (in) dest = temp;
+        if (in && isValidDataStruct(temp)) {
+            dest = temp;
+        } else {
+            in.setstate(std::ios::failbit);
+        }
         return in;
     }
 
@@ -100,8 +102,7 @@ namespace custom {
         width_(stream.width()),
         fill_(stream.fill()),
         precision_(stream.precision()),
-        flags_(stream.flags()) {
-    }
+        flags_(stream.flags()) {}
 
     IOFormatGuard::~IOFormatGuard() {
         stream_.width(width_);
