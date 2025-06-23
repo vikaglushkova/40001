@@ -1,47 +1,56 @@
 #include "datastruct.hpp"
+#include <iomanip>
+#include <sstream>
+#include <cmath>
 
 namespace custom {
     bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
-        if (a.key1 != b.key1) return a.key1 < b.key1;
-        if (a.key2 != b.key2) return a.key2 < b.key2;
-        return a.key3.length() < b.key3.length();
-    }
+        if (std::abs(a.key1) != std::abs(b.key1))
+            return std::abs(a.key1) < std::abs(b.key1);
 
-    bool isValidDataStruct(const DataStruct& ds) {
-        return !(std::isnan(ds.key1) || std::isinf(ds.key1) || ds.key3.empty());
+        double a_ratio = static_cast<double>(a.key2.first) / a.key2.second;
+        double b_ratio = static_cast<double>(b.key2.first) / b.key2.second;
+        if (a_ratio != b_ratio)
+            return a_ratio < b_ratio;
+
+        return a.key3.length() < b.key3.length();
     }
 
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-        char c;
-        if (in >> c && c != dest.expected) {
+        char c = '0';
+        in >> c;
+        if (in && (c != dest.exp)) {
             in.setstate(std::ios::failbit);
         }
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, DoubleLitIO&& dest) {
+    std::istream& operator>>(std::istream& in, ComplexIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-        double value;
-        if (in >> value) {
-            dest.value = value;
-        } else {
-            in.setstate(std::ios::failbit);
-        }
+        double real = 0.0, imag = 0.0;
+        in >> DelimiterIO{'#'} >> DelimiterIO{'c'} >> DelimiterIO{'('}
+           >> real >> imag >> DelimiterIO{')'};
+
+        if (in) dest.ref = std::complex<double>(real, imag);
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, LongLongLitIO&& dest) {
+    std::istream& operator>>(std::istream& in, RationalIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-        long long value;
-        if (in >> value) {
-            dest.value = value;
+        long long n = 0;
+        unsigned long long d = 1;
+        in >> DelimiterIO{'('} >> DelimiterIO{':'} >> DelimiterIO{'N'} >> n
+           >> DelimiterIO{':'} >> DelimiterIO{'D'} >> d >> DelimiterIO{':'} >> DelimiterIO{')'};
+
+        if (in && d != 0) {
+            dest.ref = {n, d};
         } else {
             in.setstate(std::ios::failbit);
         }
@@ -51,38 +60,34 @@ namespace custom {
     std::istream& operator>>(std::istream& in, StringIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
-
-        in >> DelimiterIO{'"'};
-        std::getline(in, dest.value, '"');
-        return in;
+        return std::getline(in >> DelimiterIO{'"'}, dest.ref, '"');
     }
 
     std::istream& operator>>(std::istream& in, DataStruct& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-        DataStruct temp;
+        DataStruct input;
         in >> DelimiterIO{'('} >> DelimiterIO{':'};
 
-        std::string field;
-        while (in >> field && field != ")") {
-            if (field == "key1") {
-                in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'};
-            } else if (field == "key2") {
-                in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'};
-            } else if (field == "key3") {
-                in >> StringIO{temp.key3} >> DelimiterIO{':'};
+        std::string key;
+        while (true) {
+            in >> key;
+            if (key == "key1") {
+                in >> ComplexIO{input.key1} >> DelimiterIO{':'};
+            } else if (key == "key2") {
+                in >> RationalIO{input.key2} >> DelimiterIO{':'};
+            } else if (key == "key3") {
+                in >> StringIO{input.key3} >> DelimiterIO{':'};
+            } else if (key == ")") {
+                break;
             } else {
                 in.setstate(std::ios::failbit);
                 break;
             }
         }
 
-        if (in && isValidDataStruct(temp)) {
-            dest = temp;
-        } else {
-            in.setstate(std::ios::failbit);
-        }
+        if (in) dest = input;
         return in;
     }
 
@@ -90,24 +95,9 @@ namespace custom {
         std::ostream::sentry sentry(out);
         if (!sentry) return out;
 
-        IOFormatGuard guard(out);
-        out << "(:key1 " << data.key1
-            << ":key2 " << data.key2
+        out << "(:key1 #c(" << data.key1.real() << " " << data.key1.imag() << ")"
+            << ":key2 (:N " << data.key2.first << ":D " << data.key2.second << ":)"
             << ":key3 \"" << data.key3 << "\":)";
         return out;
-    }
-
-    IOFormatGuard::IOFormatGuard(std::basic_ios<char>& stream) :
-        stream_(stream),
-        width_(stream.width()),
-        fill_(stream.fill()),
-        precision_(stream.precision()),
-        flags_(stream.flags()) {}
-
-    IOFormatGuard::~IOFormatGuard() {
-        stream_.width(width_);
-        stream_.fill(fill_);
-        stream_.precision(precision_);
-        stream_.flags(flags_);
     }
 }
