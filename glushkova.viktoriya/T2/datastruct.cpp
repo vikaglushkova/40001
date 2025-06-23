@@ -1,99 +1,112 @@
 #include "datastruct.hpp"
-#include <sstream>
-#include <cctype>
-#include <vector>
-#include <algorithm>
 
-namespace {
-    void trim(std::string& s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) { return !std::isspace(ch); }));
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) { return !std::isspace(ch); }).base(), s.end());
+namespace custom {
+    bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
+        if (a.key1 != b.key1) return a.key1 < b.key1;
+        if (a.key2 != b.key2) return a.key2 < b.key2;
+        return a.key3.length() < b.key3.length();
     }
 
-    bool parseDouble(const std::string& str, double& value) {
-        try {
-            size_t pos = 0;
-            value = std::stod(str, &pos);
-            if (pos < str.size() && (str[pos] == 'd' || str[pos] == 'D')) pos++;
-            return pos == str.size();
+    std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
+        std::istream::sentry sentry(in);
+        if (!sentry) return in;
+
+        char c;
+        in >> c;
+        if (in && c != dest.expected) {
+            in.setstate(std::ios::failbit);
         }
-        catch (...) {
-            return false;
-        }
+        return in;
     }
 
-    bool parseLongLong(const std::string& str, long long& value) {
-        try {
-            size_t pos = 0;
-            value = std::stoll(str, &pos);
-            if (pos < str.size() && (str[pos] == 'l' || str[pos] == 'L')) pos += 2;
-            return pos == str.size();
+    std::istream& operator>>(std::istream& in, DoubleLitIO&& dest) {
+        std::istream::sentry sentry(in);
+        if (!sentry) return in;
+
+        double value;
+        if (in >> value) {
+            dest.value = value;
         }
-        catch (...) {
-            return false;
+        else {
+            in.setstate(std::ios::failbit);
         }
+        return in;
     }
 
-    bool parseString(std::string str, std::string& value) {
-        trim(str);
-        if (str.size() < 2 || str.front() != '"' || str.back() != '"') return false;
-        value = str.substr(1, str.size() - 2);
-        return true;
-    }
-}
+    std::istream& operator>>(std::istream& in, LongLongLitIO&& dest) {
+        std::istream::sentry sentry(in);
+        if (!sentry) return in;
 
-std::istream& operator>>(std::istream& is, DataStruct& ds) {
-    std::string line;
-    while (std::getline(is, line)) {
-        trim(line);
-        if (line.empty()) continue;
-
-        if (line.front() != '(' || line.back() != ')') continue;
-
-        line = line.substr(1, line.size() - 2);
-        std::vector<std::string> parts;
-        std::istringstream iss(line);
-        std::string part;
-
-        while (std::getline(iss, part, ':')) {
-            trim(part);
-            if (!part.empty()) parts.push_back(part);
+        long long value;
+        if (in >> value) {
+            dest.value = value;
         }
+        else {
+            in.setstate(std::ios::failbit);
+        }
+        return in;
+    }
+
+    std::istream& operator>>(std::istream& in, StringIO&& dest) {
+        std::istream::sentry sentry(in);
+        if (!sentry) return in;
+        return std::getline(in >> DelimiterIO{ '"' }, dest.value, '"');
+    }
+
+    std::istream& operator>>(std::istream& in, DataStruct& dest) {
+        std::istream::sentry sentry(in);
+        if (!sentry) return in;
 
         DataStruct temp;
-        bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
+        in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
 
-        for (const auto& p : parts) {
-            if (p.find("key1") == 0) {
-                std::string val = p.substr(4);
-                trim(val);
-                if (!parseDouble(val, temp.key1)) break;
-                hasKey1 = true;
+        for (int i = 0; i < 3; ++i) {
+            std::string field;
+            in >> field;
+
+            if (field == "key1") {
+                in >> DoubleLitIO{ temp.key1 } >> DelimiterIO{ ':' };
             }
-            else if (p.find("key2") == 0) {
-                std::string val = p.substr(4);
-                trim(val);
-                if (!parseLongLong(val, temp.key2)) break;
-                hasKey2 = true;
+            else if (field == "key2") {
+                in >> LongLongLitIO{ temp.key2 } >> DelimiterIO{ ':' };
             }
-            else if (p.find("key3") == 0) {
-                std::string val = p.substr(4);
-                if (!parseString(val, temp.key3)) break;
-                hasKey3 = true;
+            else if (field == "key3") {
+                in >> StringIO{ temp.key3 } >> DelimiterIO{ ':' };
+            }
+            else {
+                in.setstate(std::ios::failbit);
+                return in;
             }
         }
 
-        if (hasKey1 && hasKey2 && hasKey3) {
-            ds = temp;
-            return is;
-        }
+        in >> DelimiterIO{ ')' };
+        if (in) dest = temp;
+        return in;
     }
 
-    is.setstate(std::ios::failbit);
-    return is;
-}
+    std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
+        std::ostream::sentry sentry(out);
+        if (!sentry) return out;
 
-std::ostream& operator<<(std::ostream& os, const DataStruct& ds) {
-    os << "(:key1 " << ds.key1 << "d :key2 " << ds.key2 << "ll :key3 \"" << ds.key3 << "\" :)";
-    return os;
+        IOFormatGuard guard(out);
+        out << "(:key1 " << data.key1
+            << ":key2 " << data.key2
+            << ":key3 \"" << data.key3 << "\":)";
+        return out;
+    }
+
+    IOFormatGuard::IOFormatGuard(std::basic_ios<char>& stream) :
+        stream_(stream),
+        width_(stream.width()),
+        fill_(stream.fill()),
+        precision_(stream.precision()),
+        flags_(stream.flags()) {
+    }
+
+    IOFormatGuard::~IOFormatGuard() {
+        stream_.width(width_);
+        stream_.fill(fill_);
+        stream_.precision(precision_);
+        stream_.flags(flags_);
+    }
 }
