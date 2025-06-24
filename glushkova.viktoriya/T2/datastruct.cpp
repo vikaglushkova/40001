@@ -25,15 +25,12 @@ namespace custom {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-
         double value;
-        if (in >> value) {
-            char suffix;
-            if (in >> suffix && (suffix == 'd' || suffix == 'D')) {
-                dest.ref = value;
-            } else {
-                in.setstate(std::ios::failbit);
-            }
+        char suffix;
+        if (in >> value >> suffix && (suffix == 'd' || suffix == 'D')) {
+            dest.ref = value;
+        } else {
+            in.setstate(std::ios::failbit);
         }
         return in;
     }
@@ -43,13 +40,14 @@ namespace custom {
         if (!sentry) return in;
 
         long long value;
+        std::string suffix;
         if (in >> value) {
-            std::streampos pos = in.tellg();
-            char suffix[3] = {0};
-            in.read(suffix, 2);
-
-            if (std::string(suffix) != "LL" && std::string(suffix) != "ll") {
-                in.seekg(pos);
+            char next = in.peek();
+            if (next == 'L' || next == 'l') {
+                in >> suffix;
+                if (suffix != "LL" && suffix != "ll") {
+                    in.setstate(std::ios::failbit);
+                }
             }
             dest.ref = value;
         }
