@@ -1,7 +1,7 @@
 #include "datastruct.hpp"
 #include <iomanip>
 #include <sstream>
-#include <cmath>
+#include <limits>
 
 namespace custom {
     bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
