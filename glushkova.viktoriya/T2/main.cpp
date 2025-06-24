@@ -8,11 +8,12 @@
 int main() {
     using custom::DataStruct;
     std::vector<DataStruct> data;
-    DataStruct temp;
 
-    while (std::cin >> temp) {
-        data.push_back(temp);
-    }
+    std::copy(
+        std::istream_iterator<DataStruct>(std::cin),
+        std::istream_iterator<DataStruct>(),
+        std::back_inserter(data)
+    );
 
     if (!std::cin.eof() && std::cin.fail()) {
         std::cin.clear();
@@ -25,7 +26,12 @@ int main() {
     }
 
     std::sort(data.begin(), data.end(), custom::compareDataStructs);
-    std::copy(data.begin(), data.end(), std::ostream_iterator<DataStruct>(std::cout, "\n"));
+
+    std::copy(
+        data.begin(),
+        data.end(),
+        std::ostream_iterator<DataStruct>(std::cout, "\n")
+    );
 
     return 0;
 }

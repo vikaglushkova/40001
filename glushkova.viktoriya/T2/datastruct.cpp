@@ -1,18 +1,12 @@
 #include "datastruct.hpp"
 #include <iomanip>
 #include <sstream>
-#include <limits>
+#include <algorithm>
 
 namespace custom {
     bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
-        if (std::abs(a.key1) != std::abs(b.key1))
-            return std::abs(a.key1) < std::abs(b.key1);
-
-        double a_ratio = static_cast<double>(a.key2.first) / a.key2.second;
-        double b_ratio = static_cast<double>(b.key2.first) / b.key2.second;
-        if (a_ratio != b_ratio)
-            return a_ratio < b_ratio;
-
+        if (a.key1 != b.key1) return a.key1 < b.key1;
+        if (a.key2 != b.key2) return a.key2 < b.key2;
         return a.key3.length() < b.key3.length();
     }
 
@@ -20,39 +14,44 @@ namespace custom {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-        char c = '0';
-        in >> c;
-        if (in && (c != dest.exp)) {
+        char c;
+        if (in >> c && c != dest.exp) {
             in.setstate(std::ios::failbit);
         }
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, ComplexIO&& dest) {
+    std::istream& operator>>(std::istream& in, DoubleLitIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-        double real = 0.0, imag = 0.0;
-        in >> DelimiterIO{'#'} >> DelimiterIO{'c'} >> DelimiterIO{'('}
-           >> real >> imag >> DelimiterIO{')'};
 
-        if (in) dest.ref = std::complex<double>(real, imag);
+        double value;
+        if (in >> value) {
+            char suffix;
+            if (in >> suffix && (suffix == 'd' || suffix == 'D')) {
+                dest.ref = value;
+            } else {
+                in.setstate(std::ios::failbit);
+            }
+        }
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, RationalIO&& dest) {
+    std::istream& operator>>(std::istream& in, LongLongLitIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-        long long n = 0;
-        unsigned long long d = 1;
-        in >> DelimiterIO{'('} >> DelimiterIO{':'} >> DelimiterIO{'N'} >> n
-           >> DelimiterIO{':'} >> DelimiterIO{'D'} >> d >> DelimiterIO{':'} >> DelimiterIO{')'};
+        long long value;
+        if (in >> value) {
+            std::streampos pos = in.tellg();
+            char suffix[3] = {0};
+            in.read(suffix, 2);
 
-        if (in && d != 0) {
-            dest.ref = {n, d};
-        } else {
-            in.setstate(std::ios::failbit);
+            if (std::string(suffix) != "LL" && std::string(suffix) != "ll") {
+                in.seekg(pos);
+            }
+            dest.ref = value;
         }
         return in;
     }
@@ -67,27 +66,24 @@ namespace custom {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
 
-        DataStruct input;
+        DataStruct temp;
         in >> DelimiterIO{'('} >> DelimiterIO{':'};
 
         std::string key;
-        while (true) {
-            in >> key;
+        while (in >> key && key != ")") {
             if (key == "key1") {
-                in >> ComplexIO{input.key1} >> DelimiterIO{':'};
+                in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'};
             } else if (key == "key2") {
-                in >> RationalIO{input.key2} >> DelimiterIO{':'};
+                in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'};
             } else if (key == "key3") {
-                in >> StringIO{input.key3} >> DelimiterIO{':'};
-            } else if (key == ")") {
-                break;
+                in >> StringIO{temp.key3} >> DelimiterIO{':'};
             } else {
                 in.setstate(std::ios::failbit);
                 break;
             }
         }
 
-        if (in) dest = input;
+        if (in) dest = temp;
         return in;
     }
 
@@ -95,8 +91,8 @@ namespace custom {
         std::ostream::sentry sentry(out);
         if (!sentry) return out;
 
-        out << "(:key1 #c(" << data.key1.real() << " " << data.key1.imag() << ")"
-            << ":key2 (:N " << data.key2.first << ":D " << data.key2.second << ":)"
+        out << "(:key1 " << data.key1 << "d"
+            << ":key2 " << data.key2 << "LL"
             << ":key3 \"" << data.key3 << "\":)";
         return out;
     }
