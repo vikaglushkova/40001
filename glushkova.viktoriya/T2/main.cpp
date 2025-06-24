@@ -2,12 +2,10 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include <limits>
-#include "datastruct.hpp"
+#include "DataStruct.hpp"
 
 int main() {
     using custom::DataStruct;
-
     std::vector<DataStruct> data;
     DataStruct temp;
 
@@ -15,14 +13,9 @@ int main() {
         data.push_back(temp);
     }
 
-    if (std::cin.fail() && !std::cin.eof()) {
+    if (!std::cin.eof() && std::cin.fail()) {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    if (data.empty()) {
-        std::cerr << "Error: no valid input data\n";
-        return 1;
     }
 
     std::sort(data.begin(), data.end(), custom::compareDataStructs);
