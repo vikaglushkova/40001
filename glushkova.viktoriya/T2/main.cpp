@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include "DataStruct.hpp"
+#include "datastruct.hpp"
 
 int main() {
     using custom::DataStruct;
