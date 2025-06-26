@@ -93,8 +93,7 @@ namespace dolzhenkov {
     std::istream& operator>>(std::istream& in, SllLitIO&& dest)
     {
         std::istream::sentry sentry(in);
-        if (!sentry)
-        {
+        if (!sentry) {
             return in;
         }
 
@@ -105,24 +104,25 @@ namespace dolzhenkov {
         bool endsWithLL = (toCheck.size() >= 3)
             && ((toCheck.substr(toCheck.size() - 2) == "ll" || toCheck.substr(toCheck.size() - 2) == "LL"));
 
-        if (!endsWithLL)
-        {
+        if (!endsWithLL) {
             in.setstate(std::ios::failbit);
             return in;
         }
 
-        try
-        {
-            long long value = std::stoll(toCheck.substr(0, toCheck.size() - 2));
-            dest.ref = value;
-        }
-        catch (...)
-        {
+        std::string numberPart = toCheck.substr(0, toCheck.size() - 2);
+        std::istringstream iss(numberPart);
+        long long value;
+        iss >> value;
+
+        if (iss.fail() || !iss.eof()) {
             in.setstate(std::ios::failbit);
+            return in;
         }
 
+        dest.ref = value;
         return in;
     }
+
 
     std::istream& operator>>(std::istream& in, DataStruct& dest)
     {
