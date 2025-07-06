@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
+#include <cctype>
 
 namespace custom {
     bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
@@ -26,8 +27,11 @@ namespace custom {
         if (!sentry) return in;
 
         double value;
-        char suffix;
-        if (in >> value >> suffix && (suffix == 'd' || suffix == 'D')) {
+        if (in >> value) {
+            char suffix = in.peek();
+            if (suffix == 'd' || suffix == 'D') {
+                in.ignore();
+            }
             dest.ref = value;
         } else {
             in.setstate(std::ios::failbit);
@@ -40,10 +44,10 @@ namespace custom {
         if (!sentry) return in;
 
         long long value;
-        std::string suffix;
         if (in >> value) {
             char next = in.peek();
             if (next == 'L' || next == 'l') {
+                std::string suffix;
                 in >> suffix;
                 if (suffix != "LL" && suffix != "ll") {
                     in.setstate(std::ios::failbit);
@@ -68,20 +72,37 @@ namespace custom {
         in >> DelimiterIO{'('} >> DelimiterIO{':'};
 
         std::string key;
+        bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
         while (in >> key && key != ")") {
             if (key == "key1") {
-                in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'};
+                if (in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'}) {
+                    hasKey1 = true;
+                } else {
+                    break;
+                }
             } else if (key == "key2") {
-                in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'};
+                if (in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'}) {
+                    hasKey2 = true;
+                } else {
+                    break;
+                }
             } else if (key == "key3") {
-                in >> StringIO{temp.key3} >> DelimiterIO{':'};
+                if (in >> StringIO{temp.key3} >> DelimiterIO{':'}) {
+                    hasKey3 = true;
+                } else {
+                    break;
+                }
             } else {
                 in.setstate(std::ios::failbit);
                 break;
             }
         }
 
-        if (in) dest = temp;
+        if (in && hasKey1 && hasKey2 && hasKey3) {
+            dest = temp;
+        } else {
+            in.setstate(std::ios::failbit);
+        }
         return in;
     }
 
@@ -89,8 +110,8 @@ namespace custom {
         std::ostream::sentry sentry(out);
         if (!sentry) return out;
 
-        out << "(:key1 " << data.key1 << "d"
-            << ":key2 " << data.key2 << "LL"
+        out << "(:key1 " << std::fixed << std::setprecision(1) << data.key1 << "d"
+            << ":key2 " << data.key2 << "ll"
             << ":key3 \"" << data.key3 << "\":)";
         return out;
     }
