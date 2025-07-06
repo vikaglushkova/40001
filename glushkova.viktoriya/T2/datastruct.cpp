@@ -73,35 +73,40 @@ namespace custom {
 
         std::string key;
         bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
+        bool invalidFormat = false;
+
         while (in >> key && key != ")") {
             if (key == "key1") {
-                if (in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'}) {
-                    hasKey1 = true;
-                } else {
+                if (!(in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'})) {
+                    invalidFormat = true;
                     break;
                 }
-            } else if (key == "key2") {
-                if (in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'}) {
-                    hasKey2 = true;
-                } else {
+                hasKey1 = true;
+            }
+            else if (key == "key2") {
+                if (!(in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'})) {
+                    invalidFormat = true;
                     break;
                 }
-            } else if (key == "key3") {
-                if (in >> StringIO{temp.key3} >> DelimiterIO{':'}) {
-                    hasKey3 = true;
-                } else {
+                hasKey2 = true;
+            }
+            else if (key == "key3") {
+                if (!(in >> StringIO{temp.key3} >> DelimiterIO{':'})) {
+                    invalidFormat = true;
                     break;
                 }
-            } else {
-                in.setstate(std::ios::failbit);
+                hasKey3 = true;
+            }
+            else {
+                invalidFormat = true;
                 break;
             }
         }
 
-        if (in && hasKey1 && hasKey2 && hasKey3) {
-            dest = temp;
-        } else {
+        if (invalidFormat || !hasKey1 || !hasKey2 || !hasKey3) {
             in.setstate(std::ios::failbit);
+        } else {
+            dest = temp;
         }
         return in;
     }
