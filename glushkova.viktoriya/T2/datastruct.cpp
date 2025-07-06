@@ -14,9 +14,8 @@ namespace custom {
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) return in;
-
         char c;
-        if (in >> c && c != dest.exp) {
+        if (!(in >> c) || c != dest.exp) {
             in.setstate(std::ios::failbit);
         }
         return in;
@@ -27,15 +26,18 @@ namespace custom {
         if (!sentry) return in;
 
         double value;
-        if (in >> value) {
-            char suffix = in.peek();
-            if (suffix == 'd' || suffix == 'D') {
-                in.ignore();
-            }
-            dest.ref = value;
-        } else {
+        if (!(in >> value)) {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+
+        char suffix = in.peek();
+        if (suffix == 'd' || suffix == 'D') {
+            in.ignore();
+        } else if (!isspace(suffix) && suffix != ':') {
             in.setstate(std::ios::failbit);
         }
+        dest.ref = value;
         return in;
     }
 
@@ -69,44 +71,36 @@ namespace custom {
         if (!sentry) return in;
 
         DataStruct temp;
-        in >> DelimiterIO{'('} >> DelimiterIO{':'};
+        if (!(in >> DelimiterIO{'('} >> DelimiterIO{':'})) {
+            return in;
+        }
 
         std::string key;
         bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
-        bool invalidFormat = false;
 
         while (in >> key && key != ")") {
             if (key == "key1") {
-                if (!(in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'})) {
-                    invalidFormat = true;
-                    break;
-                }
+                if (!(in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'})) break;
                 hasKey1 = true;
             }
             else if (key == "key2") {
-                if (!(in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'})) {
-                    invalidFormat = true;
-                    break;
-                }
+                if (!(in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'})) break;
                 hasKey2 = true;
             }
             else if (key == "key3") {
-                if (!(in >> StringIO{temp.key3} >> DelimiterIO{':'})) {
-                    invalidFormat = true;
-                    break;
-                }
+                if (!(in >> StringIO{temp.key3} >> DelimiterIO{':'})) break;
                 hasKey3 = true;
             }
             else {
-                invalidFormat = true;
+                in.setstate(std::ios::failbit);
                 break;
             }
         }
 
-        if (invalidFormat || !hasKey1 || !hasKey2 || !hasKey3) {
-            in.setstate(std::ios::failbit);
-        } else {
+        if (in && hasKey1 && hasKey2 && hasKey3) {
             dest = temp;
+        } else {
+            in.setstate(std::ios::failbit);
         }
         return in;
     }

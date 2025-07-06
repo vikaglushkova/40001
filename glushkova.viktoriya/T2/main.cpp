@@ -8,14 +8,14 @@
 int main() {
     using custom::DataStruct;
     std::vector<DataStruct> data;
+    bool hasValidRecords = false;
     bool hasAnyInput = false;
-    bool hasValidData = false;
 
     while (true) {
         DataStruct temp;
         if (std::cin >> temp) {
             data.push_back(temp);
-            hasValidData = true;
+            hasValidRecords = true;
             hasAnyInput = true;
         } else if (std::cin.eof()) {
             break;
@@ -28,18 +28,12 @@ int main() {
 
     if (!hasAnyInput) {
         std::cout << "Looks like there is no supported record. Cannot determine input. Test skipped\n";
-    }
-    else if (!hasValidData) {
+    } else if (!hasValidRecords) {
         std::cout << "Atleast one supported record type\n";
-    }
-    else {
+    } else {
         std::sort(data.begin(), data.end(), custom::compareDataStructs);
-
-        std::copy(
-            data.begin(),
-            data.end(),
-            std::ostream_iterator<DataStruct>(std::cout, "\n")
-        );
+        std::copy(data.begin(), data.end(),
+                 std::ostream_iterator<DataStruct>(std::cout, "\n"));
     }
 
     return 0;
