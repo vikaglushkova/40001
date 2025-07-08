@@ -1,9 +1,8 @@
-#ifndef DATASTRUCT_HPP
+k#ifndef DATASTRUCT_HPP
 #define DATASTRUCT_HPP
 
 #include <iostream>
 #include <string>
-#include <limits>
 
 struct DataStruct {
     double key1;
