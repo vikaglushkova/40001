@@ -7,14 +7,13 @@
 
 int main() {
     std::vector<DataStruct> data;
+    std::string line;
 
-    while (std::cin.good()) {
+    while (std::getline(std::cin, line)) {
+        std::istringstream iss(line);
         DataStruct temp;
-        if (std::cin >> temp) {
+        if (iss >> temp) {
             data.push_back(temp);
-        } else {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
 
