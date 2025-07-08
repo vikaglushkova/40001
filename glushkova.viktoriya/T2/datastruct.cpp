@@ -1,117 +1,122 @@
 #include "datastruct.hpp"
-#include <iomanip>
 #include <sstream>
-#include <algorithm>
 #include <cctype>
+#include <iomanip>
+#include <cmath>
 
-namespace custom {
-    bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
-        if (a.key1 != b.key1) return a.key1 < b.key1;
-        if (a.key2 != b.key2) return a.key2 < b.key2;
-        return a.key3.length() < b.key3.length();
+bool parseDouble(std::istream& in, double& value) {
+    std::string numStr;
+    char c;
+    while (in.get(c) && (isdigit(c) || c == '.' || c == '-' || c == '+' || c == 'e' || c == 'E')) {
+        numStr += c;
     }
 
-    std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
-        std::istream::sentry sentry(in);
-        if (!sentry) return in;
-        char c;
-        if (!(in >> c) || c != dest.exp) {
-            in.setstate(std::ios::failbit);
-        }
-        return in;
+    if (numStr.empty()) return false;
+
+    try {
+        value = std::stod(numStr);
+    } catch (...) {
+        return false;
     }
 
-    std::istream& operator>>(std::istream& in, DoubleLitIO&& dest) {
-        std::istream::sentry sentry(in);
-        if (!sentry) return in;
+    if (c == 'd' || c == 'D') {
+        in.ignore();
+    } else if (c != ':' && !isspace(c)) {
+        in.putback(c);
+        return false;
+    }
 
-        double value;
-        if (!(in >> value)) {
-            in.setstate(std::ios::failbit);
-            return in;
-        }
+    return true;
+}
 
-        char suffix = in.peek();
-        if (suffix == 'd' || suffix == 'D') {
+bool parseLongLong(std::istream& in, long long& value) {
+    std::string numStr;
+    char c;
+    while (in.get(c) && (isdigit(c) || c == '-' || c == '+')) {
+        numStr += c;
+    }
+
+    if (numStr.empty()) return false;
+
+    try {
+        value = std::stoll(numStr);
+    } catch (...) {
+        return false;
+    }
+
+    if (c == 'L' || c == 'l') {
+        char next = in.peek();
+        if (next == 'L' || next == 'l') {
             in.ignore();
-        } else if (!isspace(suffix) && suffix != ':') {
-            in.setstate(std::ios::failbit);
+        } else {
+            return false;
         }
-        dest.ref = value;
-        return in;
+    } else if (c != ':' && !isspace(c)) {
+        in.putback(c);
+        return false;
     }
 
-    std::istream& operator>>(std::istream& in, LongLongLitIO&& dest) {
-        std::istream::sentry sentry(in);
-        if (!sentry) return in;
+    return true;
+}
 
-        long long value;
-        if (in >> value) {
-            char next = in.peek();
-            if (next == 'L' || next == 'l') {
-                std::string suffix;
-                in >> suffix;
-                if (suffix != "LL" && suffix != "ll") {
-                    in.setstate(std::ios::failbit);
-                }
-            }
-            dest.ref = value;
-        }
-        return in;
-    }
+std::istream& operator>>(std::istream& in, DataStruct& dest) {
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty()) continue;
 
-    std::istream& operator>>(std::istream& in, StringIO&& dest) {
-        std::istream::sentry sentry(in);
-        if (!sentry) return in;
-        return std::getline(in >> DelimiterIO{'"'}, dest.ref, '"');
-    }
-
-    std::istream& operator>>(std::istream& in, DataStruct& dest) {
-        std::istream::sentry sentry(in);
-        if (!sentry) return in;
-
-        DataStruct temp;
-        if (!(in >> DelimiterIO{'('} >> DelimiterIO{':'})) {
-            return in;
+        if (line.front() != '(' || line.back() != ')') {
+            continue;
         }
 
-        std::string key;
+        std::istringstream iss(line.substr(1, line.size()-2));
+        std::string part;
         bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
+        DataStruct temp;
 
-        while (in >> key && key != ")") {
+        while (std::getline(iss, part, ':')) {
+            if (part.empty()) continue;
+
+            size_t space = part.find(' ');
+            if (space == std::string::npos) continue;
+
+            std::string key = part.substr(0, space);
+            std::string value = part.substr(space+1);
+            std::istringstream valStream(value);
+
             if (key == "key1") {
-                if (!(in >> DoubleLitIO{temp.key1} >> DelimiterIO{':'})) break;
+                if (!parseDouble(valStream, temp.key1)) continue;
                 hasKey1 = true;
             }
             else if (key == "key2") {
-                if (!(in >> LongLongLitIO{temp.key2} >> DelimiterIO{':'})) break;
+                if (!parseLongLong(valStream, temp.key2)) continue;
                 hasKey2 = true;
             }
             else if (key == "key3") {
-                if (!(in >> StringIO{temp.key3} >> DelimiterIO{':'})) break;
+                if (value.size() < 2 || value.front() != '"' || value.back() != '"') continue;
+                temp.key3 = value.substr(1, value.size()-2);
                 hasKey3 = true;
             }
-            else {
-                in.setstate(std::ios::failbit);
-                break;
-            }
         }
 
-        if (in && hasKey1 && hasKey2 && hasKey3) {
+        if (hasKey1 && hasKey2 && hasKey3) {
             dest = temp;
-        } else {
-            in.setstate(std::ios::failbit);
+            return in;
         }
-        return in;
     }
 
-    std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
-        std::ostream::sentry sentry(out);
-        if (!sentry) return out;
+    in.setstate(std::ios::failbit);
+    return in;
+}
 
-        out << "(:key1 " << std::fixed << std::setprecision(1) << data.key1 << "d"
-            << ":key2 " << data.key2 << "ll"
-            << ":key3 \"" << data.key3 << "\":)";
-        return out;
-    }
+std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
+    out << "(:key1 " << std::fixed << std::setprecision(1) << data.key1 << "d"
+        << ":key2 " << data.key2 << "ll"
+        << ":key3 \"" << data.key3 << "\":)";
+    return out;
+}
+
+bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
+    if (a.key1 != b.key1) return a.key1 < b.key1;
+    if (a.key2 != b.key2) return a.key2 < b.key2;
+    return a.key3.length() < b.key3.length();
 }
