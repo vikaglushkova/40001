@@ -20,7 +20,7 @@ int main() {
     std::sort(data.begin(), data.end(), compareDataStructs);
 
     for (const auto& item : data) {
-        std::cout << "(:key1 " << std::fixed << std::setprecision(1) 
+        std::cout << "(:key1 " << std::fixed << std::setprecision(1)
                  << item.key1 << "d:key2 " << item.key2 << "ll:key3 \""
                  << item.key3 << "\":)\n";
     }
