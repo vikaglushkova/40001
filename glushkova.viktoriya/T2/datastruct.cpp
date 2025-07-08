@@ -3,68 +3,79 @@
 #include <cmath>
 #include <iomanip>
 #include <algorithm>
+#include <cctype>
 
 bool parseDouble(std::istream& in, double& value) {
     in >> value;
     if (!in) return false;
-    if (in.peek() == 'd' || in.peek() == 'D') in.ignore();
+    if (std::tolower(in.peek()) == 'd') in.ignore();
     return true;
 }
 
 std::istream& operator>>(std::istream& in, DataStruct& dest) {
     std::string line;
-    if (!std::getline(in, line)) return in;
+    while (std::getline(in, line)) {
+        line.erase(0, line.find_first_not_of(" \t"));
+        line.erase(line.find_last_not_of(" \t") + 1);
 
-    if (line.empty() || line.front() != '(' || line.back() != ')') {
-        in.setstate(std::ios::failbit);
-        return in;
-    }
+        if (line.empty()) continue;
 
-    std::istringstream iss(line.substr(1, line.size()-2));
-    DataStruct temp;
-    bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
-
-    for (std::string part; std::getline(iss, part, ':'); ) {
-        if (part.empty()) continue;
-
-        size_t space = part.find(' ');
-        if (space == std::string::npos) continue;
-
-        std::string key = part.substr(0, space);
-        std::string value = part.substr(space+1);
-        std::istringstream val_stream(value);
-
-        if (key == "key1") {
-            if (!parseDouble(val_stream, temp.key1)) break;
-            hasKey1 = true;
+        if (line.front() != '(' || line.back() != ')') {
+            continue;
         }
-        else if (key == "key2") {
-            if (!(val_stream >> temp.key2)) break;
-            if (val_stream.peek() == 'L' || val_stream.peek() == 'l') {
-                val_stream.ignore();
-                if (val_stream.peek() == 'L' || val_stream.peek() == 'l') val_stream.ignore();
+
+        std::istringstream iss(line.substr(1, line.size() - 2));
+        DataStruct temp;
+        bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
+
+        while (iss) {
+            char next;
+            while (iss.get(next) && (next == ':' || std::isspace(next))) {}
+            if (!iss) break;
+            iss.unget();
+
+            std::string key;
+            if (!(iss >> key)) break;
+
+            if (key == "key1") {
+                if (!parseDouble(iss, temp.key1)) break;
+                hasKey1 = true;
             }
-            hasKey2 = true;
-        }
-        else if (key == "key3") {
-            if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
-                temp.key3 = value.substr(1, value.size()-2);
-                hasKey3 = true;
-            } else break;
-        }
-    }
+            else if (key == "key2") {
+                if (!(iss >> temp.key2)) break;
+                if (std::tolower(iss.peek()) == 'l') {
+                    iss.ignore();
+                    if (std::tolower(iss.peek()) == 'l') iss.ignore();
+                }
+                hasKey2 = true;
+            }
+            else if (key == "key3") {
+                char quote;
+                while (iss.get(quote) && quote != '"') {}
+                if (!iss) break;
 
-    if (hasKey1 && hasKey2 && hasKey3) {
-        dest = temp;
-    } else {
-        in.setstate(std::ios::failbit);
+                std::string value;
+                std::getline(iss, value, '"');
+                temp.key3 = value;
+                hasKey3 = true;
+            }
+            else {
+                break;
+            }
+        }
+
+        if (hasKey1 && hasKey2 && hasKey3) {
+            dest = temp;
+            return in;
+        }
     }
+    in.setstate(std::ios::failbit);
     return in;
 }
 
 std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
-    out << "(:key1 " << std::fixed << std::setprecision(1)
-        << data.key1 << "d:key2 " << data.key2 << "ll:key3 \""
+    out << "(:key1 " << std::fixed << std::setprecision(1) 
+        << data.key1 << "d:key2 " << data.key2 << "ll:key3 \"" 
         << data.key3 << "\":)";
     return out;
 }
