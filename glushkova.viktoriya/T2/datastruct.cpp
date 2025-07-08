@@ -13,54 +13,52 @@ bool parseDouble(std::istream& in, double& value) {
 
 std::istream& operator>>(std::istream& in, DataStruct& dest) {
     std::string line;
-    while (std::getline(in, line)) {
-        if (line.empty() || line.front() != '(' || line.back() != ')') continue;
+    if (!std::getline(in, line)) return in;
 
-        size_t pos = 1;
-        DataStruct temp;
-        bool has_keys[3] = {false};
+    if (line.empty() || line.front() != '(' || line.back() != ')') {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
 
-        while (pos < line.size() - 1) {
-            size_t key_start = line.find(':', pos);
-            if (key_start == std::string::npos) break;
+    std::istringstream iss(line.substr(1, line.size()-2));
+    DataStruct temp;
+    bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
 
-            size_t space = line.find(' ', key_start);
-            if (space == std::string::npos) break;
+    for (std::string part; std::getline(iss, part, ':'); ) {
+        if (part.empty()) continue;
 
-            std::string key = line.substr(key_start + 1, space - key_start - 1);
-            size_t value_end = line.find(':', space + 1);
-            if (value_end == std::string::npos) value_end = line.size() - 1;
+        size_t space = part.find(' ');
+        if (space == std::string::npos) continue;
 
-            std::string value = line.substr(space + 1, value_end - space - 1);
-            std::istringstream val_stream(value);
+        std::string key = part.substr(0, space);
+        std::string value = part.substr(space+1);
+        std::istringstream val_stream(value);
 
-            if (key == "key1") {
-                if (!parseDouble(val_stream, temp.key1)) break;
-                has_keys[0] = true;
-            }
-            else if (key == "key2") {
-                if (!(val_stream >> temp.key2)) break;
-                if (val_stream.peek() == 'L' || val_stream.peek() == 'l') {
-                    val_stream.ignore();
-                    if (val_stream.peek() == 'L' || val_stream.peek() == 'l') val_stream.ignore();
-                }
-                has_keys[1] = true;
-            }
-            else if (key == "key3") {
-                if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
-                    temp.key3 = value.substr(1, value.size() - 2);
-                    has_keys[2] = true;
-                } else break;
-            }
-            pos = value_end;
+        if (key == "key1") {
+            if (!parseDouble(val_stream, temp.key1)) break;
+            hasKey1 = true;
         }
-
-        if (has_keys[0] && has_keys[1] && has_keys[2]) {
-            dest = temp;
-            return in;
+        else if (key == "key2") {
+            if (!(val_stream >> temp.key2)) break;
+            if (val_stream.peek() == 'L' || val_stream.peek() == 'l') {
+                val_stream.ignore();
+                if (val_stream.peek() == 'L' || val_stream.peek() == 'l') val_stream.ignore();
+            }
+            hasKey2 = true;
+        }
+        else if (key == "key3") {
+            if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
+                temp.key3 = value.substr(1, value.size()-2);
+                hasKey3 = true;
+            } else break;
         }
     }
-    in.setstate(std::ios::failbit);
+
+    if (hasKey1 && hasKey2 && hasKey3) {
+        dest = temp;
+    } else {
+        in.setstate(std::ios::failbit);
+    }
     return in;
 }
 

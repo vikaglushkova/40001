@@ -10,6 +10,8 @@ int main() {
     std::string line;
 
     while (std::getline(std::cin, line)) {
+        if (line.empty()) continue;
+
         std::istringstream iss(line);
         DataStruct temp;
         if (iss >> temp) {
@@ -20,9 +22,7 @@ int main() {
     std::sort(data.begin(), data.end(), compareDataStructs);
 
     for (const auto& item : data) {
-        std::cout << "(:key1 " << std::fixed << std::setprecision(1)
-                 << item.key1 << "d:key2 " << item.key2 << "ll:key3 \""
-                 << item.key3 << "\":)\n";
+        std::cout << item << '\n';
     }
 
     return 0;
