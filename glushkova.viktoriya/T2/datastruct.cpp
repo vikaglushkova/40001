@@ -74,8 +74,8 @@ std::istream& operator>>(std::istream& in, DataStruct& dest) {
 }
 
 std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
-    out << "(:key1 " << std::fixed << std::setprecision(1) 
-        << data.key1 << "d:key2 " << data.key2 << "ll:key3 \"" 
+    out << "(:key1 " << std::fixed << std::setprecision(1)
+        << data.key1 << "d:key2 " << data.key2 << "ll:key3 \""
         << data.key3 << "\":)";
     return out;
 }
