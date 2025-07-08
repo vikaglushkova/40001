@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <limits>
 
 int main() {
     std::vector<DataStruct> data;
@@ -20,8 +21,8 @@ int main() {
 
     for (const auto& item : data) {
         std::cout << "(:key1 " << std::fixed << std::setprecision(1) 
-                  << item.key1 << "d:key2 " << item.key2 << "ll:key3 \""
-                  << item.key3 << "\":)\n";
+                 << item.key1 << "d:key2 " << item.key2 << "ll:key3 \""
+                 << item.key3 << "\":)\n";
     }
 
     return 0;
