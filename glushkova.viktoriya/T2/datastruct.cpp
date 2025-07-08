@@ -70,7 +70,8 @@ std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
 }
 
 bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
-    if (fabs(a.key1 - b.key1) > 1e-9) return a.key1 < b.key1;
+    const double eps = 1e-9;
+    if (std::abs(a.key1 - b.key1) > eps) return a.key1 < b.key1;
     if (a.key2 != b.key2) return a.key2 < b.key2;
     return a.key3.length() < b.key3.length();
 }
