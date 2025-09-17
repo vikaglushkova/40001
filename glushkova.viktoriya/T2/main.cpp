@@ -4,21 +4,23 @@
 #include <iterator>
 #include <iostream>
 #include <limits>
+#include <sstream>
 
 int main()
 {
     std::vector<DataStruct> data;
+    std::string line;
 
-    std::copy(
-        std::istream_iterator<DataStruct>(std::cin),
-        std::istream_iterator<DataStruct>(),
-        std::back_inserter(data)
-    );
-
-    if (std::cin.fail() && !std::cin.eof())
+    while (std::getline(std::cin, line))
     {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        if (line.empty()) continue;
+
+        std::istringstream iss(line);
+        DataStruct temp;
+        if (iss >> temp)
+        {
+            data.push_back(temp);
+        }
     }
 
     std::sort(data.begin(), data.end(), compareDataStructs);
