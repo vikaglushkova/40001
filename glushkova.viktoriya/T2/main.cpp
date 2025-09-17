@@ -2,28 +2,32 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <iostream>
 #include <limits>
-#include <iomanip>
 
-int main() {
+int main()
+{
     std::vector<DataStruct> data;
-    std::string line;
 
-    while (std::getline(std::cin, line)) {
-        if (line.empty()) continue;
+    std::copy(
+        std::istream_iterator<DataStruct>(std::cin),
+        std::istream_iterator<DataStruct>(),
+        std::back_inserter(data)
+    );
 
-        std::istringstream iss(line);
-        DataStruct temp;
-        if (iss >> temp) {
-            data.push_back(temp);
-        }
+    if (std::cin.fail() && !std::cin.eof())
+    {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 
     std::sort(data.begin(), data.end(), compareDataStructs);
 
-    for (const auto& item : data) {
-        std::cout << item << '\n';
-    }
+    std::copy(
+        data.begin(),
+        data.end(),
+        std::ostream_iterator<DataStruct>(std::cout, "\n")
+    );
 
     return 0;
 }
