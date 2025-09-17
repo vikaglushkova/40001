@@ -115,7 +115,6 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         using dbl = DoubleIO;
         using ll = LongLongIO;
         using str = StringIO;
-        using lbl = LabelIO;
 
         in >> sep{ '(' } >> sep{ ':' };
 
