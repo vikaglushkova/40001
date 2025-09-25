@@ -1,4 +1,4 @@
-#include "datastruct.hpp"
+#include "DataStruct.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cmath>
