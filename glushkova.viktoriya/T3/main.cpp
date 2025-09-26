@@ -6,6 +6,7 @@
 #include <map>
 #include <functional>
 #include <string>
+#include <sstream>
 #include "shapes.hpp"
 #include "shape_commands.hpp"
 
@@ -30,27 +31,30 @@ int main(int argc, const char* argv[])
     }
 
     std::vector<Polygon> polygons;
-    Polygon temp;
+    std::string line;
 
-    while (file >> temp)
+    while (std::getline(file, line))
     {
-        polygons.push_back(temp);
+        if (line.empty()) continue;
 
-        file >> std::ws;
+        std::istringstream iss(line);
+        Polygon temp;
 
-        int nextChar = file.peek();
-        if (nextChar != EOF && !std::isdigit(nextChar))
+        if (iss >> temp)
         {
-            break;
+            polygons.push_back(temp);
         }
     }
 
-    if (!file.eof() && file.fail())
+    file.close();
+
+    if (polygons.empty())
     {
-        file.clear();
+        std::cerr << "Error: No valid polygons found in file\n";
+        return 1;
     }
 
-    file.close();
+    std::cout << "Successfully loaded " << polygons.size() << " polygons\n";
 
     std::map<std::string, std::function<void(std::istream&, std::ostream&)>> cmds;
     using namespace std::placeholders;
@@ -61,6 +65,9 @@ int main(int argc, const char* argv[])
     cmds["COUNT"] = std::bind(doCount, std::ref(polygons), _1, _2);
     cmds["RMECHO"] = std::bind(doRmecho, std::ref(polygons), _1, _2);
     cmds["SAME"] = std::bind(doSame, std::ref(polygons), _1, _2);
+
+    std::cout << "Available commands: AREA, MAX, MIN, COUNT, RMECHO, SAME\n";
+    std::cout << "Enter command or Ctrl+Z to exit:\n> ";
 
     std::string command;
     while (std::cin >> command)
@@ -84,6 +91,7 @@ int main(int argc, const char* argv[])
 
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "> ";
     }
 
     return 0;

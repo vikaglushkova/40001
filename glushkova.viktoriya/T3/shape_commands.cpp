@@ -6,6 +6,7 @@
 #include <numeric>
 #include <string>
 #include <iterator>
+#include <sstream>
 #include "stream_guard.hpp"
 
 namespace
@@ -29,56 +30,6 @@ namespace
         return 0.5 * std::abs(area);
     }
 
-    struct AreaCalculator
-    {
-        double operator()(double acc, const Polygon& poly) const
-        {
-            return acc + computeArea(poly);
-        }
-    };
-
-    struct VertexCountPredicate
-    {
-        size_t count;
-        VertexCountPredicate(size_t c) : count(c) {}
-        bool operator()(const Polygon& poly) const
-        {
-            return poly.points.size() == count;
-        }
-    };
-
-    struct EvenVertexPredicate
-    {
-        bool operator()(const Polygon& poly) const
-        {
-            return poly.points.size() % 2 == 0;
-        }
-    };
-
-    struct OddVertexPredicate
-    {
-        bool operator()(const Polygon& poly) const
-        {
-            return poly.points.size() % 2 != 0;
-        }
-    };
-
-    struct AreaCompare
-    {
-        bool operator()(const Polygon& a, const Polygon& b) const
-        {
-            return computeArea(a) < computeArea(b);
-        }
-    };
-
-    struct VertexCountCompare
-    {
-        bool operator()(const Polygon& a, const Polygon& b) const
-        {
-            return a.points.size() < b.points.size();
-        }
-    };
-
     struct SameChecker
     {
         Polygon target;
@@ -87,15 +38,17 @@ namespace
         bool operator()(const Polygon& poly) const
         {
             if (poly.points.size() != target.points.size()) return false;
-            if (poly.points.empty()) return true;
+            if (poly.points.size() < 3) return false;
 
             int dx = poly.points[0].x - target.points[0].x;
             int dy = poly.points[0].y - target.points[0].y;
 
-            for (size_t i = 0; i < poly.points.size(); ++i)
+            for (size_t i = 1; i < poly.points.size(); ++i)
             {
-                if (poly.points[i].x != target.points[i].x + dx ||
-                    poly.points[i].y != target.points[i].y + dy)
+                int current_dx = poly.points[i].x - target.points[i].x;
+                int current_dy = poly.points[i].y - target.points[i].y;
+
+                if (current_dx != dx || current_dy != dy)
                 {
                     return false;
                 }
@@ -119,18 +72,16 @@ void shapes::doArea(std::vector<Polygon>& shapes, std::istream& in, std::ostream
 
     if (arg == "EVEN")
     {
-        EvenVertexPredicate pred;
         result = std::accumulate(shapes.begin(), shapes.end(), 0.0,
-            [&pred](double sum, const Polygon& poly) {
-                return pred(poly) ? sum + computeArea(poly) : sum;
+            [](double sum, const Polygon& poly) {
+                return (poly.points.size() % 2 == 0) ? sum + computeArea(poly) : sum;
             });
     }
     else if (arg == "ODD")
     {
-        OddVertexPredicate pred;
         result = std::accumulate(shapes.begin(), shapes.end(), 0.0,
-            [&pred](double sum, const Polygon& poly) {
-                return pred(poly) ? sum + computeArea(poly) : sum;
+            [](double sum, const Polygon& poly) {
+                return (poly.points.size() % 2 != 0) ? sum + computeArea(poly) : sum;
             });
     }
     else if (arg == "MEAN")
@@ -139,7 +90,10 @@ void shapes::doArea(std::vector<Polygon>& shapes, std::istream& in, std::ostream
         {
             throw std::logic_error("<INVALID COMMAND>");
         }
-        double total = std::accumulate(shapes.begin(), shapes.end(), 0.0, AreaCalculator{});
+        double total = std::accumulate(shapes.begin(), shapes.end(), 0.0,
+            [](double sum, const Polygon& poly) {
+                return sum + computeArea(poly);
+            });
         result = total / shapes.size();
     }
     else
@@ -152,10 +106,9 @@ void shapes::doArea(std::vector<Polygon>& shapes, std::istream& in, std::ostream
                 throw std::invalid_argument("<INVALID COMMAND>");
             }
 
-            VertexCountPredicate pred(num);
             result = std::accumulate(shapes.begin(), shapes.end(), 0.0,
-                [&pred](double sum, const Polygon& poly) {
-                    return pred(poly) ? sum + computeArea(poly) : sum;
+                [num](double sum, const Polygon& poly) {
+                    return (poly.points.size() == num) ? sum + computeArea(poly) : sum;
                 });
         }
         catch (const std::invalid_argument&)
@@ -243,17 +196,26 @@ void shapes::doCount(std::vector<Polygon>& shapes, std::istream& in, std::ostrea
     std::string arg;
     in >> arg;
 
+    if (arg.empty())
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
+
     size_t result = 0;
 
     if (arg == "EVEN")
     {
-        EvenVertexPredicate pred;
-        result = std::count_if(shapes.begin(), shapes.end(), pred);
+        result = std::count_if(shapes.begin(), shapes.end(),
+            [](const Polygon& poly) {
+                return poly.points.size() % 2 == 0;
+            });
     }
     else if (arg == "ODD")
     {
-        OddVertexPredicate pred;
-        result = std::count_if(shapes.begin(), shapes.end(), pred);
+        result = std::count_if(shapes.begin(), shapes.end(),
+            [](const Polygon& poly) {
+                return poly.points.size() % 2 != 0;
+            });
     }
     else
     {
@@ -265,8 +227,10 @@ void shapes::doCount(std::vector<Polygon>& shapes, std::istream& in, std::ostrea
                 throw std::invalid_argument("<INVALID COMMAND>");
             }
 
-            VertexCountPredicate pred(num);
-            result = std::count_if(shapes.begin(), shapes.end(), pred);
+            result = std::count_if(shapes.begin(), shapes.end(),
+                [num](const Polygon& poly) {
+                    return poly.points.size() == num;
+                });
         }
         catch (const std::invalid_argument&)
         {
@@ -326,8 +290,10 @@ void shapes::doRmecho(std::vector<Polygon>& shapes, std::istream& in, std::ostre
 
 void shapes::doSame(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
 {
+    in >> std::ws;
+
     Polygon target;
-    if (!(in >> target))
+    if (!(in >> target) || target.points.size() < 3)
     {
         throw std::invalid_argument("<INVALID COMMAND>");
     }

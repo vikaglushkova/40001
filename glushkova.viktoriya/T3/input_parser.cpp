@@ -15,4 +15,3 @@ std::istream& shapes::operator>>(std::istream& in, Delimiter&& exp)
     }
     return in;
 }
-

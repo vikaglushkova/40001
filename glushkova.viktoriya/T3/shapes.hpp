@@ -22,4 +22,3 @@ namespace shapes
     std::istream& operator>>(std::istream& in, Polygon& poly);
 }
 #endif
-

@@ -31,7 +31,8 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
 
     size_t vertexes = 0;
     in >> vertexes;
-    if (vertexes < 3)
+
+    if (!in || vertexes < 3)
     {
         in.setstate(std::ios::failbit);
         return in;
@@ -49,11 +50,12 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
         }
         else
         {
-            break;
+            in.setstate(std::ios::failbit);
+            return in;
         }
     }
 
-    if (in && temp.size() == vertexes)
+    if (temp.size() == vertexes)
     {
         poly.points = std::move(temp);
     }
@@ -61,6 +63,7 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
     {
         in.setstate(std::ios::failbit);
     }
+
     return in;
 }
 

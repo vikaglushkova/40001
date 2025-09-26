@@ -13,4 +13,3 @@ namespace shapes
     void doSame(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
 }
 #endif
-

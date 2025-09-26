@@ -11,4 +11,3 @@ shapes::StreamGuard::~StreamGuard() {
     stream_.precision(precision_);
     stream_.flags(flags_);
 }
-
