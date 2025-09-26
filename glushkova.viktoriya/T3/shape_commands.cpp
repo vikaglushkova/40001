@@ -120,7 +120,7 @@ void shapes::doArea(std::vector<Polygon>& shapes, std::istream& in, std::ostream
     if (arg == "EVEN")
     {
         EvenVertexPredicate pred;
-        result = std::accumulate(shapes.begin(), shapes.end(), 0.0, 
+        result = std::accumulate(shapes.begin(), shapes.end(), 0.0,
             [&pred](double sum, const Polygon& poly) {
                 return pred(poly) ? sum + computeArea(poly) : sum;
             });
