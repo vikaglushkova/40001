@@ -29,7 +29,7 @@ int main(int argc, const char* argv[])
 
     std::vector<Polygon> polygons;
     Polygon temp;
-    
+
     while (file >> temp) {
         polygons.push_back(temp);
     }
