@@ -16,16 +16,17 @@ namespace
     {
         if (poly.points.size() < 3) return 0.0;
 
-        std::vector<size_t> indices(poly.points.size());
-        std::iota(indices.begin(), indices.end(), 0);
+        double area = 0.0;
+        size_t n = poly.points.size();
 
-        auto areaAccumulator = [&poly](double sum, size_t i) {
-            size_t j = (i + 1) % poly.points.size();
-            return sum + poly.points[i].x * poly.points[j].y - poly.points[j].x * poly.points[i].y;
-        };
+        for (size_t i = 0; i < n; ++i)
+        {
+            size_t j = (i + 1) % n;
+            area += poly.points[i].x * poly.points[j].y;
+            area -= poly.points[j].x * poly.points[i].y;
+        }
 
-        double sum = std::accumulate(indices.begin(), indices.end(), 0.0, areaAccumulator);
-        return 0.5 * std::abs(sum);
+        return 0.5 * std::abs(area);
     }
 
     struct AreaCalculator
@@ -91,13 +92,15 @@ namespace
             int dx = poly.points[0].x - target.points[0].x;
             int dy = poly.points[0].y - target.points[0].y;
 
-            return std::equal(
-                poly.points.begin(), poly.points.end(),
-                target.points.begin(),
-                [dx, dy](const Point& p, const Point& t) {
-                    return p.x == t.x + dx && p.y == t.y + dy;
+            for (size_t i = 0; i < poly.points.size(); ++i)
+            {
+                if (poly.points[i].x != target.points[i].x + dx ||
+                    poly.points[i].y != target.points[i].y + dy)
+                {
+                    return false;
                 }
-            );
+            }
+            return true;
         }
     };
 }
@@ -107,42 +110,61 @@ void shapes::doArea(std::vector<Polygon>& shapes, std::istream& in, std::ostream
     std::string arg;
     in >> arg;
 
-    std::map<std::string, std::function<double()>> handlers;
+    if (arg.empty())
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
+
     double result = 0.0;
 
-    handlers["EVEN"] = [&shapes]() {
+    if (arg == "EVEN")
+    {
         EvenVertexPredicate pred;
-        std::vector<Polygon> filtered;
-        std::copy_if(shapes.begin(), shapes.end(), std::back_inserter(filtered), pred);
-        return std::accumulate(filtered.begin(), filtered.end(), 0.0, AreaCalculator{});
-    };
-
-    handlers["ODD"] = [&shapes]() {
+        result = std::accumulate(shapes.begin(), shapes.end(), 0.0, 
+            [&pred](double sum, const Polygon& poly) {
+                return pred(poly) ? sum + computeArea(poly) : sum;
+            });
+    }
+    else if (arg == "ODD")
+    {
         OddVertexPredicate pred;
-        std::vector<Polygon> filtered;
-        std::copy_if(shapes.begin(), shapes.end(), std::back_inserter(filtered), pred);
-        return std::accumulate(filtered.begin(), filtered.end(), 0.0, AreaCalculator{});
-    };
-
-    handlers["MEAN"] = [&shapes]() {
-        if (shapes.empty()) throw std::logic_error("<EMPTY POLYGONS>");
-        return std::accumulate(shapes.begin(), shapes.end(), 0.0, AreaCalculator{}) / shapes.size();
-    };
-
-    auto it = handlers.find(arg);
-    if (it != handlers.end()) {
-        result = it->second();
-    } else {
-        try {
+        result = std::accumulate(shapes.begin(), shapes.end(), 0.0,
+            [&pred](double sum, const Polygon& poly) {
+                return pred(poly) ? sum + computeArea(poly) : sum;
+            });
+    }
+    else if (arg == "MEAN")
+    {
+        if (shapes.empty())
+        {
+            throw std::logic_error("<INVALID COMMAND>");
+        }
+        double total = std::accumulate(shapes.begin(), shapes.end(), 0.0, AreaCalculator{});
+        result = total / shapes.size();
+    }
+    else
+    {
+        try
+        {
             size_t num = std::stoul(arg);
-            if (num < 3) throw std::invalid_argument("<INVALID VERTEX COUNT>");
+            if (num < 3)
+            {
+                throw std::invalid_argument("<INVALID COMMAND>");
+            }
 
             VertexCountPredicate pred(num);
-            std::vector<Polygon> filtered;
-            std::copy_if(shapes.begin(), shapes.end(), std::back_inserter(filtered), pred);
-            result = std::accumulate(filtered.begin(), filtered.end(), 0.0, AreaCalculator{});
-        } catch (const std::invalid_argument&) {
-            throw std::invalid_argument("<INVALID ARGUMENT>");
+            result = std::accumulate(shapes.begin(), shapes.end(), 0.0,
+                [&pred](double sum, const Polygon& poly) {
+                    return pred(poly) ? sum + computeArea(poly) : sum;
+                });
+        }
+        catch (const std::invalid_argument&)
+        {
+            throw std::invalid_argument("<INVALID COMMAND>");
+        }
+        catch (const std::out_of_range&)
+        {
+            throw std::invalid_argument("<INVALID COMMAND>");
         }
     }
 
@@ -155,19 +177,31 @@ void shapes::doMax(std::vector<Polygon>& shapes, std::istream& in, std::ostream&
     std::string arg;
     in >> arg;
 
-    if (shapes.empty()) throw std::logic_error("<EMPTY POLYGONS>");
+    if (shapes.empty())
+    {
+        throw std::logic_error("<INVALID COMMAND>");
+    }
 
-    if (arg == "AREA") {
-        AreaCompare comp;
-        auto it = std::max_element(shapes.begin(), shapes.end(), comp);
+    if (arg == "AREA")
+    {
+        auto it = std::max_element(shapes.begin(), shapes.end(),
+            [](const Polygon& a, const Polygon& b) {
+                return computeArea(a) < computeArea(b);
+            });
         StreamGuard guard(out);
         out << std::fixed << std::setprecision(1) << computeArea(*it) << '\n';
-    } else if (arg == "VERTEXES") {
-        VertexCountCompare comp;
-        auto it = std::max_element(shapes.begin(), shapes.end(), comp);
+    }
+    else if (arg == "VERTEXES")
+    {
+        auto it = std::max_element(shapes.begin(), shapes.end(),
+            [](const Polygon& a, const Polygon& b) {
+                return a.points.size() < b.points.size();
+            });
         out << it->points.size() << '\n';
-    } else {
-        throw std::invalid_argument("<INVALID ARGUMENT>");
+    }
+    else
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
     }
 }
 
@@ -176,19 +210,31 @@ void shapes::doMin(std::vector<Polygon>& shapes, std::istream& in, std::ostream&
     std::string arg;
     in >> arg;
 
-    if (shapes.empty()) throw std::logic_error("<EMPTY POLYGONS>");
+    if (shapes.empty())
+    {
+        throw std::logic_error("<INVALID COMMAND>");
+    }
 
-    if (arg == "AREA") {
-        AreaCompare comp;
-        auto it = std::min_element(shapes.begin(), shapes.end(), comp);
+    if (arg == "AREA")
+    {
+        auto it = std::min_element(shapes.begin(), shapes.end(),
+            [](const Polygon& a, const Polygon& b) {
+                return computeArea(a) < computeArea(b);
+            });
         StreamGuard guard(out);
         out << std::fixed << std::setprecision(1) << computeArea(*it) << '\n';
-    } else if (arg == "VERTEXES") {
-        VertexCountCompare comp;
-        auto it = std::min_element(shapes.begin(), shapes.end(), comp);
+    }
+    else if (arg == "VERTEXES")
+    {
+        auto it = std::min_element(shapes.begin(), shapes.end(),
+            [](const Polygon& a, const Polygon& b) {
+                return a.points.size() < b.points.size();
+            });
         out << it->points.size() << '\n';
-    } else {
-        throw std::invalid_argument("<INVALID ARGUMENT>");
+    }
+    else
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
     }
 }
 
@@ -199,21 +245,36 @@ void shapes::doCount(std::vector<Polygon>& shapes, std::istream& in, std::ostrea
 
     size_t result = 0;
 
-    if (arg == "EVEN") {
+    if (arg == "EVEN")
+    {
         EvenVertexPredicate pred;
         result = std::count_if(shapes.begin(), shapes.end(), pred);
-    } else if (arg == "ODD") {
+    }
+    else if (arg == "ODD")
+    {
         OddVertexPredicate pred;
         result = std::count_if(shapes.begin(), shapes.end(), pred);
-    } else {
-        try {
+    }
+    else
+    {
+        try
+        {
             size_t num = std::stoul(arg);
-            if (num < 3) throw std::invalid_argument("<INVALID VERTEX COUNT>");
+            if (num < 3)
+            {
+                throw std::invalid_argument("<INVALID COMMAND>");
+            }
 
             VertexCountPredicate pred(num);
             result = std::count_if(shapes.begin(), shapes.end(), pred);
-        } catch (const std::invalid_argument&) {
-            throw std::invalid_argument("<INVALID ARGUMENT>");
+        }
+        catch (const std::invalid_argument&)
+        {
+            throw std::invalid_argument("<INVALID COMMAND>");
+        }
+        catch (const std::out_of_range&)
+        {
+            throw std::invalid_argument("<INVALID COMMAND>");
         }
     }
 
@@ -223,38 +284,55 @@ void shapes::doCount(std::vector<Polygon>& shapes, std::istream& in, std::ostrea
 void shapes::doRmecho(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
 {
     Polygon target;
-    if (!(in >> target)) throw std::invalid_argument("<INVALID POLYGON>");
-
-    struct IsTargetAndPrevious
+    if (!(in >> target))
     {
-        const Polygon& target;
-        mutable bool previousWasTarget = false;
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
 
-        bool operator()(const Polygon& poly) const {
-            if (poly == target) {
-                if (previousWasTarget) return true;
-                previousWasTarget = true;
-                return false;
+    if (shapes.empty())
+    {
+        out << "0\n";
+        return;
+    }
+
+    size_t removedCount = 0;
+    auto it = shapes.begin();
+    bool previousWasTarget = false;
+
+    while (it != shapes.end())
+    {
+        if (*it == target)
+        {
+            if (previousWasTarget)
+            {
+                it = shapes.erase(it);
+                ++removedCount;
             }
-            previousWasTarget = false;
-            return false;
+            else
+            {
+                previousWasTarget = true;
+                ++it;
+            }
         }
-    };
+        else
+        {
+            previousWasTarget = false;
+            ++it;
+        }
+    }
 
-    auto pred = IsTargetAndPrevious{target};
-    auto it = std::remove_if(shapes.begin(), shapes.end(), pred);
-    size_t removedCount = std::distance(it, shapes.end());
-    shapes.erase(it, shapes.end());
     out << removedCount << '\n';
 }
 
 void shapes::doSame(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
 {
     Polygon target;
-    if (!(in >> target)) throw std::invalid_argument("<INVALID POLYGON>");
+    if (!(in >> target))
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
 
     SameChecker checker(target);
     size_t count = std::count_if(shapes.begin(), shapes.end(), checker);
     out << count << '\n';
 }
-

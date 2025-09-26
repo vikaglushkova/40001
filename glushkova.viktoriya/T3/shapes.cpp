@@ -6,13 +6,16 @@
 std::istream& shapes::operator>>(std::istream& in, Point& point)
 {
     std::istream::sentry guard(in);
-    if (!guard) {
+    if (!guard)
+    {
         return in;
     }
+
     using del = Delimiter;
-    Point temp{0, 0};
-    in >> del{'('} >> temp.x >> del{';'} >> temp.y >> del{')'};
-    if (in) {
+    Point temp{ 0, 0 };
+    in >> del{ '(' } >> temp.x >> del{ ';' } >> temp.y >> del{ ')' };
+    if (in)
+    {
         point = temp;
     }
     return in;
@@ -21,21 +24,41 @@ std::istream& shapes::operator>>(std::istream& in, Point& point)
 std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
 {
     std::istream::sentry guard(in);
-    if (!guard) {
+    if (!guard)
+    {
         return in;
     }
+
     size_t vertexes = 0;
     in >> vertexes;
-    if (vertexes < 3) {
+    if (vertexes < 3)
+    {
         in.setstate(std::ios::failbit);
         return in;
     }
+
     std::vector<Point> temp;
-    using inIterator = std::istream_iterator<Point>;
-    std::copy_n(inIterator{in}, vertexes, std::back_inserter(temp));
-    if (in && temp.size() == vertexes) {
-        poly.points = temp;
-    } else {
+    temp.reserve(vertexes);
+
+    for (size_t i = 0; i < vertexes; ++i)
+    {
+        Point p;
+        if (in >> p)
+        {
+            temp.push_back(p);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if (in && temp.size() == vertexes)
+    {
+        poly.points = std::move(temp);
+    }
+    else
+    {
         in.setstate(std::ios::failbit);
     }
     return in;
@@ -55,4 +78,3 @@ bool shapes::Polygon::operator!=(const Polygon& other) const
 {
     return !(*this == other);
 }
-
