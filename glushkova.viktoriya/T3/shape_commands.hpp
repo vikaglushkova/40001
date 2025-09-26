@@ -5,12 +5,12 @@
 
 namespace shapes
 {
-    void doArea(std::vector< Polygon >& poly, std::istream& in, std::ostream& out);     //& чтобы не копировать весь вектор и изменять исходные данные
-    void doMax(std::vector< Polygon >& poly, std::istream& in, std::ostream& out);
-    void doMin(std::vector< Polygon >& poly, std::istream& in, std::ostream& out);
-    void doCount(std::vector< Polygon >& poly, std::istream& in, std::ostream& out);
-    void doRmecho(std::vector< Polygon >& poly, std::istream& in, std::ostream& out);
-    void doSame(std::vector< Polygon >& poly, std::istream& in, std::ostream& out);
+    void doArea(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
+    void doMax(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
+    void doMin(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
+    void doCount(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
+    void doRmecho(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
+    void doSame(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
 }
 #endif
 
