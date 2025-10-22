@@ -244,30 +244,6 @@ namespace shapes
         poly = std::move(result);
     }
 
-    bool areVectorsSame(const std::vector<Point>& v1, const std::vector<Point>& v2)
-    {
-        if (v1.size() != v2.size()) return false;
-
-        for (size_t start = 0; start < v1.size(); ++start)
-        {
-            bool match = true;
-            int dx = v1[0].x - v2[start].x;
-            int dy = v1[0].y - v2[start].y;
-
-            for (size_t i = 0; i < v1.size(); ++i)
-            {
-                size_t j = (start + i) % v2.size();
-                if (v1[i].x != v2[j].x + dx || v1[i].y != v2[j].y + dy)
-                {
-                    match = false;
-                    break;
-                }
-            }
-            if (match) return true;
-        }
-        return false;
-    }
-
     void doSame(std::vector<Polygon>& poly, std::istream& in, std::ostream& out)
     {
         Polygon target;
@@ -282,10 +258,21 @@ namespace shapes
         {
             if (p.points.size() != target.points.size()) continue;
 
-            if (areVectorsSame(p.points, target.points))
+            bool same = true;
+            int dx = p.points[0].x - target.points[0].x;
+            int dy = p.points[0].y - target.points[0].y;
+
+            for (size_t i = 0; i < p.points.size(); ++i)
             {
-                count++;
+                if (p.points[i].x != target.points[i].x + dx ||
+                    p.points[i].y != target.points[i].y + dy)
+                {
+                    same = false;
+                    break;
+                }
             }
+
+            if (same) count++;
         }
 
         out << count << "\n";

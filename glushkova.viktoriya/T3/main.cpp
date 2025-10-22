@@ -24,9 +24,18 @@ int main(int argc, const char* argv[])
     while (std::getline(file, line))
     {
         if (line.empty()) continue;
+
         std::istringstream iss(line);
         Polygon temp;
-        if (iss >> temp) polygons.push_back(temp);
+
+        if (iss >> temp)
+        {
+            char c;
+            if (!(iss >> c))
+            {
+                polygons.push_back(temp);
+            }
+        }
     }
 
     file.close();
@@ -45,8 +54,14 @@ int main(int argc, const char* argv[])
     while (std::cin >> command)
     {
         auto it = cmds.find(command);
-        if (it != cmds.end()) it->second(std::cin, std::cout);
-        else std::cout << "<INVALID COMMAND>\n";
+        if (it != cmds.end())
+        {
+            it->second(std::cin, std::cout);
+        }
+        else
+        {
+            std::cout << "<INVALID COMMAND>\n";
+        }
 
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');

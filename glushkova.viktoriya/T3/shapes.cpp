@@ -46,6 +46,14 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
         return in;
     }
 
+    char c;
+    if (in.get(c) && c != '\n' && c != '\r' && c != ' ')
+    {
+        in.putback(c);
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+
     poly.points = std::move(temp);
     return in;
 }
