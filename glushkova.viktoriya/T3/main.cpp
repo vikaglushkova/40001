@@ -39,7 +39,7 @@ int main(int argc, const char* argv[])
         std::istringstream iss(line);
         Polygon temp;
 
-        if (iss >> temp && temp.points.size() >= 3)
+        if (iss >> temp)
         {
             polygons.push_back(temp);
         }
