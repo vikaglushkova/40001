@@ -11,13 +11,5 @@ namespace shapes
     void doCount(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
     void doRmecho(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
     void doSame(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doEcho(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doInframe(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doIntersections(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doMaxseq(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doPerms(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doRects(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doRightshapes(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doLessarea(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
 }
 #endif
