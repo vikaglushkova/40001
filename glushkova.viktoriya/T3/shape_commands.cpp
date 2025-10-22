@@ -66,13 +66,13 @@ namespace
             size_t j = (i + 1) % 4;
             double dx = static_cast<double>(poly.points[i].x) - static_cast<double>(poly.points[j].x);
             double dy = static_cast<double>(poly.points[i].y) - static_cast<double>(poly.points[j].y);
-            distances.push_back(dx * dx + dy * dy);
+            distances.push_back(dx*dx + dy*dy);
         }
 
         std::sort(distances.begin(), distances.end());
-        return std::abs(distances[0] - distances[1]) < 1e-9 &&
-            std::abs(distances[2] - distances[3]) < 1e-9 &&
-            std::abs(distances[0] + distances[1] - distances[2]) < 1e-9;
+        return std::abs(distances[0] - distances[1]) < 1e-9 && 
+               std::abs(distances[2] - distances[3]) < 1e-9 &&
+               std::abs(distances[0] + distances[1] - distances[2]) < 1e-9;
     }
 
     bool hasRightAngle(const Polygon& poly)
@@ -102,7 +102,7 @@ namespace
 
         auto comp = [](const Point& p1, const Point& p2) {
             return p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y);
-            };
+        };
 
         std::sort(a_sorted.begin(), a_sorted.end(), comp);
         std::sort(b_sorted.begin(), b_sorted.end(), comp);
@@ -489,13 +489,13 @@ void shapes::doPerms(std::vector<Polygon>& shapes, std::istream& in, std::ostrea
     out << count << '\n';
 }
 
-void shapes::doRects(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+void shapes::doRects(std::vector<Polygon>& shapes, std::istream&, std::ostream& out)
 {
     size_t count = std::count_if(shapes.begin(), shapes.end(), isRectangle);
     out << count << '\n';
 }
 
-void shapes::doRightshapes(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+void shapes::doRightshapes(std::vector<Polygon>& shapes, std::istream&, std::ostream& out)
 {
     size_t count = std::count_if(shapes.begin(), shapes.end(), hasRightAngle);
     out << count << '\n';
