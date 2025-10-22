@@ -70,7 +70,7 @@ namespace
         }
 
         std::sort(distances.begin(), distances.end());
-        return std::abs(distances[0] - distances[1]) < 1e-9 && 
+        return std::abs(distances[0] - distances[1]) < 1e-9 &&
                std::abs(distances[2] - distances[3]) < 1e-9 &&
                std::abs(distances[0] + distances[1] - distances[2]) < 1e-9;
     }
