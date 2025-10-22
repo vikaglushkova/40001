@@ -7,6 +7,7 @@
 #include <string>
 #include <iterator>
 #include <sstream>
+#include <cmath>
 #include "stream_guard.hpp"
 
 namespace
@@ -38,7 +39,6 @@ namespace
         bool operator()(const Polygon& poly) const
         {
             if (poly.points.size() != target.points.size()) return false;
-            if (poly.points.size() < 3) return false;
 
             int dx = poly.points[0].x - target.points[0].x;
             int dy = poly.points[0].y - target.points[0].y;
@@ -56,6 +56,59 @@ namespace
             return true;
         }
     };
+
+    bool isRectangle(const Polygon& poly)
+    {
+        if (poly.points.size() != 4) return false;
+
+        std::vector<double> distances;
+        for (size_t i = 0; i < 4; ++i) {
+            size_t j = (i + 1) % 4;
+            double dx = static_cast<double>(poly.points[i].x) - static_cast<double>(poly.points[j].x);
+            double dy = static_cast<double>(poly.points[i].y) - static_cast<double>(poly.points[j].y);
+            distances.push_back(dx * dx + dy * dy);
+        }
+
+        std::sort(distances.begin(), distances.end());
+        return std::abs(distances[0] - distances[1]) < 1e-9 &&
+            std::abs(distances[2] - distances[3]) < 1e-9 &&
+            std::abs(distances[0] + distances[1] - distances[2]) < 1e-9;
+    }
+
+    bool hasRightAngle(const Polygon& poly)
+    {
+        size_t n = poly.points.size();
+        for (size_t i = 0; i < n; ++i) {
+            size_t prev = (i + n - 1) % n;
+            size_t next = (i + 1) % n;
+
+            int dx1 = poly.points[i].x - poly.points[prev].x;
+            int dy1 = poly.points[i].y - poly.points[prev].y;
+            int dx2 = poly.points[next].x - poly.points[i].x;
+            int dy2 = poly.points[next].y - poly.points[i].y;
+
+            int dot = dx1 * dx2 + dy1 * dy2;
+            if (dot == 0) return true;
+        }
+        return false;
+    }
+
+    bool isPermutation(const Polygon& a, const Polygon& b)
+    {
+        if (a.points.size() != b.points.size()) return false;
+
+        std::vector<Point> a_sorted = a.points;
+        std::vector<Point> b_sorted = b.points;
+
+        auto comp = [](const Point& p1, const Point& p2) {
+            return p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y);
+            };
+
+        std::sort(a_sorted.begin(), a_sorted.end(), comp);
+        std::sort(b_sorted.begin(), b_sorted.end(), comp);
+
+        return std::equal(a_sorted.begin(), a_sorted.end(), b_sorted.begin());
+    }
 }
 
 void shapes::doArea(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
@@ -88,13 +141,13 @@ void shapes::doArea(std::vector<Polygon>& shapes, std::istream& in, std::ostream
     {
         if (shapes.empty())
         {
-            throw std::logic_error("<INVALID COMMAND>");
+            throw std::invalid_argument("<INVALID COMMAND>");
         }
         double total = std::accumulate(shapes.begin(), shapes.end(), 0.0,
             [](double sum, const Polygon& poly) {
                 return sum + computeArea(poly);
             });
-        result = total / shapes.size();
+        result = total / static_cast<double>(shapes.size());
     }
     else
     {
@@ -132,7 +185,7 @@ void shapes::doMax(std::vector<Polygon>& shapes, std::istream& in, std::ostream&
 
     if (shapes.empty())
     {
-        throw std::logic_error("<INVALID COMMAND>");
+        throw std::invalid_argument("<INVALID COMMAND>");
     }
 
     if (arg == "AREA")
@@ -165,7 +218,7 @@ void shapes::doMin(std::vector<Polygon>& shapes, std::istream& in, std::ostream&
 
     if (shapes.empty())
     {
-        throw std::logic_error("<INVALID COMMAND>");
+        throw std::invalid_argument("<INVALID COMMAND>");
     }
 
     if (arg == "AREA")
@@ -253,12 +306,6 @@ void shapes::doRmecho(std::vector<Polygon>& shapes, std::istream& in, std::ostre
         throw std::invalid_argument("<INVALID COMMAND>");
     }
 
-    if (shapes.empty())
-    {
-        out << "0\n";
-        return;
-    }
-
     size_t removedCount = 0;
     auto it = shapes.begin();
     bool previousWasTarget = false;
@@ -300,5 +347,173 @@ void shapes::doSame(std::vector<Polygon>& shapes, std::istream& in, std::ostream
 
     SameChecker checker(target);
     size_t count = std::count_if(shapes.begin(), shapes.end(), checker);
+    out << count << '\n';
+}
+
+void shapes::doEcho(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+{
+    Polygon target;
+    if (!(in >> target))
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
+
+    size_t addedCount = 0;
+    std::vector<Polygon> newShapes;
+
+    for (const auto& poly : shapes)
+    {
+        newShapes.push_back(poly);
+        if (poly == target)
+        {
+            newShapes.push_back(poly);
+            ++addedCount;
+        }
+    }
+
+    shapes = std::move(newShapes);
+    out << addedCount << '\n';
+}
+
+void shapes::doInframe(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+{
+    Polygon target;
+    if (!(in >> target) || target.points.size() < 3)
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
+
+    if (shapes.empty())
+    {
+        out << "<TRUE>\n";
+        return;
+    }
+
+    int min_x = shapes[0].points[0].x, max_x = shapes[0].points[0].x;
+    int min_y = shapes[0].points[0].y, max_y = shapes[0].points[0].y;
+
+    for (const auto& poly : shapes)
+    {
+        for (const auto& point : poly.points)
+        {
+            min_x = std::min(min_x, point.x);
+            max_x = std::max(max_x, point.x);
+            min_y = std::min(min_y, point.y);
+            max_y = std::max(max_y, point.y);
+        }
+    }
+
+    bool inside = true;
+    for (const auto& point : target.points)
+    {
+        if (point.x < min_x || point.x > max_x || point.y < min_y || point.y > max_y)
+        {
+            inside = false;
+            break;
+        }
+    }
+
+    out << (inside ? "<TRUE>" : "<FALSE>") << '\n';
+}
+
+void shapes::doIntersections(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+{
+    Polygon target;
+    if (!(in >> target) || target.points.size() < 3)
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
+
+    size_t count = 0;
+    for (const auto& poly : shapes)
+    {
+        bool intersects = false;
+
+        for (size_t i = 0; i < target.points.size() && !intersects; ++i)
+        {
+            for (size_t j = 0; j < poly.points.size() && !intersects; ++j)
+            {
+                if (target.points[i].x == poly.points[j].x && target.points[i].y == poly.points[j].y)
+                {
+                    intersects = true;
+                }
+            }
+        }
+
+        if (intersects) ++count;
+    }
+
+    out << count << '\n';
+}
+
+void shapes::doMaxseq(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+{
+    Polygon target;
+    if (!(in >> target) || target.points.size() < 3)
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
+
+    size_t max_seq = 0;
+    size_t current_seq = 0;
+
+    for (const auto& poly : shapes)
+    {
+        if (poly == target)
+        {
+            ++current_seq;
+            max_seq = std::max(max_seq, current_seq);
+        }
+        else
+        {
+            current_seq = 0;
+        }
+    }
+
+    out << max_seq << '\n';
+}
+
+void shapes::doPerms(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+{
+    Polygon target;
+    if (!(in >> target) || target.points.size() < 3)
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
+
+    size_t count = std::count_if(shapes.begin(), shapes.end(),
+        [&target](const Polygon& poly) {
+            return isPermutation(poly, target);
+        });
+
+    out << count << '\n';
+}
+
+void shapes::doRects(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+{
+    size_t count = std::count_if(shapes.begin(), shapes.end(), isRectangle);
+    out << count << '\n';
+}
+
+void shapes::doRightshapes(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+{
+    size_t count = std::count_if(shapes.begin(), shapes.end(), hasRightAngle);
+    out << count << '\n';
+}
+
+void shapes::doLessarea(std::vector<Polygon>& shapes, std::istream& in, std::ostream& out)
+{
+    Polygon target;
+    if (!(in >> target) || target.points.size() < 3)
+    {
+        throw std::invalid_argument("<INVALID COMMAND>");
+    }
+
+    double target_area = computeArea(target);
+    size_t count = std::count_if(shapes.begin(), shapes.end(),
+        [target_area](const Polygon& poly) {
+            return computeArea(poly) < target_area;
+        });
+
     out << count << '\n';
 }

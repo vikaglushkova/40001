@@ -9,6 +9,7 @@ namespace shapes
     {
         int x, y;
         bool operator==(const Point& other) const;
+        bool operator!=(const Point& other) const;
     };
 
     struct Polygon
@@ -22,3 +23,4 @@ namespace shapes
     std::istream& operator>>(std::istream& in, Polygon& poly);
 }
 #endif
+

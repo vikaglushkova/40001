@@ -48,14 +48,6 @@ int main(int argc, const char* argv[])
 
     file.close();
 
-    if (polygons.empty())
-    {
-        std::cerr << "Error: No valid polygons found in file\n";
-        return 1;
-    }
-
-    std::cout << "Successfully loaded " << polygons.size() << " polygons\n";
-
     std::map<std::string, std::function<void(std::istream&, std::ostream&)>> cmds;
     using namespace std::placeholders;
 
@@ -65,9 +57,14 @@ int main(int argc, const char* argv[])
     cmds["COUNT"] = std::bind(doCount, std::ref(polygons), _1, _2);
     cmds["RMECHO"] = std::bind(doRmecho, std::ref(polygons), _1, _2);
     cmds["SAME"] = std::bind(doSame, std::ref(polygons), _1, _2);
-
-    std::cout << "Available commands: AREA, MAX, MIN, COUNT, RMECHO, SAME\n";
-    std::cout << "Enter command or Ctrl+Z to exit:\n> ";
+    cmds["ECHO"] = std::bind(doEcho, std::ref(polygons), _1, _2);
+    cmds["INFRAME"] = std::bind(doInframe, std::ref(polygons), _1, _2);
+    cmds["INTERSECTIONS"] = std::bind(doIntersections, std::ref(polygons), _1, _2);
+    cmds["MAXSEQ"] = std::bind(doMaxseq, std::ref(polygons), _1, _2);
+    cmds["PERMS"] = std::bind(doPerms, std::ref(polygons), _1, _2);
+    cmds["RECTS"] = std::bind(doRects, std::ref(polygons), _1, _2);
+    cmds["RIGHTSHAPES"] = std::bind(doRightshapes, std::ref(polygons), _1, _2);
+    cmds["LESSAREA"] = std::bind(doLessarea, std::ref(polygons), _1, _2);
 
     std::string command;
     while (std::cin >> command)
@@ -91,7 +88,6 @@ int main(int argc, const char* argv[])
 
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "> ";
     }
 
     return 0;
