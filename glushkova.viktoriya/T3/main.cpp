@@ -1,11 +1,11 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <iterator>
+#include <algorithm>
+#include <limits>
 #include <map>
 #include <functional>
 #include <string>
-#include <sstream>
-#include <limits>
 #include "shapes.hpp"
 #include "shape_commands.hpp"
 
@@ -19,25 +19,18 @@ int main(int argc, const char* argv[])
     if (!file.is_open()) return 1;
 
     std::vector<Polygon> polygons;
-    std::string line;
 
-    while (std::getline(file, line))
+    while (!file.eof())
     {
-        if (line.empty()) continue;
-
-        std::istringstream iss(line);
-        Polygon temp;
-
-        if (iss >> temp)
+        std::copy(std::istream_iterator<Polygon>{file},
+                  std::istream_iterator<Polygon>{},
+                  std::back_inserter(polygons));
+        if (file.fail())
         {
-            char c;
-            if (!(iss >> c))
-            {
-                polygons.push_back(temp);
-            }
+            file.clear();
+            file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
-
     file.close();
 
     std::map<std::string, std::function<void(std::istream&, std::ostream&)>> cmds;
@@ -53,19 +46,24 @@ int main(int argc, const char* argv[])
     std::string command;
     while (std::cin >> command)
     {
-        auto it = cmds.find(command);
-        if (it != cmds.end())
+        try
         {
-            it->second(std::cin, std::cout);
+            auto it = cmds.find(command);
+            if (it != cmds.end())
+            {
+                it->second(std::cin, std::cout);
+            }
+            else
+            {
+                std::cout << "<INVALID COMMAND>\n";
+            }
         }
-        else
+        catch (...)
         {
             std::cout << "<INVALID COMMAND>\n";
         }
-
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
-
     return 0;
 }
