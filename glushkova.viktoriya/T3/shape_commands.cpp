@@ -40,18 +40,16 @@ namespace
         {
             if (poly.points.size() != target.points.size()) return false;
 
-            std::vector<Point> poly_sorted = poly.points;
-            std::vector<Point> target_sorted = target.points;
+            int dx = poly.points[0].x - target.points[0].x;
+            int dy = poly.points[0].y - target.points[0].y;
 
-            auto comp = [](const Point& p1, const Point& p2) {
-                return p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y);
-            };
+            for (size_t i = 1; i < poly.points.size(); ++i)
+            {
+                int current_dx = poly.points[i].x - target.points[i].x;
+                int current_dy = poly.points[i].y - target.points[i].y;
 
-            std::sort(poly_sorted.begin(), poly_sorted.end(), comp);
-            std::sort(target_sorted.begin(), target_sorted.end(), comp);
-
-            for (size_t i = 0; i < poly_sorted.size(); ++i) {
-                if (poly_sorted[i].x != target_sorted[i].x || poly_sorted[i].y != target_sorted[i].y) {
+                if (current_dx != dx || current_dy != dy)
+                {
                     return false;
                 }
             }
@@ -429,7 +427,27 @@ void shapes::doIntersections(std::vector<Polygon>& shapes, std::istream& in, std
         throw std::invalid_argument("<INVALID COMMAND>");
     }
 
-    size_t count = shapes.size();
+    size_t count = 0;
+    for (const auto& poly : shapes)
+    {
+        bool intersects = false;
+
+        for (size_t i = 0; i < target.points.size() && !intersects; ++i)
+        {
+            for (size_t j = 0; j < poly.points.size() && !intersects; ++j)
+            {
+                if (target.points[i].x == poly.points[j].x && target.points[i].y == poly.points[j].y)
+                {
+                    intersects = true;
+                    break;
+                }
+            }
+            if (intersects) break;
+        }
+
+        if (intersects) ++count;
+    }
+
     out << count << '\n';
 }
 
