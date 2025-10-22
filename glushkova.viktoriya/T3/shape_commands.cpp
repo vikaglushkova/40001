@@ -192,7 +192,7 @@ namespace shapes
                     out << "<INVALID COMMAND>\n";
                     return;
                 }
-                count = std::count_if(poly.begin(), poly.end(), 
+                count = std::count_if(poly.begin(), poly.end(),
                     [vertexNum](const Polygon& p) { return p.points.size() == vertexNum; });
             }
             catch (const std::exception&)
