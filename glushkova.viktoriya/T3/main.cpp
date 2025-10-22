@@ -29,6 +29,8 @@ int main(int argc, const char* argv[])
         if (iss >> temp) polygons.push_back(temp);
     }
 
+    file.close();
+
     std::map<std::string, std::function<void(std::istream&, std::ostream&)>> cmds;
     using namespace std::placeholders;
 

@@ -243,6 +243,33 @@ namespace shapes
         poly = std::move(result);
     }
 
+    bool arePolygonsSame(const Polygon& p1, const Polygon& p2)
+    {
+        if (p1.points.size() != p2.points.size()) return false;
+
+        std::vector<Point> sorted1 = p1.points;
+        std::vector<Point> sorted2 = p2.points;
+
+        std::sort(sorted1.begin(), sorted1.end(), [](const Point& a, const Point& b) {
+            return a.x < b.x || (a.x == b.x && a.y < b.y);
+        });
+        std::sort(sorted2.begin(), sorted2.end(), [](const Point& a, const Point& b) {
+            return a.x < b.x || (a.x == b.x && a.y < b.y);
+        });
+
+        int dx = sorted1[0].x - sorted2[0].x;
+        int dy = sorted1[0].y - sorted2[0].y;
+
+        for (size_t i = 0; i < sorted1.size(); ++i)
+        {
+            if (sorted1[i].x != sorted2[i].x + dx || sorted1[i].y != sorted2[i].y + dy)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     void doSame(std::vector<Polygon>& poly, std::istream& in, std::ostream& out)
     {
         Polygon target;
@@ -255,23 +282,10 @@ namespace shapes
         size_t count = 0;
         for (const auto& p : poly)
         {
-            if (p.points.size() != target.points.size()) continue;
-
-            bool compatible = true;
-            int dx = p.points[0].x - target.points[0].x;
-            int dy = p.points[0].y - target.points[0].y;
-
-            for (size_t i = 1; i < p.points.size(); ++i)
+            if (arePolygonsSame(p, target))
             {
-                if (p.points[i].x != target.points[i].x + dx ||
-                    p.points[i].y != target.points[i].y + dy)
-                {
-                    compatible = false;
-                    break;
-                }
+                count++;
             }
-
-            if (compatible) count++;
         }
 
         out << count << '\n';
