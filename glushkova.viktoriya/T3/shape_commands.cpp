@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <numeric>
 #include <cmath>
+#include <vector>
 #include "stream_guard.hpp"
 
 namespace shapes
@@ -243,31 +244,28 @@ namespace shapes
         poly = std::move(result);
     }
 
-    bool arePolygonsSame(const Polygon& p1, const Polygon& p2)
+    bool areVectorsSame(const std::vector<Point>& v1, const std::vector<Point>& v2)
     {
-        if (p1.points.size() != p2.points.size()) return false;
+        if (v1.size() != v2.size()) return false;
 
-        std::vector<Point> sorted1 = p1.points;
-        std::vector<Point> sorted2 = p2.points;
-
-        std::sort(sorted1.begin(), sorted1.end(), [](const Point& a, const Point& b) {
-            return a.x < b.x || (a.x == b.x && a.y < b.y);
-        });
-        std::sort(sorted2.begin(), sorted2.end(), [](const Point& a, const Point& b) {
-            return a.x < b.x || (a.x == b.x && a.y < b.y);
-        });
-
-        int dx = sorted1[0].x - sorted2[0].x;
-        int dy = sorted1[0].y - sorted2[0].y;
-
-        for (size_t i = 0; i < sorted1.size(); ++i)
+        for (size_t start = 0; start < v1.size(); ++start)
         {
-            if (sorted1[i].x != sorted2[i].x + dx || sorted1[i].y != sorted2[i].y + dy)
+            bool match = true;
+            int dx = v1[0].x - v2[start].x;
+            int dy = v1[0].y - v2[start].y;
+
+            for (size_t i = 0; i < v1.size(); ++i)
             {
-                return false;
+                size_t j = (start + i) % v2.size();
+                if (v1[i].x != v2[j].x + dx || v1[i].y != v2[j].y + dy)
+                {
+                    match = false;
+                    break;
+                }
             }
+            if (match) return true;
         }
-        return true;
+        return false;
     }
 
     void doSame(std::vector<Polygon>& poly, std::istream& in, std::ostream& out)
@@ -282,7 +280,9 @@ namespace shapes
         size_t count = 0;
         for (const auto& p : poly)
         {
-            if (arePolygonsSame(p, target))
+            if (p.points.size() != target.points.size()) continue;
+
+            if (areVectorsSame(p.points, target.points))
             {
                 count++;
             }
