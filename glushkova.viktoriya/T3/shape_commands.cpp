@@ -89,7 +89,7 @@ namespace shapes
         }
 
         StreamGuard guard(out);
-        out << std::fixed << std::setprecision(1) << result << '\n';
+        out << std::fixed << std::setprecision(1) << result << "\n";
     }
 
     void doMax(std::vector<Polygon>& poly, std::istream& in, std::ostream& out)
@@ -112,14 +112,14 @@ namespace shapes
                 if (area > maxArea) maxArea = area;
             }
             StreamGuard guard(out);
-            out << std::fixed << std::setprecision(1) << maxArea << '\n';
+            out << std::fixed << std::setprecision(1) << maxArea << "\n";
         }
         else if (subcommand == "VERTEXES")
         {
             size_t maxVertexes = poly[0].points.size();
             for (const auto& p : poly)
                 if (p.points.size() > maxVertexes) maxVertexes = p.points.size();
-            out << maxVertexes << '\n';
+            out << maxVertexes << "\n";
         }
         else
         {
@@ -147,14 +147,14 @@ namespace shapes
                 if (area < minArea) minArea = area;
             }
             StreamGuard guard(out);
-            out << std::fixed << std::setprecision(1) << minArea << '\n';
+            out << std::fixed << std::setprecision(1) << minArea << "\n";
         }
         else if (subcommand == "VERTEXES")
         {
             size_t minVertexes = poly[0].points.size();
             for (const auto& p : poly)
                 if (p.points.size() < minVertexes) minVertexes = p.points.size();
-            out << minVertexes << '\n';
+            out << minVertexes << "\n";
         }
         else
         {
@@ -203,7 +203,7 @@ namespace shapes
             }
         }
 
-        out << count << '\n';
+        out << count << "\n";
     }
 
     void doRmecho(std::vector<Polygon>& poly, std::istream& in, std::ostream& out)
@@ -240,7 +240,7 @@ namespace shapes
             }
         }
 
-        out << removed << '\n';
+        out << removed << "\n";
         poly = std::move(result);
     }
 
@@ -288,6 +288,6 @@ namespace shapes
             }
         }
 
-        out << count << '\n';
+        out << count << "\n";
     }
 }

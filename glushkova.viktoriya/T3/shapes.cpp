@@ -29,8 +29,6 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
     }
 
     std::vector<Point> temp;
-    temp.reserve(vertexes);
-
     for (size_t i = 0; i < vertexes; ++i)
     {
         Point p;
@@ -42,15 +40,13 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
         temp.push_back(p);
     }
 
-    if (in && temp.size() == vertexes)
-    {
-        poly.points = std::move(temp);
-    }
-    else
+    if (!in || temp.size() != vertexes)
     {
         in.setstate(std::ios::failbit);
+        return in;
     }
 
+    poly.points = std::move(temp);
     return in;
 }
 
