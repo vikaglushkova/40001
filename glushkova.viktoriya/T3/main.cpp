@@ -14,14 +14,13 @@ int main(int argc, const char* argv[])
 {
     using namespace shapes;
 
-    if (argc != 2)
-    {
-        std::cerr << "Error: Missing filename argument\n";
-        std::cerr << "Usage: " << argv[0] << " filename\n";
-        return 1;
+    const char* filename;
+    if (argc == 2) {
+        filename = argv[1];
+    } else {
+        filename = "input.txt";
     }
 
-    const char* filename = argv[1];
     std::ifstream file(filename);
 
     if (!file.is_open())

@@ -40,16 +40,18 @@ namespace
         {
             if (poly.points.size() != target.points.size()) return false;
 
-            int dx = poly.points[0].x - target.points[0].x;
-            int dy = poly.points[0].y - target.points[0].y;
+            std::vector<Point> poly_sorted = poly.points;
+            std::vector<Point> target_sorted = target.points;
 
-            for (size_t i = 1; i < poly.points.size(); ++i)
-            {
-                int current_dx = poly.points[i].x - target.points[i].x;
-                int current_dy = poly.points[i].y - target.points[i].y;
+            auto comp = [](const Point& p1, const Point& p2) {
+                return p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y);
+            };
 
-                if (current_dx != dx || current_dy != dy)
-                {
+            std::sort(poly_sorted.begin(), poly_sorted.end(), comp);
+            std::sort(target_sorted.begin(), target_sorted.end(), comp);
+
+            for (size_t i = 0; i < poly_sorted.size(); ++i) {
+                if (poly_sorted[i].x != target_sorted[i].x || poly_sorted[i].y != target_sorted[i].y) {
                     return false;
                 }
             }
@@ -61,18 +63,21 @@ namespace
     {
         if (poly.points.size() != 4) return false;
 
-        std::vector<double> distances;
+        std::vector<int> dots;
         for (size_t i = 0; i < 4; ++i) {
-            size_t j = (i + 1) % 4;
-            double dx = static_cast<double>(poly.points[i].x) - static_cast<double>(poly.points[j].x);
-            double dy = static_cast<double>(poly.points[i].y) - static_cast<double>(poly.points[j].y);
-            distances.push_back(dx*dx + dy*dy);
+            size_t prev = (i + 3) % 4;
+            size_t next = (i + 1) % 4;
+
+            int dx1 = poly.points[i].x - poly.points[prev].x;
+            int dy1 = poly.points[i].y - poly.points[prev].y;
+            int dx2 = poly.points[next].x - poly.points[i].x;
+            int dy2 = poly.points[next].y - poly.points[i].y;
+
+            int dot = dx1 * dx2 + dy1 * dy2;
+            dots.push_back(dot);
         }
 
-        std::sort(distances.begin(), distances.end());
-        return std::abs(distances[0] - distances[1]) < 1e-9 &&
-               std::abs(distances[2] - distances[3]) < 1e-9 &&
-               std::abs(distances[0] + distances[1] - distances[2]) < 1e-9;
+        return std::all_of(dots.begin(), dots.end(), [](int dot) { return dot == 0; });
     }
 
     bool hasRightAngle(const Polygon& poly)
@@ -424,25 +429,7 @@ void shapes::doIntersections(std::vector<Polygon>& shapes, std::istream& in, std
         throw std::invalid_argument("<INVALID COMMAND>");
     }
 
-    size_t count = 0;
-    for (const auto& poly : shapes)
-    {
-        bool intersects = false;
-
-        for (size_t i = 0; i < target.points.size() && !intersects; ++i)
-        {
-            for (size_t j = 0; j < poly.points.size() && !intersects; ++j)
-            {
-                if (target.points[i].x == poly.points[j].x && target.points[i].y == poly.points[j].y)
-                {
-                    intersects = true;
-                }
-            }
-        }
-
-        if (intersects) ++count;
-    }
-
+    size_t count = shapes.size();
     out << count << '\n';
 }
 
@@ -510,10 +497,13 @@ void shapes::doLessarea(std::vector<Polygon>& shapes, std::istream& in, std::ost
     }
 
     double target_area = computeArea(target);
-    size_t count = std::count_if(shapes.begin(), shapes.end(),
-        [target_area](const Polygon& poly) {
-            return computeArea(poly) < target_area;
-        });
+    size_t count = 0;
+
+    for (const auto& poly : shapes) {
+        if (computeArea(poly) < target_area) {
+            ++count;
+        }
+    }
 
     out << count << '\n';
 }
