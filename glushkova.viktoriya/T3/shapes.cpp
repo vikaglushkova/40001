@@ -1,248 +1,128 @@
-#include "shape_commands.hpp"
-#include "stream_guard.hpp"
+#include "shapes.hpp"
+#include "input_parser.hpp"
 #include <algorithm>
-#include <functional>
-#include <iomanip>
-#include <limits>
-#include <string>
-#include <numeric>
+#include <cmath>
 
-bool shapes::isEven(const Polygon& poly)
+std::istream& shapes::operator>>(std::istream& in, Point& point)
 {
-    return poly.points.size() % 2 == 0;
+    std::istream::sentry guard(in);
+    if (!guard) return in;
+    using del = Delimiter;
+    Point temp{0, 0};
+    in >> del{'('} >> temp.x >> del{';'} >> temp.y >> del{')'};
+    if (in) point = temp;
+    return in;
 }
 
-bool shapes::isOdd(const Polygon& poly)
+std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
 {
-    return poly.points.size() % 2 == 1;
-}
+    std::istream::sentry guard(in);
+    if (!guard) return in;
 
-void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
-{
-    StreamGuard guard(out);
-    out << std::fixed << std::setprecision(1);
-
-    std::string param;
-    if (!(in >> param))
+    size_t vertexes = 0;
+    if (!(in >> vertexes)) return in;
+    if (vertexes < 3)
     {
-        out << "<INVALID COMMAND>\n";
-        return;
+        in.setstate(std::ios::failbit);
+        return in;
     }
 
-    if (param == "EVEN")
+    std::vector<Point> temp;
+    for (size_t i = 0; i < vertexes; ++i)
     {
-        double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
-            [](double acc, const Polygon& poly) {
-                return acc + (isEven(poly) ? calcArea(poly) : 0.0);
-            });
-        out << sum << '\n';
-    }
-    else if (param == "ODD")
-    {
-        double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
-            [](double acc, const Polygon& poly) {
-                return acc + (isOdd(poly) ? calcArea(poly) : 0.0);
-            });
-        out << sum << '\n';
-    }
-    else if (param == "MEAN")
-    {
-        if (polygons.empty())
+        Point p;
+        in >> p;
+        if (!in)
         {
-            out << "<INVALID COMMAND>\n";
-            return;
+            in.setstate(std::ios::failbit);
+            return in;
         }
-        double total = std::accumulate(polygons.begin(), polygons.end(), 0.0,
-            [](double acc, const Polygon& poly) {
-                return acc + calcArea(poly);
-            });
-        out << total / polygons.size() << '\n';
+        temp.push_back(p);
+    }
+
+    if (in && temp.size() == vertexes)
+    {
+        poly.points = std::move(temp);
     }
     else
     {
-        try
-        {
-            size_t target = std::stoul(param);
-            if (target < 3)
-            {
-                out << "<INVALID COMMAND>\n";
-                return;
+        in.setstate(std::ios::failbit);
+    }
+
+    return in;
+}
+
+bool shapes::Point::operator==(const Point& other) const
+{
+    return (x == other.x) && (y == other.y);
+}
+
+bool shapes::Point::operator!=(const Point& other) const
+{
+    return !(*this == other);
+}
+
+bool shapes::Point::operator<(const Point& other) const
+{
+    return std::tie(x, y) < std::tie(other.x, other.y);
+}
+
+bool shapes::Polygon::operator==(const Polygon& other) const
+{
+    if (points.size() != other.points.size()) return false;
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        if (points[i] != other.points[i]) return false;
+    }
+    return true;
+}
+
+bool shapes::Polygon::operator!=(const Polygon& other) const
+{
+    return !(*this == other);
+}
+
+double shapes::calcArea(const Polygon& poly)
+{
+    double area = 0.0;
+    size_t n = poly.points.size();
+    for (size_t i = 0; i < n; ++i)
+    {
+        const Point& p1 = poly.points[i];
+        const Point& p2 = poly.points[(i + 1) % n];
+        area += (p1.x * p2.y - p2.x * p1.y);
+    }
+    return std::abs(area) / 2.0;
+}
+
+bool shapes::arePolygonsSame(const Polygon& poly1, const Polygon& poly2)
+{
+    if (poly1.points.size() != poly2.points.size()) return false;
+
+    if (poly1 == poly2) return true;
+
+    size_t n = poly1.points.size();
+    for (size_t shift = 0; shift < n; ++shift) {
+        bool match = true;
+        for (size_t i = 0; i < n; ++i) {
+            if (poly1.points[i] != poly2.points[(i + shift) % n]) {
+                match = false;
+                break;
             }
-            double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
-                [target](double acc, const Polygon& poly) {
-                    return acc + (poly.points.size() == target ? calcArea(poly) : 0.0);
-                });
-            out << sum << '\n';
         }
-        catch (const std::exception&)
-        {
-            out << "<INVALID COMMAND>\n";
-        }
-    }
-}
-
-void shapes::doMax(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
-{
-    StreamGuard guard(out);
-    out << std::fixed << std::setprecision(1);
-
-    if (polygons.empty())
-    {
-        out << "<INVALID COMMAND>\n";
-        return;
+        if (match) return true;
     }
 
-    std::string param;
-    if (!(in >> param))
-    {
-        out << "<INVALID COMMAND>\n";
-        return;
-    }
-
-    if (param == "AREA")
-    {
-        auto it = std::max_element(polygons.begin(), polygons.end(),
-            [](const Polygon& a, const Polygon& b) {
-                return calcArea(a) < calcArea(b);
-            });
-        out << calcArea(*it) << '\n';
-    }
-    else if (param == "VERTEXES")
-    {
-        auto it = std::max_element(polygons.begin(), polygons.end(),
-            [](const Polygon& a, const Polygon& b) {
-                return a.points.size() < b.points.size();
-            });
-        out << it->points.size() << '\n';
-    }
-    else
-    {
-        out << "<INVALID COMMAND>\n";
-    }
-}
-
-void shapes::doMin(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
-{
-    StreamGuard guard(out);
-    out << std::fixed << std::setprecision(1);
-
-    if (polygons.empty())
-    {
-        out << "<INVALID COMMAND>\n";
-        return;
-    }
-
-    std::string param;
-    if (!(in >> param))
-    {
-        out << "<INVALID COMMAND>\n";
-        return;
-    }
-
-    if (param == "AREA")
-    {
-        auto it = std::min_element(polygons.begin(), polygons.end(),
-            [](const Polygon& a, const Polygon& b) {
-                return calcArea(a) < calcArea(b);
-            });
-        out << calcArea(*it) << '\n';
-    }
-    else if (param == "VERTEXES")
-    {
-        auto it = std::min_element(polygons.begin(), polygons.end(),
-            [](const Polygon& a, const Polygon& b) {
-                return a.points.size() < b.points.size();
-            });
-        out << it->points.size() << '\n';
-    }
-    else
-    {
-        out << "<INVALID COMMAND>\n";
-    }
-}
-
-void shapes::doCount(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
-{
-    std::string param;
-    if (!(in >> param))
-    {
-        out << "<INVALID COMMAND>\n";
-        return;
-    }
-
-    if (param == "EVEN")
-    {
-        size_t count = std::count_if(polygons.begin(), polygons.end(), isEven);
-        out << count << '\n';
-    }
-    else if (param == "ODD")
-    {
-        size_t count = std::count_if(polygons.begin(), polygons.end(), isOdd);
-        out << count << '\n';
-    }
-    else
-    {
-        try
-        {
-            size_t target = std::stoul(param);
-            if (target < 3)
-            {
-                out << "<INVALID COMMAND>\n";
-                return;
+    for (size_t shift = 0; shift < n; ++shift) {
+        bool match = true;
+        for (size_t i = 0; i < n; ++i) {
+            if (poly1.points[i] != poly2.points[(n - 1 - i + shift) % n]) {
+                match = false;
+                break;
             }
-            size_t count = std::count_if(polygons.begin(), polygons.end(),
-                [target](const Polygon& poly) {
-                    return poly.points.size() == target;
-                });
-            out << count << '\n';
         }
-        catch (const std::exception&)
-        {
-            out << "<INVALID COMMAND>\n";
-        }
-    }
-}
-
-void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
-{
-    Polygon target;
-    if (!(in >> target) || target.points.size() < 3)
-    {
-        out << "<INVALID COMMAND>\n";
-        return;
+        if (match) return true;
     }
 
-    size_t removed = 0;
-    auto it = polygons.begin();
-    while (it != polygons.end())
-    {
-        if (it != polygons.begin() && *it == target && *it == *(std::prev(it)))
-        {
-            it = polygons.erase(it);
-            removed++;
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
-    out << removed << '\n';
-}
-
-void shapes::doSame(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
-{
-    Polygon target;
-    if (!(in >> target) || target.points.size() < 3)
-    {
-        out << "<INVALID COMMAND>\n";
-        return;
-    }
-
-    size_t count = std::count_if(polygons.begin(), polygons.end(),
-        [&target](const Polygon& poly) {
-            return arePolygonsSame(poly, target);
-        });
-
-    out << count << '\n';
+    return false;
 }

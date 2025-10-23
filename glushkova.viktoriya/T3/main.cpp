@@ -51,6 +51,7 @@ int main(int argc, const char* argv[])
     cmds["COUNT"] = std::bind(doCount, std::ref(polygons), _1, _2);
     cmds["RMECHO"] = std::bind(doRmecho, std::ref(polygons), _1, _2);
     cmds["SAME"] = std::bind(doSame, std::ref(polygons), _1, _2);
+    cmds["ECHO"] = std::bind(doEcho, std::ref(polygons), _1, _2);
 
     std::string command;
     while (std::cin >> command)

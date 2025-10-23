@@ -1,19 +1,28 @@
-#ifndef SHAPE_COMMANDS_HPP
-#define SHAPE_COMMANDS_HPP
-#include "shapes.hpp"
+#ifndef SHAPES_HPP
+#define SHAPES_HPP
+#include <iostream>
 #include <vector>
 
 namespace shapes
 {
-    bool isEven(const Polygon& poly);
-    bool isOdd(const Polygon& poly);
+    struct Point
+    {
+        int x, y;
+        bool operator==(const Point& other) const;
+        bool operator!=(const Point& other) const;
+        bool operator<(const Point& other) const;
+    };
 
-    void doArea(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doMax(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doMin(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doCount(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
+    struct Polygon
+    {
+        std::vector<Point> points;
+        bool operator==(const Polygon& other) const;
+        bool operator!=(const Polygon& other) const;
+    };
 
-    void doRmecho(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doSame(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
+    std::istream& operator>>(std::istream& in, Point& point);
+    std::istream& operator>>(std::istream& in, Polygon& poly);
+    double calcArea(const Polygon& poly);
+    bool arePolygonsSame(const Polygon& poly1, const Polygon& poly2);
 }
 #endif
