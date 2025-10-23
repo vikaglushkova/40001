@@ -484,7 +484,7 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
                 polyMaxY = std::max(polyMaxY, p.y);
             }
 
-            if (!(targetMaxX < polyMinX || targetMinX > polyMaxX || 
+            if (!(targetMaxX < polyMinX || targetMinX > polyMaxX ||
                   targetMaxY < polyMinY || targetMinY > polyMaxY))
             {
                 intersects = true;
