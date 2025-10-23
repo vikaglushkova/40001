@@ -1,4 +1,4 @@
-#include "shape_commands.hpp"
+k#include "shape_commands.hpp"
 #include <functional>
 #include <map>
 #include <algorithm>
@@ -270,6 +270,12 @@ namespace shapes
     {
         Polygon target;
         if (!(in >> target))
+        {
+            out << "<INVALID COMMAND>\n";
+            return;
+        }
+
+        if (in.peek() != '\n' && in.peek() != EOF)
         {
             out << "<INVALID COMMAND>\n";
             return;
