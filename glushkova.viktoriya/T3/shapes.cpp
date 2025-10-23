@@ -47,11 +47,6 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
         in.setstate(std::ios::failbit);
     }
 
-    if (in && in.peek() != ' ' && in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
-    {
-        in.setstate(std::ios::failbit);
-    }
-
     return in;
 }
 

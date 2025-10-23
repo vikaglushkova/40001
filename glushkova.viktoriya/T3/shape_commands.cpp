@@ -208,9 +208,17 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         out << "<INVALID COMMAND>\n";
         return;
     }
+
+    while (in.peek() == ' ') in.get();
+    if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
+    size_t countBefore = std::count(polygons.begin(), polygons.end(), newPoly);
     polygons.push_back(newPoly);
-    size_t countAfter = std::count(polygons.begin(), polygons.end(), newPoly);
-    out << countAfter << "\n";
+    out << countBefore << "\n";
 }
 
 void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
@@ -222,6 +230,14 @@ void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ost
         out << "<INVALID COMMAND>\n";
         return;
     }
+
+    while (in.peek() == ' ') in.get();
+    if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
     size_t removedCount = 0;
     auto it = std::find(polygons.begin(), polygons.end(), target);
     if (it != polygons.end())
@@ -241,6 +257,14 @@ void shapes::doSame(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         out << "<INVALID COMMAND>\n";
         return;
     }
+
+    while (in.peek() == ' ') in.get();
+    if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
     size_t count = std::count(polygons.begin(), polygons.end(), target);
     out << count << "\n";
 }
@@ -254,6 +278,14 @@ void shapes::doLessArea(std::vector<Polygon>& polygons, std::istream& in, std::o
         out << "<INVALID COMMAND>\n";
         return;
     }
+
+    while (in.peek() == ' ') in.get();
+    if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
     double targetArea = calcArea(target);
     size_t count = std::count_if(polygons.begin(), polygons.end(),
         [targetArea](const Polygon& poly) {
@@ -271,6 +303,14 @@ void shapes::doInframe(std::vector<Polygon>& polygons, std::istream& in, std::os
         out << "<INVALID COMMAND>\n";
         return;
     }
+
+    while (in.peek() == ' ') in.get();
+    if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
     if (polygons.empty())
     {
         out << "<TRUE>\n";
@@ -311,6 +351,14 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
         out << "<INVALID COMMAND>\n";
         return;
     }
+
+    while (in.peek() == ' ') in.get();
+    if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
     size_t count = 0;
     for (const auto& poly : polygons)
     {
@@ -355,6 +403,14 @@ void shapes::doPerms(std::vector<Polygon>& polygons, std::istream& in, std::ostr
         out << "<INVALID COMMAND>\n";
         return;
     }
+
+    while (in.peek() == ' ') in.get();
+    if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
     size_t count = 0;
     for (const auto& poly : polygons)
     {
@@ -399,6 +455,14 @@ void shapes::doMaxseq(std::vector<Polygon>& polygons, std::istream& in, std::ost
         out << "<INVALID COMMAND>\n";
         return;
     }
+
+    while (in.peek() == ' ') in.get();
+    if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
     size_t maxSeq = 0;
     size_t currentSeq = 0;
     for (size_t i = 0; i < polygons.size(); ++i)
