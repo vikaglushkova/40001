@@ -128,4 +128,3 @@ bool shapes::arePolygonsSame(const Polygon& poly1, const Polygon& poly2)
 
     return false;
 }
-
