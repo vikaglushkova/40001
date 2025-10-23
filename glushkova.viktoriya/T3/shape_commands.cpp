@@ -208,9 +208,9 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         out << "<INVALID COMMAND>\n";
         return;
     }
-    size_t countBefore = std::count(polygons.begin(), polygons.end(), newPoly);
     polygons.push_back(newPoly);
-    out << countBefore << "\n";
+    size_t countAfter = std::count(polygons.begin(), polygons.end(), newPoly);
+    out << countAfter << "\n";
 }
 
 void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)

@@ -19,16 +19,19 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
 {
     std::istream::sentry guard(in);
     if (!guard) return in;
+
     size_t vertexes = 0;
     if (!(in >> vertexes))
     {
         return in;
     }
+
     if (vertexes < 3)
     {
         in.setstate(std::ios::failbit);
         return in;
     }
+
     std::vector<Point> temp;
     for (size_t i = 0; i < vertexes; ++i)
     {
@@ -41,6 +44,7 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
         }
         temp.push_back(p);
     }
+
     if (in && temp.size() == vertexes)
     {
         poly.points = std::move(temp);
@@ -49,6 +53,7 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
     {
         in.setstate(std::ios::failbit);
     }
+
     return in;
 }
 
