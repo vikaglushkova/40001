@@ -276,15 +276,26 @@ void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ost
 
     size_t removed = 0;
     std::vector<Polygon> result;
+    size_t counter = 0;
 
-    for (size_t i = 0; i < polygons.size(); ++i)
+    for (const auto& poly : polygons)
     {
-        result.push_back(polygons[i]);
-
-        if (i < polygons.size() - 1 && polygons[i] == target && polygons[i + 1] == target)
+        if (poly == target)
         {
-            i++;
-            removed++;
+            counter++;
+            if (counter <= 1)
+            {
+                result.push_back(poly);
+            }
+            else
+            {
+                removed++;
+            }
+        }
+        else
+        {
+            counter = 0;
+            result.push_back(poly);
         }
     }
 
@@ -305,32 +316,18 @@ void shapes::doSame(std::vector<Polygon>& polygons, std::istream& in, std::ostre
 
     size_t count = 0;
 
-    std::vector<Point> normalizedTarget;
-    int baseX = target.points[0].x;
-    int baseY = target.points[0].y;
-
-    for (const auto& p : target.points)
-    {
-        normalizedTarget.push_back({p.x - baseX, p.y - baseY});
-    }
-
     for (const auto& poly : polygons)
     {
         if (poly.points.size() == target.points.size())
         {
-            std::vector<Point> normalizedPoly;
-            int polyBaseX = poly.points[0].x;
-            int polyBaseY = poly.points[0].y;
-
-            for (const auto& p : poly.points)
-            {
-                normalizedPoly.push_back({p.x - polyBaseX, p.y - polyBaseY});
-            }
-
+            int dx = poly.points[0].x - target.points[0].x;
+            int dy = poly.points[0].y - target.points[0].y;
             bool same = true;
-            for (size_t i = 0; i < normalizedPoly.size(); ++i)
+
+            for (size_t i = 0; i < poly.points.size(); ++i)
             {
-                if (normalizedPoly[i].x != normalizedTarget[i].x || normalizedPoly[i].y != normalizedTarget[i].y)
+                Point expected = {target.points[i].x + dx, target.points[i].y + dy};
+                if (poly.points[i].x != expected.x || poly.points[i].y != expected.y)
                 {
                     same = false;
                     break;
@@ -431,23 +428,15 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
 
     size_t count = 0;
 
-    int targetMinX = std::numeric_limits<int>::max();
-    int targetMaxX = std::numeric_limits<int>::min();
-    int targetMinY = std::numeric_limits<int>::max();
-    int targetMaxY = std::numeric_limits<int>::min();
-
-    for (const auto& p : target.points)
-    {
-        targetMinX = std::min(targetMinX, p.x);
-        targetMaxX = std::max(targetMaxX, p.x);
-        targetMinY = std::min(targetMinY, p.y);
-        targetMaxY = std::max(targetMaxY, p.y);
-    }
-
     for (const auto& poly : polygons)
     {
-        bool intersects = false;
+        if (poly == target)
+        {
+            count++;
+            continue;
+        }
 
+        bool intersects = false;
         for (const auto& p1 : target.points)
         {
             for (const auto& p2 : poly.points)
@@ -459,28 +448,6 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
                 }
             }
             if (intersects) break;
-        }
-
-        if (!intersects)
-        {
-            int polyMinX = std::numeric_limits<int>::max();
-            int polyMaxX = std::numeric_limits<int>::min();
-            int polyMinY = std::numeric_limits<int>::max();
-            int polyMaxY = std::numeric_limits<int>::min();
-
-            for (const auto& p : poly.points)
-            {
-                polyMinX = std::min(polyMinX, p.x);
-                polyMaxX = std::max(polyMaxX, p.x);
-                polyMinY = std::min(polyMinY, p.y);
-                polyMaxY = std::max(polyMaxY, p.y);
-            }
-
-            if (!(targetMaxX < polyMinX || targetMinX > polyMaxX ||
-                  targetMaxY < polyMinY || targetMinY > polyMaxY))
-            {
-                intersects = true;
-            }
         }
 
         if (intersects)
