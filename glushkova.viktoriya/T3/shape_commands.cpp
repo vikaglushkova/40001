@@ -275,12 +275,6 @@ namespace shapes
             return;
         }
 
-        if (in.peek() != '\n' && in.peek() != EOF)
-        {
-            out << "<INVALID COMMAND>\n";
-            return;
-        }
-
         size_t count = 0;
         for (const auto& p : poly)
         {
