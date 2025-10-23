@@ -1,7 +1,4 @@
 #include "shapes.hpp"
-#include <iterator>
-#include <algorithm>
-#include <numeric>
 #include "input_parser.hpp"
 
 std::istream& shapes::operator>>(std::istream& in, Point& point)
@@ -21,11 +18,7 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
     if (!guard) return in;
 
     size_t vertexes = 0;
-    if (!(in >> vertexes))
-    {
-        return in;
-    }
-
+    if (!(in >> vertexes)) return in;
     if (vertexes < 3)
     {
         in.setstate(std::ios::failbit);
@@ -50,6 +43,11 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
         poly.points = std::move(temp);
     }
     else
+    {
+        in.setstate(std::ios::failbit);
+    }
+
+    if (in && in.peek() != ' ' && in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
     {
         in.setstate(std::ios::failbit);
     }

@@ -22,10 +22,12 @@ int main(int argc, const char* argv[])
 
     while (!file.eof())
     {
-        std::copy(std::istream_iterator<Polygon>{file},
-                  std::istream_iterator<Polygon>{},
-                  std::back_inserter(polygons));
-        if (file.fail())
+        Polygon poly;
+        if (file >> poly)
+        {
+            polygons.push_back(poly);
+        }
+        else
         {
             file.clear();
             file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -54,19 +56,13 @@ int main(int argc, const char* argv[])
     std::string command;
     while (std::cin >> command)
     {
-        try
+        std::cin >> std::ws;
+        auto it = cmds.find(command);
+        if (it != cmds.end())
         {
-            auto it = cmds.find(command);
-            if (it != cmds.end())
-            {
-                it->second(std::cin, std::cout);
-            }
-            else
-            {
-                std::cout << "<INVALID COMMAND>\n";
-            }
+            it->second(std::cin, std::cout);
         }
-        catch (...)
+        else
         {
             std::cout << "<INVALID COMMAND>\n";
         }
