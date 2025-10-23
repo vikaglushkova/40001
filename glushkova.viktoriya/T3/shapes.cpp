@@ -31,17 +31,34 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
     }
 
     std::vector<Point> temp;
-    using inIterator = std::istream_iterator<Point>;
-    std::copy_n(inIterator{in}, vertexes, std::back_inserter(temp));
-
-    if (in && temp.size() == vertexes)
+    for (size_t i = 0; i < vertexes; ++i)
     {
-        poly.points = std::move(temp);
+        Point p;
+        if (!(in >> p))
+        {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+        temp.push_back(p);
     }
-    else
+
+    if (!in || temp.size() != vertexes)
     {
         in.setstate(std::ios::failbit);
+        return in;
     }
+
+    char c;
+    if (in.get(c))
+    {
+        if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
+        {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+    }
+
+    poly.points = std::move(temp);
     return in;
 }
 
