@@ -24,5 +24,13 @@ namespace shapes
     void doMaxseq(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
     void doRects(std::vector<Polygon>& poly, std::istream&, std::ostream& out);
     void doRightShapes(std::vector<Polygon>& poly, std::istream&, std::ostream& out);
+
+    struct BoundingBox {
+        int minX, maxX, minY, maxY;
+    };
+    BoundingBox getOverallBoundingBox(const std::vector<Polygon>& polygons);
+    bool isPointInBoundingBox(const Point& p, const BoundingBox& box);
+    bool doPolygonsIntersect(const Polygon& poly1, const Polygon& poly2);
+    bool isPolygonInFrame(const Polygon& poly, const BoundingBox& frame);
 }
 #endif

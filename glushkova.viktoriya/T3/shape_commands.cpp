@@ -1,9 +1,9 @@
 #include "shape_commands.hpp"
+#include <iostream>
 #include <algorithm>
 #include <numeric>
-#include <limits>
-#include <iterator>
 #include <cmath>
+#include <limits>
 #include <iomanip>
 #include "stream_guard.hpp"
 
@@ -32,6 +32,12 @@ bool shapes::isOdd(const Polygon& poly)
 
 void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
 {
+    if (polygons.empty())
+    {
+        out << "0\n";
+        return;
+    }
+
     std::string type;
     in >> type;
 
@@ -48,7 +54,7 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
                 sum += calcArea(poly);
             }
         }
-        out << sum << '\n';
+        out << sum << "\n";
     }
     else if (type == "ODD")
     {
@@ -60,21 +66,16 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
                 sum += calcArea(poly);
             }
         }
-        out << sum << '\n';
+        out << sum << "\n";
     }
     else if (type == "MEAN")
     {
-        if (polygons.empty())
-        {
-            out << "<INVALID COMMAND>\n";
-            return;
-        }
         double sum = 0.0;
         for (const auto& poly : polygons)
         {
             sum += calcArea(poly);
         }
-        out << (sum / polygons.size()) << '\n';
+        out << (sum / polygons.size()) << "\n";
     }
     else
     {
@@ -86,6 +87,7 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
                 out << "<INVALID COMMAND>\n";
                 return;
             }
+
             double sum = 0.0;
             for (const auto& poly : polygons)
             {
@@ -94,7 +96,7 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
                     sum += calcArea(poly);
                 }
             }
-            out << sum << '\n';
+            out << sum << "\n";
         }
         catch (...)
         {
@@ -114,26 +116,22 @@ void shapes::doMax(std::vector<Polygon>& polygons, std::istream& in, std::ostrea
     std::string type;
     in >> type;
 
-    StreamGuard guard(out);
-    out << std::fixed << std::setprecision(1);
-
     if (type == "AREA")
     {
-        double maxArea = calcArea(polygons[0]);
-        for (const auto& poly : polygons)
-        {
-            maxArea = std::max(maxArea, calcArea(poly));
-        }
-        out << maxArea << '\n';
+        auto maxIt = std::max_element(polygons.begin(), polygons.end(),
+            [](const Polygon& a, const Polygon& b) {
+                return calcArea(a) < calcArea(b);
+            });
+        StreamGuard guard(out);
+        out << std::fixed << std::setprecision(1) << calcArea(*maxIt) << "\n";
     }
     else if (type == "VERTEXES")
     {
-        size_t maxVertexes = polygons[0].points.size();
-        for (const auto& poly : polygons)
-        {
-            maxVertexes = std::max(maxVertexes, poly.points.size());
-        }
-        out << maxVertexes << '\n';
+        auto maxIt = std::max_element(polygons.begin(), polygons.end(),
+            [](const Polygon& a, const Polygon& b) {
+                return a.points.size() < b.points.size();
+            });
+        out << maxIt->points.size() << "\n";
     }
     else
     {
@@ -152,26 +150,22 @@ void shapes::doMin(std::vector<Polygon>& polygons, std::istream& in, std::ostrea
     std::string type;
     in >> type;
 
-    StreamGuard guard(out);
-    out << std::fixed << std::setprecision(1);
-
     if (type == "AREA")
     {
-        double minArea = calcArea(polygons[0]);
-        for (const auto& poly : polygons)
-        {
-            minArea = std::min(minArea, calcArea(poly));
-        }
-        out << minArea << '\n';
+        auto minIt = std::min_element(polygons.begin(), polygons.end(),
+            [](const Polygon& a, const Polygon& b) {
+                return calcArea(a) < calcArea(b);
+            });
+        StreamGuard guard(out);
+        out << std::fixed << std::setprecision(1) << calcArea(*minIt) << "\n";
     }
     else if (type == "VERTEXES")
     {
-        size_t minVertexes = polygons[0].points.size();
-        for (const auto& poly : polygons)
-        {
-            minVertexes = std::min(minVertexes, poly.points.size());
-        }
-        out << minVertexes << '\n';
+        auto minIt = std::min_element(polygons.begin(), polygons.end(),
+            [](const Polygon& a, const Polygon& b) {
+                return a.points.size() < b.points.size();
+            });
+        out << minIt->points.size() << "\n";
     }
     else
     {
@@ -181,32 +175,22 @@ void shapes::doMin(std::vector<Polygon>& polygons, std::istream& in, std::ostrea
 
 void shapes::doCount(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
 {
+    if (polygons.empty())
+    {
+        out << "0\n";
+        return;
+    }
+
     std::string type;
     in >> type;
 
     if (type == "EVEN")
     {
-        size_t count = 0;
-        for (const auto& poly : polygons)
-        {
-            if (isEven(poly))
-            {
-                count++;
-            }
-        }
-        out << count << '\n';
+        out << std::count_if(polygons.begin(), polygons.end(), isEven) << "\n";
     }
     else if (type == "ODD")
     {
-        size_t count = 0;
-        for (const auto& poly : polygons)
-        {
-            if (isOdd(poly))
-            {
-                count++;
-            }
-        }
-        out << count << '\n';
+        out << std::count_if(polygons.begin(), polygons.end(), isOdd) << "\n";
     }
     else
     {
@@ -218,15 +202,11 @@ void shapes::doCount(std::vector<Polygon>& polygons, std::istream& in, std::ostr
                 out << "<INVALID COMMAND>\n";
                 return;
             }
-            size_t count = 0;
-            for (const auto& poly : polygons)
-            {
-                if (poly.points.size() == vertexCount)
-                {
-                    count++;
-                }
-            }
-            out << count << '\n';
+
+            out << std::count_if(polygons.begin(), polygons.end(),
+                [vertexCount](const Polygon& poly) {
+                    return poly.points.size() == vertexCount;
+                }) << "\n";
         }
         catch (...)
         {
@@ -246,21 +226,10 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         return;
     }
 
-    size_t count = 0;
-    std::vector<Polygon> result;
+    polygons.push_back(newPoly);
 
-    for (const auto& poly : polygons)
-    {
-        result.push_back(poly);
-        if (poly == newPoly)
-        {
-            result.push_back(newPoly);
-            count++;
-        }
-    }
-
-    polygons = std::move(result);
-    out << count << '\n';
+    size_t count = std::count(polygons.begin(), polygons.end(), newPoly);
+    out << count << "\n";
 }
 
 void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
@@ -274,22 +243,17 @@ void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ost
         return;
     }
 
-    size_t removed = 0;
-    std::vector<Polygon> result;
+    size_t initialSize = polygons.size();
+    size_t removedCount = 0;
 
-    for (size_t i = 0; i < polygons.size(); ++i)
+    auto it = std::find(polygons.begin(), polygons.end(), target);
+    if (it != polygons.end())
     {
-        result.push_back(polygons[i]);
-
-        if (i < polygons.size() - 1 && polygons[i] == target && polygons[i + 1] == target)
-        {
-            removed++;
-            i++;
-        }
+        polygons.erase(it);
+        removedCount = 1;
     }
 
-    polygons = std::move(result);
-    out << removed << '\n';
+    out << removedCount << "\n";
 }
 
 void shapes::doSame(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
@@ -303,34 +267,8 @@ void shapes::doSame(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         return;
     }
 
-    size_t count = 0;
-
-    for (const auto& poly : polygons)
-    {
-        if (poly.points.size() == target.points.size())
-        {
-            int dx = poly.points[0].x - target.points[0].x;
-            int dy = poly.points[0].y - target.points[0].y;
-            bool same = true;
-
-            for (size_t i = 0; i < poly.points.size(); ++i)
-            {
-                Point expected = {target.points[i].x + dx, target.points[i].y + dy};
-                if (poly.points[i].x != expected.x || poly.points[i].y != expected.y)
-                {
-                    same = false;
-                    break;
-                }
-            }
-
-            if (same)
-            {
-                count++;
-            }
-        }
-    }
-
-    out << count << '\n';
+    size_t count = std::count(polygons.begin(), polygons.end(), target);
+    out << count << "\n";
 }
 
 void shapes::doLessArea(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
@@ -345,34 +283,19 @@ void shapes::doLessArea(std::vector<Polygon>& polygons, std::istream& in, std::o
     }
 
     double targetArea = calcArea(target);
-    size_t count = 0;
+    size_t count = std::count_if(polygons.begin(), polygons.end(),
+        [targetArea](const Polygon& poly) {
+            return calcArea(poly) < targetArea;
+        });
 
-    for (const auto& poly : polygons)
-    {
-        if (calcArea(poly) < targetArea)
-        {
-            count++;
-        }
-    }
-
-    out << count << '\n';
+    out << count << "\n";
 }
 
-void shapes::doInframe(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
+shapes::BoundingBox shapes::getOverallBoundingBox(const std::vector<Polygon>& polygons)
 {
-    Polygon target;
-    in >> target;
-
-    if (!in || target.points.size() < 3)
-    {
-        out << "<INVALID COMMAND>\n";
-        return;
-    }
-
     if (polygons.empty())
     {
-        out << "<FALSE>\n";
-        return;
+        return {0, 0, 0, 0};
     }
 
     int minX = std::numeric_limits<int>::max();
@@ -391,17 +314,68 @@ void shapes::doInframe(std::vector<Polygon>& polygons, std::istream& in, std::os
         }
     }
 
-    bool inside = true;
-    for (const auto& point : target.points)
+    return {minX, maxX, minY, maxY};
+}
+
+bool shapes::isPointInBoundingBox(const Point& p, const BoundingBox& box)
+{
+    return p.x >= box.minX && p.x <= box.maxX && p.y >= box.minY && p.y <= box.maxY;
+}
+
+bool shapes::isPolygonInFrame(const Polygon& poly, const BoundingBox& frame)
+{
+    for (const auto& point : poly.points)
     {
-        if (point.x < minX || point.x > maxX || point.y < minY || point.y > maxY)
+        if (!isPointInBoundingBox(point, frame))
         {
-            inside = false;
-            break;
+            return false;
         }
     }
+    return true;
+}
 
-    out << (inside ? "<TRUE>" : "<FALSE>") << '\n';
+void shapes::doInframe(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
+{
+    Polygon target;
+    in >> target;
+
+    if (!in || target.points.size() < 3)
+    {
+        out << "<INVALID COMMAND>\n";
+        return;
+    }
+
+    BoundingBox overallBox = getOverallBoundingBox(polygons);
+
+    bool fits = isPolygonInFrame(target, overallBox);
+    out << (fits ? "<TRUE>" : "<FALSE>") << "\n";
+}
+
+bool shapes::doPolygonsIntersect(const Polygon& poly1, const Polygon& poly2)
+{
+    BoundingBox box1 = {std::numeric_limits<int>::max(), std::numeric_limits<int>::min(),
+                        std::numeric_limits<int>::max(), std::numeric_limits<int>::min()};
+    BoundingBox box2 = {std::numeric_limits<int>::max(), std::numeric_limits<int>::min(),
+                        std::numeric_limits<int>::max(), std::numeric_limits<int>::min()};
+
+    for (const auto& p : poly1.points)
+    {
+        box1.minX = std::min(box1.minX, p.x);
+        box1.maxX = std::max(box1.maxX, p.x);
+        box1.minY = std::min(box1.minY, p.y);
+        box1.maxY = std::max(box1.maxY, p.y);
+    }
+
+    for (const auto& p : poly2.points)
+    {
+        box2.minX = std::min(box2.minX, p.x);
+        box2.maxX = std::max(box2.maxX, p.x);
+        box2.minY = std::min(box2.minY, p.y);
+        box2.maxY = std::max(box2.maxY, p.y);
+    }
+
+    return !(box1.maxX < box2.minX || box1.minX > box2.maxX ||
+             box1.maxY < box2.minY || box1.minY > box2.maxY);
 }
 
 void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
@@ -415,37 +389,12 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
         return;
     }
 
-    size_t count = 0;
+    size_t count = std::count_if(polygons.begin(), polygons.end(),
+        [&target](const Polygon& poly) {
+            return doPolygonsIntersect(poly, target);
+        });
 
-    for (const auto& poly : polygons)
-    {
-        if (poly == target)
-        {
-            count++;
-            continue;
-        }
-
-        bool intersects = false;
-        for (const auto& p1 : target.points)
-        {
-            for (const auto& p2 : poly.points)
-            {
-                if (p1.x == p2.x && p1.y == p2.y)
-                {
-                    intersects = true;
-                    break;
-                }
-            }
-            if (intersects) break;
-        }
-
-        if (intersects)
-        {
-            count++;
-        }
-    }
-
-    out << count << '\n';
+    out << count << "\n";
 }
 
 void shapes::doPerms(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
@@ -464,21 +413,26 @@ void shapes::doPerms(std::vector<Polygon>& polygons, std::istream& in, std::ostr
     {
         if (poly.points.size() == target.points.size())
         {
+            bool samePoints = true;
             std::vector<Point> sortedPoly = poly.points;
             std::vector<Point> sortedTarget = target.points;
-            std::sort(sortedPoly.begin(), sortedPoly.end(), [](const Point& a, const Point& b) {
-                return a.x == b.x ? a.y < b.y : a.x < b.x;
-            });
-            std::sort(sortedTarget.begin(), sortedTarget.end(), [](const Point& a, const Point& b) {
-                return a.x == b.x ? a.y < b.y : a.x < b.x;
-            });
+            std::sort(sortedPoly.begin(), sortedPoly.end(),
+                [](const Point& a, const Point& b) {
+                    return a.x == b.x ? a.y < b.y : a.x < b.x;
+                });
+            std::sort(sortedTarget.begin(), sortedTarget.end(),
+                [](const Point& a, const Point& b) {
+                    return a.x == b.x ? a.y < b.y : a.x < b.x;
+                });
+
             if (sortedPoly == sortedTarget)
             {
                 count++;
             }
         }
     }
-    out << count << '\n';
+
+    out << count << "\n";
 }
 
 void shapes::doMaxseq(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
@@ -507,7 +461,8 @@ void shapes::doMaxseq(std::vector<Polygon>& polygons, std::istream& in, std::ost
             currentSeq = 0;
         }
     }
-    out << maxSeq << '\n';
+
+    out << maxSeq << "\n";
 }
 
 void shapes::doRects(std::vector<Polygon>& polygons, std::istream&, std::ostream& out)
@@ -518,59 +473,52 @@ void shapes::doRects(std::vector<Polygon>& polygons, std::istream&, std::ostream
     {
         if (poly.points.size() == 4)
         {
-            const auto& p1 = poly.points[0];
-            const auto& p2 = poly.points[1];
-            const auto& p3 = poly.points[2];
-            const auto& p4 = poly.points[3];
-            int v1x = p2.x - p1.x;
-            int v1y = p2.y - p1.y;
-            int v2x = p3.x - p2.x;
-            int v2y = p3.y - p2.y;
-            int v3x = p4.x - p3.x;
-            int v3y = p4.y - p3.y;
-            int v4x = p1.x - p4.x;
-            int v4y = p1.y - p4.y;
-            bool isRect = (v1x * v2x + v1y * v2y == 0) &&
-                         (v2x * v3x + v2y * v3y == 0) &&
-                         (v3x * v4x + v3y * v4y == 0) &&
-                         (v4x * v1x + v4y * v1y == 0);
-            if (isRect)
+            const auto& p = poly.points;
+            bool isRect = true;
+
+            if ((p[0].x == p[1].x && p[1].y == p[2].y && p[2].x == p[3].x && p[3].y == p[0].y) ||
+                (p[0].y == p[1].y && p[1].x == p[2].x && p[2].y == p[3].y && p[3].x == p[0].x))
             {
                 rectCount++;
             }
         }
     }
-    out << rectCount << '\n';
+
+    out << rectCount << "\n";
 }
 
 void shapes::doRightShapes(std::vector<Polygon>& polygons, std::istream&, std::ostream& out)
 {
-    size_t rightCount = 0;
+    size_t rightAngleCount = 0;
 
     for (const auto& poly : polygons)
     {
         size_t n = poly.points.size();
         bool hasRightAngle = false;
-        for (size_t i = 0; i < n; ++i)
+
+        for (size_t i = 0; i < n && !hasRightAngle; ++i)
         {
             const Point& a = poly.points[i];
             const Point& b = poly.points[(i + 1) % n];
             const Point& c = poly.points[(i + 2) % n];
+
             int abx = b.x - a.x;
             int aby = b.y - a.y;
             int bcx = c.x - b.x;
             int bcy = c.y - b.y;
+
             int dot = abx * bcx + aby * bcy;
             if (dot == 0)
             {
                 hasRightAngle = true;
-                break;
             }
         }
+
         if (hasRightAngle)
         {
-            rightCount++;
+            rightAngleCount++;
         }
     }
-    out << rightCount << '\n';
+
+    out << rightAngleCount << "\n";
 }
