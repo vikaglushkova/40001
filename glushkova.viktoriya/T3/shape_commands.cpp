@@ -32,11 +32,6 @@ bool shapes::isOdd(const Polygon& poly)
 
 void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
 {
-    if (polygons.empty())
-    {
-        out << "0\n";
-        return;
-    }
     std::string type;
     in >> type;
     StreamGuard guard(out);
@@ -67,6 +62,11 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
     }
     else if (type == "MEAN")
     {
+        if (polygons.empty())
+        {
+            out << "<INVALID COMMAND>\n";
+            return;
+        }
         double sum = 0.0;
         for (const auto& poly : polygons)
         {
@@ -208,9 +208,9 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         out << "<INVALID COMMAND>\n";
         return;
     }
+    size_t countBefore = std::count(polygons.begin(), polygons.end(), newPoly);
     polygons.push_back(newPoly);
-    size_t count = std::count(polygons.begin(), polygons.end(), newPoly);
-    out << count << "\n";
+    out << countBefore << "\n";
 }
 
 void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
@@ -241,26 +241,7 @@ void shapes::doSame(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         out << "<INVALID COMMAND>\n";
         return;
     }
-    size_t count = 0;
-    for (const auto& poly : polygons)
-    {
-        if (poly.points.size() == target.points.size())
-        {
-            bool equal = true;
-            for (size_t i = 0; i < poly.points.size(); ++i)
-            {
-                if (poly.points[i].x != target.points[i].x || poly.points[i].y != target.points[i].y)
-                {
-                    equal = false;
-                    break;
-                }
-            }
-            if (equal)
-            {
-                count++;
-            }
-        }
-    }
+    size_t count = std::count(polygons.begin(), polygons.end(), target);
     out << count << "\n";
 }
 
