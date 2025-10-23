@@ -414,18 +414,15 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
             }
             if (intersects) break;
         }
-
         if (poly == target)
         {
             intersects = true;
         }
-
         if (intersects)
         {
             count++;
         }
     }
-
     out << count << '\n';
 }
 
@@ -447,21 +444,18 @@ void shapes::doPerms(std::vector<Polygon>& polygons, std::istream& in, std::ostr
         {
             std::vector<Point> sortedPoly = poly.points;
             std::vector<Point> sortedTarget = target.points;
-
             std::sort(sortedPoly.begin(), sortedPoly.end(), [](const Point& a, const Point& b) {
                 return a.x == b.x ? a.y < b.y : a.x < b.x;
             });
             std::sort(sortedTarget.begin(), sortedTarget.end(), [](const Point& a, const Point& b) {
                 return a.x == b.x ? a.y < b.y : a.x < b.x;
             });
-
             if (sortedPoly == sortedTarget)
             {
                 count++;
             }
         }
     }
-
     out << count << '\n';
 }
 
@@ -491,7 +485,6 @@ void shapes::doMaxseq(std::vector<Polygon>& polygons, std::istream& in, std::ost
             currentSeq = 0;
         }
     }
-
     out << maxSeq << '\n';
 }
 
@@ -507,21 +500,24 @@ void shapes::doRects(std::vector<Polygon>& polygons, std::istream&, std::ostream
             const auto& p2 = poly.points[1];
             const auto& p3 = poly.points[2];
             const auto& p4 = poly.points[3];
-
-            int dx1 = p2.x - p1.x;
-            int dy1 = p2.y - p1.y;
-            int dx2 = p3.x - p2.x;
-            int dy2 = p3.y - p2.y;
-
-            bool isRect = (dx1 * dx2 + dy1 * dy2 == 0);
-
+            int v1x = p2.x - p1.x;
+            int v1y = p2.y - p1.y;
+            int v2x = p3.x - p2.x;
+            int v2y = p3.y - p2.y;
+            int v3x = p4.x - p3.x;
+            int v3y = p4.y - p3.y;
+            int v4x = p1.x - p4.x;
+            int v4y = p1.y - p4.y;
+            bool isRect = (v1x * v2x + v1y * v2y == 0) &&
+                         (v2x * v3x + v2y * v3y == 0) &&
+                         (v3x * v4x + v3y * v4y == 0) &&
+                         (v4x * v1x + v4y * v1y == 0);
             if (isRect)
             {
                 rectCount++;
             }
         }
     }
-
     out << rectCount << '\n';
 }
 
@@ -533,32 +529,26 @@ void shapes::doRightShapes(std::vector<Polygon>& polygons, std::istream&, std::o
     {
         size_t n = poly.points.size();
         bool hasRightAngle = false;
-
         for (size_t i = 0; i < n; ++i)
         {
             const Point& a = poly.points[i];
             const Point& b = poly.points[(i + 1) % n];
             const Point& c = poly.points[(i + 2) % n];
-
             int abx = b.x - a.x;
             int aby = b.y - a.y;
             int bcx = c.x - b.x;
             int bcy = c.y - b.y;
-
             int dot = abx * bcx + aby * bcy;
-
             if (dot == 0)
             {
                 hasRightAngle = true;
                 break;
             }
         }
-
         if (hasRightAngle)
         {
             rightCount++;
         }
     }
-
     out << rightCount << '\n';
 }
