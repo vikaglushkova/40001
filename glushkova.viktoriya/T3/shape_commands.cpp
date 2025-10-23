@@ -13,44 +13,6 @@
 
 namespace shapes
 {
-    struct HasNumOfVertexes
-    {
-        size_t vertexNum;
-        explicit HasNumOfVertexes(size_t num) : vertexNum(num) {}
-        bool operator()(const Polygon& poly) const { return poly.points.size() == vertexNum; }
-    };
-
-    struct AreaComparator
-    {
-        bool operator()(const Polygon& a, const Polygon& b) const { return calcArea(a) < calcArea(b); }
-    };
-
-    struct VertexCountComparator
-    {
-        bool operator()(const Polygon& a, const Polygon& b) const { return a.points.size() < b.points.size(); }
-    };
-
-    struct IsSamePredicate
-    {
-        const Polygon& target;
-        explicit IsSamePredicate(const Polygon& t) : target(t) {}
-        bool operator()(const Polygon& p) const { return arePolygonsSame(p, target); }
-    };
-
-    struct IsPermutationPredicate
-    {
-        const Polygon& target;
-        explicit IsPermutationPredicate(const Polygon& t) : target(t) {}
-        bool operator()(const Polygon& p) const { return arePolygonsPermutation(p, target); }
-    };
-
-    struct LessAreaPredicate
-    {
-        double targetArea;
-        explicit LessAreaPredicate(double area) : targetArea(area) {}
-        bool operator()(const Polygon& p) const { return calcArea(p) < targetArea; }
-    };
-
     std::pair<Point, Point> makePointPair(const Point& p1, const Point& p2)
     {
         return std::make_pair(p1, p2);
@@ -218,6 +180,44 @@ namespace shapes
                 return dot == 0;
             });
     }
+
+    struct HasNumOfVertexes
+    {
+        size_t vertexNum;
+        explicit HasNumOfVertexes(size_t num) : vertexNum(num) {}
+        bool operator()(const Polygon& poly) const { return poly.points.size() == vertexNum; }
+    };
+
+    struct AreaComparator
+    {
+        bool operator()(const Polygon& a, const Polygon& b) const { return calcArea(a) < calcArea(b); }
+    };
+
+    struct VertexCountComparator
+    {
+        bool operator()(const Polygon& a, const Polygon& b) const { return a.points.size() < b.points.size(); }
+    };
+
+    struct IsSamePredicate
+    {
+        const Polygon& target;
+        explicit IsSamePredicate(const Polygon& t) : target(t) {}
+        bool operator()(const Polygon& p) const { return arePolygonsSame(p, target); }
+    };
+
+    struct IsPermutationPredicate
+    {
+        const Polygon& target;
+        explicit IsPermutationPredicate(const Polygon& t) : target(t) {}
+        bool operator()(const Polygon& p) const { return arePolygonsPermutation(p, target); }
+    };
+
+    struct LessAreaPredicate
+    {
+        double targetArea;
+        explicit LessAreaPredicate(double area) : targetArea(area) {}
+        bool operator()(const Polygon& p) const { return calcArea(p) < targetArea; }
+    };
 
     void doArea(std::vector<Polygon>& poly, std::istream& in, std::ostream& out)
     {
