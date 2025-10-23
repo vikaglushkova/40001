@@ -248,6 +248,7 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
 
     size_t count = 0;
     std::vector<Polygon> result;
+    bool found = false;
 
     for (const auto& poly : polygons)
     {
@@ -256,7 +257,14 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         {
             result.push_back(newPoly);
             count++;
+            found = true;
         }
+    }
+
+    if (!found)
+    {
+        result.push_back(newPoly);
+        count++;
     }
 
     polygons = std::move(result);
@@ -276,28 +284,18 @@ void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ost
 
     size_t removed = 0;
     std::vector<Polygon> result;
-    size_t counter = 0;
 
-    for (const auto& poly : polygons)
+    for (size_t i = 0; i < polygons.size(); ++i)
     {
-        if (poly == target)
+        if (i > 0 && polygons[i] == target && polygons[i-1] == target)
         {
-            counter++;
-            if (counter <= 1)
-            {
-                result.push_back(poly);
-            }
-            else
-            {
-                removed++;
-            }
+            removed++;
         }
         else
         {
-            counter = 0;
-            result.push_back(poly);
+            result.push_back(polygons[i]);
         }
-    }
+
 
     polygons = std::move(result);
     out << removed << '\n';
