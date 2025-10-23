@@ -4,6 +4,7 @@
 #include <limits>
 #include <iterator>
 #include <cmath>
+#include <iomanip>
 #include "stream_guard.hpp"
 
 double shapes::calcArea(const Polygon& poly)
@@ -34,6 +35,9 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
     std::string type;
     in >> type;
 
+    StreamGuard guard(out);
+    out << std::fixed << std::setprecision(1);
+
     if (type == "EVEN")
     {
         double sum = 0.0;
@@ -44,8 +48,7 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
                 sum += calcArea(poly);
             }
         }
-        StreamGuard guard(out);
-        out << std::fixed << sum << '\n';
+        out << sum << '\n';
     }
     else if (type == "ODD")
     {
@@ -57,8 +60,7 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
                 sum += calcArea(poly);
             }
         }
-        StreamGuard guard(out);
-        out << std::fixed << sum << '\n';
+        out << sum << '\n';
     }
     else if (type == "MEAN")
     {
@@ -72,8 +74,7 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         {
             sum += calcArea(poly);
         }
-        StreamGuard guard(out);
-        out << std::fixed << (sum / polygons.size()) << '\n';
+        out << (sum / polygons.size()) << '\n';
     }
     else
     {
@@ -93,8 +94,7 @@ void shapes::doArea(std::vector<Polygon>& polygons, std::istream& in, std::ostre
                     sum += calcArea(poly);
                 }
             }
-            StreamGuard guard(out);
-            out << std::fixed << sum << '\n';
+            out << sum << '\n';
         }
         catch (...)
         {
@@ -114,6 +114,9 @@ void shapes::doMax(std::vector<Polygon>& polygons, std::istream& in, std::ostrea
     std::string type;
     in >> type;
 
+    StreamGuard guard(out);
+    out << std::fixed << std::setprecision(1);
+
     if (type == "AREA")
     {
         double maxArea = calcArea(polygons[0]);
@@ -121,8 +124,7 @@ void shapes::doMax(std::vector<Polygon>& polygons, std::istream& in, std::ostrea
         {
             maxArea = std::max(maxArea, calcArea(poly));
         }
-        StreamGuard guard(out);
-        out << std::fixed << maxArea << '\n';
+        out << maxArea << '\n';
     }
     else if (type == "VERTEXES")
     {
@@ -150,6 +152,9 @@ void shapes::doMin(std::vector<Polygon>& polygons, std::istream& in, std::ostrea
     std::string type;
     in >> type;
 
+    StreamGuard guard(out);
+    out << std::fixed << std::setprecision(1);
+
     if (type == "AREA")
     {
         double minArea = calcArea(polygons[0]);
@@ -157,8 +162,7 @@ void shapes::doMin(std::vector<Polygon>& polygons, std::istream& in, std::ostrea
         {
             minArea = std::min(minArea, calcArea(poly));
         }
-        StreamGuard guard(out);
-        out << std::fixed << minArea << '\n';
+        out << minArea << '\n';
     }
     else if (type == "VERTEXES")
     {
@@ -243,24 +247,19 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
     }
 
     size_t count = 0;
-    auto it = polygons.begin();
-    while (it != polygons.end())
+    std::vector<Polygon> result;
+
+    for (const auto& poly : polygons)
     {
-        if (*it == newPoly)
+        result.push_back(poly);
+        if (poly == newPoly)
         {
-            it = polygons.insert(it + 1, newPoly);
+            result.push_back(newPoly);
             count++;
-            it++;
-        }
-        else
-        {
-            it++;
         }
     }
 
-    polygons.push_back(newPoly);
-    count++;
-
+    polygons = std::move(result);
     out << count << '\n';
 }
 
@@ -276,20 +275,21 @@ void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ost
     }
 
     size_t removed = 0;
-    auto it = polygons.begin();
-    while (it != polygons.end())
+    std::vector<Polygon> result;
+
+    for (size_t i = 0; i < polygons.size(); ++i)
     {
-        if (*it == target && it + 1 != polygons.end() && *(it + 1) == target)
+        if (i > 0 && polygons[i] == target && polygons[i-1] == target)
         {
-            it = polygons.erase(it);
             removed++;
         }
         else
         {
-            it++;
+            result.push_back(polygons[i]);
         }
     }
 
+    polygons = std::move(result);
     out << removed << '\n';
 }
 
@@ -401,12 +401,6 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
     size_t count = 0;
     for (const auto& poly : polygons)
     {
-        if (poly == target)
-        {
-            count++;
-            continue;
-        }
-
         bool intersects = false;
         for (const auto& p1 : target.points)
         {
@@ -419,6 +413,11 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
                 }
             }
             if (intersects) break;
+        }
+
+        if (poly == target)
+        {
+            intersects = true;
         }
 
         if (intersects)
@@ -513,15 +512,8 @@ void shapes::doRects(std::vector<Polygon>& polygons, std::istream&, std::ostream
             int dy1 = p2.y - p1.y;
             int dx2 = p3.x - p2.x;
             int dy2 = p3.y - p2.y;
-            int dx3 = p4.x - p3.x;
-            int dy3 = p4.y - p3.y;
-            int dx4 = p1.x - p4.x;
-            int dy4 = p1.y - p4.y;
 
-            bool isRect = (dx1 * dx2 + dy1 * dy2 == 0) &&
-                         (dx2 * dx3 + dy2 * dy3 == 0) &&
-                         (dx3 * dx4 + dy3 * dy4 == 0) &&
-                         (dx4 * dx1 + dy4 * dy1 == 0);
+            bool isRect = (dx1 * dx2 + dy1 * dy2 == 0);
 
             if (isRect)
             {
