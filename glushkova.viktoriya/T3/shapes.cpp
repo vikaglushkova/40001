@@ -2,6 +2,7 @@
 #include "input_parser.hpp"
 #include <algorithm>
 #include <cmath>
+#include <tuple>
 
 std::istream& shapes::operator>>(std::istream& in, Point& point)
 {
