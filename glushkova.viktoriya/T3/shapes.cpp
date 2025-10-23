@@ -41,6 +41,15 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
         temp.push_back(p);
     }
 
+    for (size_t i = 0; i < temp.size(); ++i) {
+        for (size_t j = i + 1; j < temp.size(); ++j) {
+            if (temp[i] == temp[j]) {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
+        }
+    }
+
     if (in && temp.size() == vertexes)
     {
         poly.points = std::move(temp);
