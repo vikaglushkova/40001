@@ -22,7 +22,7 @@ namespace shapes
     void doIntersections(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
     void doPerms(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
     void doMaxseq(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doRects(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
-    void doRightShapes(std::vector<Polygon>& poly, std::istream& in, std::ostream& out);
+    void doRects(std::vector<Polygon>& poly, std::istream&, std::ostream& out);
+    void doRightShapes(std::vector<Polygon>& poly, std::istream&, std::ostream& out);
 }
 #endif

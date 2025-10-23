@@ -496,7 +496,7 @@ void shapes::doMaxseq(std::vector<Polygon>& polygons, std::istream& in, std::ost
     out << maxSeq << '\n';
 }
 
-void shapes::doRects(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
+void shapes::doRects(std::vector<Polygon>& polygons, std::istream&, std::ostream& out)
 {
     size_t rectCount = 0;
 
@@ -533,7 +533,7 @@ void shapes::doRects(std::vector<Polygon>& polygons, std::istream& in, std::ostr
     out << rectCount << '\n';
 }
 
-void shapes::doRightShapes(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
+void shapes::doRightShapes(std::vector<Polygon>& polygons, std::istream&, std::ostream& out)
 {
     size_t rightCount = 0;
 
