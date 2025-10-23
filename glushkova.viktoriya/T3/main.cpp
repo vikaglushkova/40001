@@ -13,10 +13,18 @@ int main(int argc, const char* argv[])
 {
     using namespace shapes;
 
-    if (argc != 2) return 1;
+    if (argc != 2)
+    {
+        std::cerr << "Error: filename parameter required\n";
+        return 1;
+    }
 
     std::ifstream file(argv[1]);
-    if (!file.is_open()) return 1;
+    if (!file.is_open())
+    {
+        std::cerr << "Error: cannot open file\n";
+        return 1;
+    }
 
     std::vector<Polygon> polygons;
 
@@ -41,17 +49,8 @@ int main(int argc, const char* argv[])
     cmds["MAX"] = std::bind(doMax, std::ref(polygons), _1, _2);
     cmds["MIN"] = std::bind(doMin, std::ref(polygons), _1, _2);
     cmds["COUNT"] = std::bind(doCount, std::ref(polygons), _1, _2);
-
     cmds["RMECHO"] = std::bind(doRmecho, std::ref(polygons), _1, _2);
     cmds["SAME"] = std::bind(doSame, std::ref(polygons), _1, _2);
-    cmds["ECHO"] = std::bind(doEcho, std::ref(polygons), _1, _2);
-    cmds["LESSAREA"] = std::bind(doLessArea, std::ref(polygons), _1, _2);
-    cmds["INFRAME"] = std::bind(doInframe, std::ref(polygons), _1, _2);
-    cmds["INTERSECTIONS"] = std::bind(doIntersections, std::ref(polygons), _1, _2);
-    cmds["PERMS"] = std::bind(doPerms, std::ref(polygons), _1, _2);
-    cmds["MAXSEQ"] = std::bind(doMaxseq, std::ref(polygons), _1, _2);
-    cmds["RECTS"] = std::bind(doRects, std::ref(polygons), _1, _2);
-    cmds["RIGHTSHAPES"] = std::bind(doRightShapes, std::ref(polygons), _1, _2);
 
     std::string command;
     while (std::cin >> command)
