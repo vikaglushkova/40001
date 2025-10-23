@@ -103,27 +103,29 @@ bool shapes::arePolygonsSame(const Polygon& poly1, const Polygon& poly2)
     if (poly1 == poly2) return true;
 
     size_t n = poly1.points.size();
-    for (size_t shift = 0; shift < n; ++shift) {
-        bool match = true;
-        for (size_t i = 0; i < n; ++i) {
-            if (poly1.points[i] != poly2.points[(i + shift) % n]) {
-                match = false;
-                break;
-            }
-        }
-        if (match) return true;
-    }
 
-    for (size_t shift = 0; shift < n; ++shift) {
-        bool match = true;
+    for (size_t start = 0; start < n; ++start) {
+        bool matchForward = true;
+        bool matchReverse = true;
+
         for (size_t i = 0; i < n; ++i) {
-            if (poly1.points[i] != poly2.points[(n - 1 - i + shift) % n]) {
-                match = false;
-                break;
+            size_t idx1 = i;
+            size_t idx2_forward = (start + i) % n;
+            size_t idx2_reverse = (start + n - i) % n;
+
+            if (poly1.points[idx1] != poly2.points[idx2_forward]) {
+                matchForward = false;
             }
+            if (poly1.points[idx1] != poly2.points[idx2_reverse]) {
+                matchReverse = false;
+            }
+
+            if (!matchForward && !matchReverse) break;
         }
-        if (match) return true;
+
+        if (matchForward || matchReverse) return true;
     }
 
     return false;
 }
+
