@@ -252,7 +252,10 @@ namespace shapes
 
     bool arePolygonsSame(const Polygon& p1, const Polygon& p2)
     {
-        if (p1.points.size() != p2.points.size()) return false;
+        if (p1.points.size() != p2.points.size())
+        {
+            return false;
+        }
 
         int dx = p1.points[0].x - p2.points[0].x;
         int dy = p1.points[0].y - p2.points[0].y;
@@ -267,6 +270,12 @@ namespace shapes
     {
         Polygon target;
         if (!(in >> target))
+        {
+            out << "<INVALID COMMAND>\n";
+            return;
+        }
+
+        if (in.peek() != '\n' && in.peek() != EOF)
         {
             out << "<INVALID COMMAND>\n";
             return;
