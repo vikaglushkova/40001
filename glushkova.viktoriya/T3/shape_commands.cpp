@@ -248,6 +248,7 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
 
     size_t count = 0;
     std::vector<Polygon> result;
+    bool found = false;
 
     for (const auto& poly : polygons)
     {
@@ -256,7 +257,14 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         {
             result.push_back(newPoly);
             count++;
+            found = true;
         }
+    }
+
+    if (!found)
+    {
+        result.push_back(newPoly);
+        count++;
     }
 
     polygons = std::move(result);
@@ -279,13 +287,12 @@ void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ost
 
     for (size_t i = 0; i < polygons.size(); ++i)
     {
-        if (i > 0 && polygons[i] == target && polygons[i-1] == target)
+        result.push_back(polygons[i]);
+
+        if (i < polygons.size() - 1 && polygons[i] == target && polygons[i + 1] == target)
         {
+            i++;
             removed++;
-        }
-        else
-        {
-            result.push_back(polygons[i]);
         }
     }
 
@@ -305,11 +312,43 @@ void shapes::doSame(std::vector<Polygon>& polygons, std::istream& in, std::ostre
     }
 
     size_t count = 0;
+
+    std::vector<Point> normalizedTarget;
+    int baseX = target.points[0].x;
+    int baseY = target.points[0].y;
+
+    for (const auto& p : target.points)
+    {
+        normalizedTarget.push_back({p.x - baseX, p.y - baseY});
+    }
+
     for (const auto& poly : polygons)
     {
         if (poly.points.size() == target.points.size())
         {
-            count++;
+            std::vector<Point> normalizedPoly;
+            int polyBaseX = poly.points[0].x;
+            int polyBaseY = poly.points[0].y;
+
+            for (const auto& p : poly.points)
+            {
+                normalizedPoly.push_back({p.x - polyBaseX, p.y - polyBaseY});
+            }
+
+            bool same = true;
+            for (size_t i = 0; i < normalizedPoly.size(); ++i)
+            {
+                if (normalizedPoly[i].x != normalizedTarget[i].x || normalizedPoly[i].y != normalizedTarget[i].y)
+                {
+                    same = false;
+                    break;
+                }
+            }
+
+            if (same)
+            {
+                count++;
+            }
         }
     }
 
@@ -399,9 +438,24 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
     }
 
     size_t count = 0;
+
+    int targetMinX = std::numeric_limits<int>::max();
+    int targetMaxX = std::numeric_limits<int>::min();
+    int targetMinY = std::numeric_limits<int>::max();
+    int targetMaxY = std::numeric_limits<int>::min();
+
+    for (const auto& p : target.points)
+    {
+        targetMinX = std::min(targetMinX, p.x);
+        targetMaxX = std::max(targetMaxX, p.x);
+        targetMinY = std::min(targetMinY, p.y);
+        targetMaxY = std::max(targetMaxY, p.y);
+    }
+
     for (const auto& poly : polygons)
     {
         bool intersects = false;
+
         for (const auto& p1 : target.points)
         {
             for (const auto& p2 : poly.points)
@@ -414,15 +468,35 @@ void shapes::doIntersections(std::vector<Polygon>& polygons, std::istream& in, s
             }
             if (intersects) break;
         }
-        if (poly == target)
+
+        if (!intersects)
         {
-            intersects = true;
+            int polyMinX = std::numeric_limits<int>::max();
+            int polyMaxX = std::numeric_limits<int>::min();
+            int polyMinY = std::numeric_limits<int>::max();
+            int polyMaxY = std::numeric_limits<int>::min();
+
+            for (const auto& p : poly.points)
+            {
+                polyMinX = std::min(polyMinX, p.x);
+                polyMaxX = std::max(polyMaxX, p.x);
+                polyMinY = std::min(polyMinY, p.y);
+                polyMaxY = std::max(polyMaxY, p.y);
+            }
+
+            if (!(targetMaxX < polyMinX || targetMinX > polyMaxX || 
+                  targetMaxY < polyMinY || targetMinY > polyMaxY))
+            {
+                intersects = true;
+            }
         }
+
         if (intersects)
         {
             count++;
         }
     }
+
     out << count << '\n';
 }
 
