@@ -243,7 +243,6 @@ void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ost
         return;
     }
 
-    size_t initialSize = polygons.size();
     size_t removedCount = 0;
 
     auto it = std::find(polygons.begin(), polygons.end(), target);
@@ -413,7 +412,6 @@ void shapes::doPerms(std::vector<Polygon>& polygons, std::istream& in, std::ostr
     {
         if (poly.points.size() == target.points.size())
         {
-            bool samePoints = true;
             std::vector<Point> sortedPoly = poly.points;
             std::vector<Point> sortedTarget = target.points;
             std::sort(sortedPoly.begin(), sortedPoly.end(),
@@ -474,8 +472,6 @@ void shapes::doRects(std::vector<Polygon>& polygons, std::istream&, std::ostream
         if (poly.points.size() == 4)
         {
             const auto& p = poly.points;
-            bool isRect = true;
-
             if ((p[0].x == p[1].x && p[1].y == p[2].y && p[2].x == p[3].x && p[3].y == p[0].y) ||
                 (p[0].y == p[1].y && p[1].x == p[2].x && p[2].y == p[3].y && p[3].x == p[0].x))
             {
