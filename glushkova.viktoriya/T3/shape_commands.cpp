@@ -248,7 +248,6 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
 
     size_t count = 0;
     std::vector<Polygon> result;
-    bool found = false;
 
     for (const auto& poly : polygons)
     {
@@ -257,14 +256,7 @@ void shapes::doEcho(std::vector<Polygon>& polygons, std::istream& in, std::ostre
         {
             result.push_back(newPoly);
             count++;
-            found = true;
         }
-    }
-
-    if (!found)
-    {
-        result.push_back(newPoly);
-        count++;
     }
 
     polygons = std::move(result);
