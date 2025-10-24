@@ -96,35 +96,19 @@ double shapes::calcArea(const Polygon& poly)
     return std::abs(area) / 2.0;
 }
 
-bool shapes::arePolygonsSame(const Polygon& poly1, const Polygon& poly2)
+bool shapes::arePolygonsSame(const Polygon& p1, const Polygon& p2)
 {
-    if (poly1.points.size() != poly2.points.size()) return false;
+    if (p1.points.size() != p2.points.size()) return false;
 
-    if (poly1 == poly2) return true;
+    int x = p1.points[0].x - p2.points[0].x;
+    int y = p1.points[0].y - p2.points[0].y;
 
-    size_t n = poly1.points.size();
-
-    for (size_t start = 0; start < n; ++start) {
-        bool matchForward = true;
-        bool matchReverse = true;
-
-        for (size_t i = 0; i < n; ++i) {
-            size_t idx1 = i;
-            size_t idx2_forward = (start + i) % n;
-            size_t idx2_reverse = (start + n - i) % n;
-
-            if (poly1.points[idx1] != poly2.points[idx2_forward]) {
-                matchForward = false;
-            }
-            if (poly1.points[idx1] != poly2.points[idx2_reverse]) {
-                matchReverse = false;
-            }
-
-            if (!matchForward && !matchReverse) break;
+    for (size_t i = 0; i < p1.points.size(); ++i) {
+        Point normalized = { p1.points[i].x - x, p1.points[i].y - y };
+        if (normalized != p2.points[i]) {
+            return false;
         }
-
-        if (matchForward || matchReverse) return true;
     }
 
-    return false;
+    return true;
 }
