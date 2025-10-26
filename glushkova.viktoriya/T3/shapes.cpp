@@ -32,8 +32,7 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
     for (size_t i = 0; i < vertexes; ++i)
     {
         Point p;
-        in >> p;
-        if (!in)
+        if (!(in >> p))
         {
             in.setstate(std::ios::failbit);
             return in;
@@ -43,6 +42,12 @@ std::istream& shapes::operator>>(std::istream& in, Polygon& poly)
 
     if (in && temp.size() == vertexes)
     {
+        char nextChar = in.peek();
+        if (nextChar != '\n' && nextChar != EOF && !std::isspace(nextChar))
+        {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
         poly.points = std::move(temp);
     }
     else
@@ -98,14 +103,19 @@ double shapes::calcArea(const Polygon& poly)
 
 bool shapes::arePolygonsSame(const Polygon& p1, const Polygon& p2)
 {
-    if (p1.points.size() != p2.points.size()) return false;
+    if (p1.points.size() != p2.points.size())
+    {
+        return false;
+    }
 
-    int x = p1.points[0].x - p2.points[0].x;
-    int y = p1.points[0].y - p2.points[0].y;
+    int x = p1.points.front().x - p2.points.front().x;
+    int y = p1.points.front().y - p2.points.front().y;
 
-    for (size_t i = 0; i < p1.points.size(); ++i) {
-        Point normalized = { p1.points[i].x - x, p1.points[i].y - y };
-        if (normalized != p2.points[i]) {
+    for (size_t i = 0; i < p1.points.size(); ++i)
+    {
+        Point dest = {p1.points[i].x - x, p1.points[i].y - y};
+        if (dest != p2.points[i])
+        {
             return false;
         }
     }

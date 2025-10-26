@@ -233,7 +233,7 @@ void shapes::doRmecho(std::vector<Polygon>& polygons, std::istream& in, std::ost
 void shapes::doSame(std::vector<Polygon>& polygons, std::istream& in, std::ostream& out)
 {
     Polygon target;
-    if (!(in >> target) || target.points.size() < 3)
+    if (!(in >> target) || target.points.size() < 3 || in.peek() != '\n')
     {
         out << "<INVALID COMMAND>\n";
         return;
